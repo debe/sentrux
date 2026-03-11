@@ -42,7 +42,7 @@ jobs:
       - name: Build release binary
         run: cargo build --release --target ${{ matrix.target }}
         env:
-          RUSTFLAGS: ${{ runner.os == 'Linux' && '-Clinker=gcc' || '' }}
+          RUSTFLAGS: ${{ runner.os == 'Linux' && '-Clink-args=-Wl,--allow-multiple-definition' || '' }}
 
       - name: Package binary
         run: |

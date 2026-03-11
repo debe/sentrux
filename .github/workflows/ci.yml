@@ -38,9 +38,9 @@ jobs:
       - name: Build
         run: cargo build
         env:
-          # Use GNU linker on Linux to avoid rust-lld duplicate symbol errors
-          # from multiple tree-sitter grammar crates
-          RUSTFLAGS: ${{ runner.os == 'Linux' && '-Clinker=gcc' || '' }}
+          # tree-sitter grammar crates pull in two versions of tree-sitter
+          # (0.20 and 0.25) with duplicate C symbols. Allow on Linux.
+          RUSTFLAGS: ${{ runner.os == 'Linux' && '-Clink-args=-Wl,--allow-multiple-definition' || '' }}
 
       - name: Test
         run: cargo test
