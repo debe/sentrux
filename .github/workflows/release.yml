@@ -7,6 +7,9 @@ on:
 permissions:
   contents: write
 
+env:
+  CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-Clink-args=-Wl,--allow-multiple-definition"
+
 jobs:
   build:
     strategy:
@@ -41,8 +44,6 @@ jobs:
 
       - name: Build release binary
         run: cargo build --release --target ${{ matrix.target }}
-        env:
-          RUSTFLAGS: ${{ runner.os == 'Linux' && '-Clink-args=-Wl,--allow-multiple-definition' || '' }}
 
       - name: Package binary
         run: |
