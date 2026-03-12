@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sentrux — Brand Exploration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0c;
+    --surface: #111114;
+    --border: #1e1e24;
+    --text: #e8e6e3;
+    --text-dim: #6b6a6a;
+    --accent: #00d4aa;
+    --accent2: #0099ff;
+    --accent3: #ff6b35;
+    --warm: #ff9f43;
+    --danger: #ff4757;
+    --grade-a: #4ecdc4;
+    --grade-b: #a8e6cf;
+    --grade-c: #ffd93d;
+    --grade-d: #ff8b67;
+    --grade-f: #ff6b6b;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Instrument Sans', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  .page-header {
+    padding: 80px 60px 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .page-header h1 {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+  .page-header h2 {
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+  }
+  .page-header h2 span { color: var(--accent); }
+  .page-header p {
+    margin-top: 20px;
+    font-size: 18px;
+    color: var(--text-dim);
+    max-width: 600px;
+    line-height: 1.7;
+  }
+
+  .section {
+    padding: 60px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  .section-desc {
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+    max-width: 500px;
+  }
+
+  .logo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .logo-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .logo-card:hover {
+    border-color: #333;
+  }
+
+  .logo-display {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 200px;
+  }
+  .logo-dark, .logo-light {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    position: relative;
+  }
+  .logo-dark { background: #0d0d10; }
+  .logo-light { background: #f5f4f0; }
+
+  .logo-dark::after, .logo-light::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.25;
+  }
+  .logo-dark::after { color: #fff; }
+  .logo-light::after { color: #000; }
+
+  .logo-meta {
+    padding: 16px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+  .logo-meta h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .logo-meta p {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* === LOGO SVGs === */
+  .logo-svg { width: 120px; height: auto; }
+  .logo-svg-sm { width: 80px; height: auto; }
+
+  /* Sizes row */
+  .sizes-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-end;
+    padding: 30px 60px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .size-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .size-box span {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-dim);
+  }
+
+  /* Color palette */
+  .palette {
+    display: flex;
+    gap: 2px;
+    margin-top: 32px;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 400px;
+  }
+  .palette-swatch {
+    flex: 1;
+    height: 48px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 6px;
+  }
+  .palette-swatch span {
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    color: rgba(0,0,0,0.5);
+  }
+
+  .footer {
+    padding: 40px 60px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Brand Exploration</h1>
+  <h2><span>sentrux</span> Logo Concepts</h2>
+  <p>Structural quality gate for AI-agent-written code. A sentry that watches over your codebase architecture.</p>
+
+  <div class="palette">
+    <div class="palette-swatch" style="background: #00d4aa"><span>#00d4aa</span></div>
+    <div class="palette-swatch" style="background: #0099ff"><span>#0099ff</span></div>
+    <div class="palette-swatch" style="background: #00b89c"><span>#00b89c</span></div>
+    <div class="palette-swatch" style="background: #0d0d10"><span>#0d0d10</span></div>
+    <div class="palette-swatch" style="background: #e8e6e3"><span>#e8e6e3</span></div>
+  </div>
+</div>
+
+<!-- ═══ SECTION 1: TREEMAP / STRUCTURAL ═══ -->
+<div class="section">
+  <div class="section-label">01 / Treemap</div>
+  <div class="section-title">Nested Structure</div>
+  <div class="section-desc">Inspired by the product's treemap visualization — nested rectangles representing code architecture.</div>
+
+  <div class="logo-grid">
+
+    <!-- 1A: Treemap Grid -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <rect x="2" y="2" width="28" height="28" rx="2" fill="#00d4aa" opacity="0.9"/>
+            <rect x="32" y="2" width="16" height="13" rx="1.5" fill="#00d4aa" opacity="0.6"/>
+            <rect x="32" y="17" width="16" height="13" rx="1.5" fill="#00d4aa" opacity="0.4"/>
+            <rect x="50" y="2" width="10" height="28" rx="1.5" fill="#00d4aa" opacity="0.3"/>
+            <rect x="2" y="32" width="20" height="12" rx="1.5" fill="#00d4aa" opacity="0.5"/>
+            <rect x="24" y="32" width="12" height="12" rx="1.5" fill="#00d4aa" opacity="0.35"/>
+            <rect x="38" y="32" width="22" height="12" rx="1.5" fill="#00d4aa" opacity="0.7"/>
+            <text x="68" y="30" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <rect x="2" y="2" width="28" height="28" rx="2" fill="#00b89c" opacity="0.9"/>
+            <rect x="32" y="2" width="16" height="13" rx="1.5" fill="#00b89c" opacity="0.6"/>
+            <rect x="32" y="17" width="16" height="13" rx="1.5" fill="#00b89c" opacity="0.4"/>
+            <rect x="50" y="2" width="10" height="28" rx="1.5" fill="#00b89c" opacity="0.3"/>
+            <rect x="2" y="32" width="20" height="12" rx="1.5" fill="#00b89c" opacity="0.5"/>
+            <rect x="24" y="32" width="12" height="12" rx="1.5" fill="#00b89c" opacity="0.35"/>
+            <rect x="38" y="32" width="22" height="12" rx="1.5" fill="#00b89c" opacity="0.7"/>
+            <text x="68" y="30" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Treemap Grid</h3>
+        <p>Nested rectangles with varying opacity = file sizes</p>
+      </div>
+    </div>
+
+    <!-- 1B: Treemap Abstract -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <rect x="4" y="4" width="40" height="40" rx="3" fill="none" stroke="#00d4aa" stroke-width="2"/>
+            <rect x="8" y="8" width="18" height="22" rx="1" fill="#00d4aa" opacity="0.8"/>
+            <rect x="28" y="8" width="12" height="10" rx="1" fill="#00d4aa" opacity="0.5"/>
+            <rect x="28" y="20" width="12" height="10" rx="1" fill="#00d4aa" opacity="0.3"/>
+            <rect x="8" y="32" width="32" height="8" rx="1" fill="#00d4aa" opacity="0.4"/>
+            <text x="52" y="30" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <rect x="4" y="4" width="40" height="40" rx="3" fill="none" stroke="#0d0d10" stroke-width="2"/>
+            <rect x="8" y="8" width="18" height="22" rx="1" fill="#00b89c" opacity="0.8"/>
+            <rect x="28" y="8" width="12" height="10" rx="1" fill="#00b89c" opacity="0.5"/>
+            <rect x="28" y="20" width="12" height="10" rx="1" fill="#00b89c" opacity="0.3"/>
+            <rect x="8" y="32" width="32" height="8" rx="1" fill="#00b89c" opacity="0.4"/>
+            <text x="52" y="30" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Treemap Bounded</h3>
+        <p>Contained structure — architecture within clear boundaries</p>
+      </div>
+    </div>
+
+    <!-- 1C: Treemap with grade -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <rect x="4" y="4" width="36" height="40" rx="3" fill="#00d4aa" opacity="0.15"/>
+            <rect x="7" y="7" width="16" height="18" rx="1" fill="#00d4aa" opacity="0.6"/>
+            <rect x="25" y="7" width="12" height="8" rx="1" fill="#00d4aa" opacity="0.4"/>
+            <rect x="25" y="17" width="12" height="8" rx="1" fill="#00d4aa" opacity="0.3"/>
+            <rect x="7" y="27" width="30" height="6" rx="1" fill="#00d4aa" opacity="0.5"/>
+            <rect x="7" y="35" width="14" height="6" rx="1" fill="#00d4aa" opacity="0.35"/>
+            <rect x="23" y="35" width="14" height="6" rx="1" fill="#00d4aa" opacity="0.25"/>
+            <text x="46" y="16" font-family="'DM Mono', monospace" font-size="10" fill="#00d4aa" opacity="0.6">A</text>
+            <text x="46" y="30" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <rect x="4" y="4" width="36" height="40" rx="3" fill="#00b89c" opacity="0.1"/>
+            <rect x="7" y="7" width="16" height="18" rx="1" fill="#00b89c" opacity="0.6"/>
+            <rect x="25" y="7" width="12" height="8" rx="1" fill="#00b89c" opacity="0.4"/>
+            <rect x="25" y="17" width="12" height="8" rx="1" fill="#00b89c" opacity="0.3"/>
+            <rect x="7" y="27" width="30" height="6" rx="1" fill="#00b89c" opacity="0.5"/>
+            <rect x="7" y="35" width="14" height="6" rx="1" fill="#00b89c" opacity="0.35"/>
+            <rect x="23" y="35" width="14" height="6" rx="1" fill="#00b89c" opacity="0.25"/>
+            <text x="46" y="16" font-family="'DM Mono', monospace" font-size="10" fill="#00b89c" opacity="0.6">A</text>
+            <text x="46" y="30" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Treemap + Grade</h3>
+        <p>Structure with health grade badge — the product's core output</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION 2: SHIELD / GUARDIAN ═══ -->
+<div class="section">
+  <div class="section-label">02 / Guardian</div>
+  <div class="section-title">Shield & Sentry</div>
+  <div class="section-desc">The "sentry" concept — a guardian watching over code architecture integrity.</div>
+
+  <div class="logo-grid">
+
+    <!-- 2A: Shield with treemap inside -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <path d="M22 6 L40 12 L40 30 C40 40 32 46 22 50 C12 46 4 40 4 30 L4 12 Z" fill="none" stroke="#00d4aa" stroke-width="2"/>
+            <rect x="10" y="16" width="10" height="12" rx="1" fill="#00d4aa" opacity="0.7"/>
+            <rect x="22" y="16" width="12" height="5" rx="1" fill="#00d4aa" opacity="0.5"/>
+            <rect x="22" y="23" width="12" height="5" rx="1" fill="#00d4aa" opacity="0.3"/>
+            <rect x="10" y="30" width="24" height="5" rx="1" fill="#00d4aa" opacity="0.4"/>
+            <text x="48" y="33" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <path d="M22 6 L40 12 L40 30 C40 40 32 46 22 50 C12 46 4 40 4 30 L4 12 Z" fill="none" stroke="#111" stroke-width="2"/>
+            <rect x="10" y="16" width="10" height="12" rx="1" fill="#00b89c" opacity="0.7"/>
+            <rect x="22" y="16" width="12" height="5" rx="1" fill="#00b89c" opacity="0.5"/>
+            <rect x="22" y="23" width="12" height="5" rx="1" fill="#00b89c" opacity="0.3"/>
+            <rect x="10" y="30" width="24" height="5" rx="1" fill="#00b89c" opacity="0.4"/>
+            <text x="48" y="33" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Shield + Treemap</h3>
+        <p>Guardian protecting the code structure within</p>
+      </div>
+    </div>
+
+    <!-- 2B: Minimal Shield -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <path d="M22 4 L42 11 L42 32 C42 42 33 49 22 54 C11 49 2 42 2 32 L2 11 Z" fill="#00d4aa" opacity="0.15"/>
+            <path d="M22 4 L42 11 L42 32 C42 42 33 49 22 54 C11 49 2 42 2 32 L2 11 Z" fill="none" stroke="#00d4aa" stroke-width="1.5"/>
+            <line x1="22" y1="18" x2="22" y2="42" stroke="#00d4aa" stroke-width="1.5" opacity="0.5"/>
+            <line x1="10" y1="28" x2="34" y2="28" stroke="#00d4aa" stroke-width="1.5" opacity="0.5"/>
+            <circle cx="22" cy="28" r="3" fill="#00d4aa"/>
+            <text x="50" y="33" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <path d="M22 4 L42 11 L42 32 C42 42 33 49 22 54 C11 49 2 42 2 32 L2 11 Z" fill="#00b89c" opacity="0.1"/>
+            <path d="M22 4 L42 11 L42 32 C42 42 33 49 22 54 C11 49 2 42 2 32 L2 11 Z" fill="none" stroke="#111" stroke-width="1.5"/>
+            <line x1="22" y1="18" x2="22" y2="42" stroke="#00b89c" stroke-width="1.5" opacity="0.5"/>
+            <line x1="10" y1="28" x2="34" y2="28" stroke="#00b89c" stroke-width="1.5" opacity="0.5"/>
+            <circle cx="22" cy="28" r="3" fill="#00b89c"/>
+            <text x="50" y="33" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Shield Crosshair</h3>
+        <p>Minimal shield with targeting crosshair — structural precision</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION 3: GRAPH / NETWORK ═══ -->
+<div class="section">
+  <div class="section-label">03 / Graph</div>
+  <div class="section-title">Nodes & Edges</div>
+  <div class="section-desc">Dependency graph visualization — the relationship between files and modules.</div>
+
+  <div class="logo-grid">
+
+    <!-- 3A: Node graph -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <line x1="14" y1="14" x2="30" y2="24" stroke="#00d4aa" stroke-width="1.2" opacity="0.4"/>
+            <line x1="14" y1="14" x2="22" y2="38" stroke="#00d4aa" stroke-width="1.2" opacity="0.4"/>
+            <line x1="30" y1="24" x2="42" y2="14" stroke="#00d4aa" stroke-width="1.2" opacity="0.4"/>
+            <line x1="30" y1="24" x2="38" y2="42" stroke="#00d4aa" stroke-width="1.2" opacity="0.4"/>
+            <line x1="22" y1="38" x2="38" y2="42" stroke="#00d4aa" stroke-width="1.2" opacity="0.4"/>
+            <line x1="42" y1="14" x2="38" y2="42" stroke="#00d4aa" stroke-width="1.2" opacity="0.4"/>
+            <circle cx="14" cy="14" r="4" fill="#00d4aa"/>
+            <circle cx="30" cy="24" r="5" fill="#00d4aa" opacity="0.8"/>
+            <circle cx="42" cy="14" r="3.5" fill="#00d4aa" opacity="0.6"/>
+            <circle cx="22" cy="38" r="3" fill="#00d4aa" opacity="0.5"/>
+            <circle cx="38" cy="42" r="4.5" fill="#00d4aa" opacity="0.7"/>
+            <text x="54" y="32" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <line x1="14" y1="14" x2="30" y2="24" stroke="#00b89c" stroke-width="1.2" opacity="0.4"/>
+            <line x1="14" y1="14" x2="22" y2="38" stroke="#00b89c" stroke-width="1.2" opacity="0.4"/>
+            <line x1="30" y1="24" x2="42" y2="14" stroke="#00b89c" stroke-width="1.2" opacity="0.4"/>
+            <line x1="30" y1="24" x2="38" y2="42" stroke="#00b89c" stroke-width="1.2" opacity="0.4"/>
+            <line x1="22" y1="38" x2="38" y2="42" stroke="#00b89c" stroke-width="1.2" opacity="0.4"/>
+            <line x1="42" y1="14" x2="38" y2="42" stroke="#00b89c" stroke-width="1.2" opacity="0.4"/>
+            <circle cx="14" cy="14" r="4" fill="#00b89c"/>
+            <circle cx="30" cy="24" r="5" fill="#00b89c" opacity="0.8"/>
+            <circle cx="42" cy="14" r="3.5" fill="#00b89c" opacity="0.6"/>
+            <circle cx="22" cy="38" r="3" fill="#00b89c" opacity="0.5"/>
+            <circle cx="38" cy="42" r="4.5" fill="#00b89c" opacity="0.7"/>
+            <text x="54" y="32" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Dependency Graph</h3>
+        <p>Nodes sized by importance, edges showing dependencies</p>
+      </div>
+    </div>
+
+    <!-- 3B: Layered graph -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <!-- level 0 -->
+            <circle cx="22" cy="42" r="3" fill="#00d4aa" opacity="0.5"/>
+            <circle cx="34" cy="42" r="3" fill="#00d4aa" opacity="0.5"/>
+            <!-- level 1 -->
+            <circle cx="16" cy="28" r="3.5" fill="#00d4aa" opacity="0.7"/>
+            <circle cx="28" cy="28" r="3.5" fill="#00d4aa" opacity="0.7"/>
+            <circle cx="40" cy="28" r="3.5" fill="#00d4aa" opacity="0.7"/>
+            <!-- level 2 -->
+            <circle cx="28" cy="14" r="4.5" fill="#00d4aa"/>
+            <!-- edges -->
+            <line x1="28" y1="14" x2="16" y2="28" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+            <line x1="28" y1="14" x2="28" y2="28" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+            <line x1="28" y1="14" x2="40" y2="28" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+            <line x1="16" y1="28" x2="22" y2="42" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+            <line x1="28" y1="28" x2="22" y2="42" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+            <line x1="28" y1="28" x2="34" y2="42" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+            <line x1="40" y1="28" x2="34" y2="42" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+            <!-- levels labels -->
+            <text x="2" y="16" font-family="'DM Mono', monospace" font-size="6" fill="#00d4aa" opacity="0.3">L2</text>
+            <text x="2" y="30" font-family="'DM Mono', monospace" font-size="6" fill="#00d4aa" opacity="0.3">L1</text>
+            <text x="2" y="44" font-family="'DM Mono', monospace" font-size="6" fill="#00d4aa" opacity="0.3">L0</text>
+            <text x="52" y="32" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <circle cx="22" cy="42" r="3" fill="#00b89c" opacity="0.5"/>
+            <circle cx="34" cy="42" r="3" fill="#00b89c" opacity="0.5"/>
+            <circle cx="16" cy="28" r="3.5" fill="#00b89c" opacity="0.7"/>
+            <circle cx="28" cy="28" r="3.5" fill="#00b89c" opacity="0.7"/>
+            <circle cx="40" cy="28" r="3.5" fill="#00b89c" opacity="0.7"/>
+            <circle cx="28" cy="14" r="4.5" fill="#00b89c"/>
+            <line x1="28" y1="14" x2="16" y2="28" stroke="#00b89c" stroke-width="1" opacity="0.3"/>
+            <line x1="28" y1="14" x2="28" y2="28" stroke="#00b89c" stroke-width="1" opacity="0.3"/>
+            <line x1="28" y1="14" x2="40" y2="28" stroke="#00b89c" stroke-width="1" opacity="0.3"/>
+            <line x1="16" y1="28" x2="22" y2="42" stroke="#00b89c" stroke-width="1" opacity="0.3"/>
+            <line x1="28" y1="28" x2="22" y2="42" stroke="#00b89c" stroke-width="1" opacity="0.3"/>
+            <line x1="28" y1="28" x2="34" y2="42" stroke="#00b89c" stroke-width="1" opacity="0.3"/>
+            <line x1="40" y1="28" x2="34" y2="42" stroke="#00b89c" stroke-width="1" opacity="0.3"/>
+            <text x="2" y="16" font-family="'DM Mono', monospace" font-size="6" fill="#00b89c" opacity="0.3">L2</text>
+            <text x="2" y="30" font-family="'DM Mono', monospace" font-size="6" fill="#00b89c" opacity="0.3">L1</text>
+            <text x="2" y="44" font-family="'DM Mono', monospace" font-size="6" fill="#00b89c" opacity="0.3">L0</text>
+            <text x="52" y="32" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Levelized DAG</h3>
+        <p>Layered dependency graph — the architecture levels concept</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION 4: EYE / VISION ═══ -->
+<div class="section">
+  <div class="section-label">04 / Vision</div>
+  <div class="section-title">Seeing Structure</div>
+  <div class="section-desc">The eye that sees what humans miss — architecture patterns, hidden coupling, structural decay.</div>
+
+  <div class="logo-grid">
+
+    <!-- 4A: Eye with grid pupil -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <ellipse cx="26" cy="26" rx="22" ry="14" fill="none" stroke="#00d4aa" stroke-width="1.5"/>
+            <circle cx="26" cy="26" r="8" fill="#00d4aa" opacity="0.2"/>
+            <rect x="20" y="20" width="5" height="5" rx="0.5" fill="#00d4aa" opacity="0.8"/>
+            <rect x="26" y="20" width="5" height="5" rx="0.5" fill="#00d4aa" opacity="0.5"/>
+            <rect x="20" y="26" width="5" height="5" rx="0.5" fill="#00d4aa" opacity="0.4"/>
+            <rect x="26" y="26" width="5" height="5" rx="0.5" fill="#00d4aa" opacity="0.6"/>
+            <text x="54" y="32" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <ellipse cx="26" cy="26" rx="22" ry="14" fill="none" stroke="#111" stroke-width="1.5"/>
+            <circle cx="26" cy="26" r="8" fill="#00b89c" opacity="0.15"/>
+            <rect x="20" y="20" width="5" height="5" rx="0.5" fill="#00b89c" opacity="0.8"/>
+            <rect x="26" y="20" width="5" height="5" rx="0.5" fill="#00b89c" opacity="0.5"/>
+            <rect x="20" y="26" width="5" height="5" rx="0.5" fill="#00b89c" opacity="0.4"/>
+            <rect x="26" y="26" width="5" height="5" rx="0.5" fill="#00b89c" opacity="0.6"/>
+            <text x="54" y="32" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Structural Eye</h3>
+        <p>Eye with treemap as pupil — seeing code structure</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION 5: TYPOGRAPHY ═══ -->
+<div class="section">
+  <div class="section-label">05 / Typography</div>
+  <div class="section-title">Letterforms</div>
+  <div class="section-desc">The letter S and the full wordmark — clean, technical, structural.</div>
+
+  <div class="logo-grid">
+
+    <!-- 5A: S with brackets -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <text x="6" y="40" font-family="'JetBrains Mono', monospace" font-size="32" font-weight="700" fill="#00d4aa">{</text>
+            <text x="20" y="40" font-family="'Instrument Sans', sans-serif" font-size="32" font-weight="700" fill="#e8e6e3" letter-spacing="-1">S</text>
+            <text x="38" y="40" font-family="'JetBrains Mono', monospace" font-size="32" font-weight="700" fill="#00d4aa">}</text>
+            <text x="58" y="36" font-family="'Instrument Sans', sans-serif" font-size="18" font-weight="600" fill="#e8e6e3" letter-spacing="-0.3">entrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <text x="6" y="40" font-family="'JetBrains Mono', monospace" font-size="32" font-weight="700" fill="#00b89c">{</text>
+            <text x="20" y="40" font-family="'Instrument Sans', sans-serif" font-size="32" font-weight="700" fill="#111" letter-spacing="-1">S</text>
+            <text x="38" y="40" font-family="'JetBrains Mono', monospace" font-size="32" font-weight="700" fill="#00b89c">}</text>
+            <text x="58" y="36" font-family="'Instrument Sans', sans-serif" font-size="18" font-weight="600" fill="#111" letter-spacing="-0.3">entrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>{S}entrux</h3>
+        <p>Code brackets framing the S — developer tool identity</p>
+      </div>
+    </div>
+
+    <!-- 5B: Monospace minimal -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 60" class="logo-svg">
+            <text x="10" y="36" font-family="'DM Mono', monospace" font-size="24" font-weight="400" fill="#e8e6e3" letter-spacing="2">sentrux</text>
+            <line x1="10" y1="42" x2="58" y2="42" stroke="#00d4aa" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 60" class="logo-svg">
+            <text x="10" y="36" font-family="'DM Mono', monospace" font-size="24" font-weight="400" fill="#111" letter-spacing="2">sentrux</text>
+            <line x1="10" y1="42" x2="58" y2="42" stroke="#00b89c" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Mono Underline</h3>
+        <p>Terminal aesthetic — the accent underline marks the "sen" (sentry)</p>
+      </div>
+    </div>
+
+    <!-- 5C: Stacked -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <text x="10" y="24" font-family="'Instrument Sans', sans-serif" font-size="16" font-weight="400" fill="#00d4aa" letter-spacing="6">SEN</text>
+            <text x="10" y="44" font-family="'Instrument Sans', sans-serif" font-size="16" font-weight="700" fill="#e8e6e3" letter-spacing="6">TRUX</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <text x="10" y="24" font-family="'Instrument Sans', sans-serif" font-size="16" font-weight="400" fill="#00b89c" letter-spacing="6">SEN</text>
+            <text x="10" y="44" font-family="'Instrument Sans', sans-serif" font-size="16" font-weight="700" fill="#111" letter-spacing="6">TRUX</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Stacked Split</h3>
+        <p>SEN (sentry) in accent, TRUX (structure) in bold — name etymology</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION 6: HEXAGONAL / CIRCUIT ═══ -->
+<div class="section">
+  <div class="section-label">06 / Technical</div>
+  <div class="section-title">Circuit & Hex</div>
+  <div class="section-desc">Engineering precision — hexagonal modules, circuit traces, structural integrity.</div>
+
+  <div class="logo-grid">
+
+    <!-- 6A: Hex cluster -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <polygon points="22,8 32,14 32,26 22,32 12,26 12,14" fill="#00d4aa" opacity="0.7"/>
+            <polygon points="36,16 46,22 46,34 36,40 26,34 26,22" fill="#00d4aa" opacity="0.4"/>
+            <polygon points="22,30 32,36 32,48 22,54 12,48 12,36" fill="#00d4aa" opacity="0.3"/>
+            <text x="52" y="34" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <polygon points="22,8 32,14 32,26 22,32 12,26 12,14" fill="#00b89c" opacity="0.7"/>
+            <polygon points="36,16 46,22 46,34 36,40 26,34 26,22" fill="#00b89c" opacity="0.4"/>
+            <polygon points="22,30 32,36 32,48 22,54 12,48 12,36" fill="#00b89c" opacity="0.3"/>
+            <text x="52" y="34" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Hex Cluster</h3>
+        <p>Modular hexagons — like code modules, interlocking</p>
+      </div>
+    </div>
+
+    <!-- 6B: Circuit S -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <path d="M36 8 L12 8 L12 24 L36 24 L36 40 L12 40" fill="none" stroke="#00d4aa" stroke-width="2.5" stroke-linecap="square"/>
+            <circle cx="12" cy="8" r="2.5" fill="#00d4aa"/>
+            <circle cx="36" cy="24" r="2.5" fill="#00d4aa"/>
+            <circle cx="12" cy="40" r="2.5" fill="#00d4aa"/>
+            <text x="46" y="30" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <path d="M36 8 L12 8 L12 24 L36 24 L36 40 L12 40" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="square"/>
+            <circle cx="12" cy="8" r="2.5" fill="#00b89c"/>
+            <circle cx="36" cy="24" r="2.5" fill="#00b89c"/>
+            <circle cx="12" cy="40" r="2.5" fill="#00b89c"/>
+            <text x="46" y="30" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Circuit S</h3>
+        <p>The letter S as a circuit trace — engineering + code</p>
+      </div>
+    </div>
+
+    <!-- 6C: DSM Matrix -->
+    <div class="logo-card">
+      <div class="logo-display">
+        <div class="logo-dark" data-label="dark">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <!-- 5x5 DSM-style grid -->
+            <rect x="4" y="4" width="8" height="8" fill="#00d4aa" opacity="0.8"/>
+            <rect x="14" y="4" width="8" height="8" fill="#00d4aa" opacity="0.1"/>
+            <rect x="24" y="4" width="8" height="8" fill="#00d4aa" opacity="0.3"/>
+            <rect x="34" y="4" width="8" height="8" fill="#00d4aa" opacity="0.1"/>
+            <rect x="4" y="14" width="8" height="8" fill="#00d4aa" opacity="0.4"/>
+            <rect x="14" y="14" width="8" height="8" fill="#00d4aa" opacity="0.8"/>
+            <rect x="24" y="14" width="8" height="8" fill="#00d4aa" opacity="0.1"/>
+            <rect x="34" y="14" width="8" height="8" fill="#00d4aa" opacity="0.2"/>
+            <rect x="4" y="24" width="8" height="8" fill="#00d4aa" opacity="0.1"/>
+            <rect x="14" y="24" width="8" height="8" fill="#00d4aa" opacity="0.3"/>
+            <rect x="24" y="24" width="8" height="8" fill="#00d4aa" opacity="0.8"/>
+            <rect x="34" y="24" width="8" height="8" fill="#00d4aa" opacity="0.5"/>
+            <rect x="4" y="34" width="8" height="8" fill="#00d4aa" opacity="0.2"/>
+            <rect x="14" y="34" width="8" height="8" fill="#00d4aa" opacity="0.1"/>
+            <rect x="24" y="34" width="8" height="8" fill="#00d4aa" opacity="0.3"/>
+            <rect x="34" y="34" width="8" height="8" fill="#00d4aa" opacity="0.8"/>
+            <text x="50" y="28" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light">
+          <svg viewBox="0 0 200 80" class="logo-svg">
+            <rect x="4" y="4" width="8" height="8" fill="#00b89c" opacity="0.8"/>
+            <rect x="14" y="4" width="8" height="8" fill="#00b89c" opacity="0.1"/>
+            <rect x="24" y="4" width="8" height="8" fill="#00b89c" opacity="0.3"/>
+            <rect x="34" y="4" width="8" height="8" fill="#00b89c" opacity="0.1"/>
+            <rect x="4" y="14" width="8" height="8" fill="#00b89c" opacity="0.4"/>
+            <rect x="14" y="14" width="8" height="8" fill="#00b89c" opacity="0.8"/>
+            <rect x="24" y="14" width="8" height="8" fill="#00b89c" opacity="0.1"/>
+            <rect x="34" y="14" width="8" height="8" fill="#00b89c" opacity="0.2"/>
+            <rect x="4" y="24" width="8" height="8" fill="#00b89c" opacity="0.1"/>
+            <rect x="14" y="24" width="8" height="8" fill="#00b89c" opacity="0.3"/>
+            <rect x="24" y="24" width="8" height="8" fill="#00b89c" opacity="0.8"/>
+            <rect x="34" y="24" width="8" height="8" fill="#00b89c" opacity="0.5"/>
+            <rect x="4" y="34" width="8" height="8" fill="#00b89c" opacity="0.2"/>
+            <rect x="14" y="34" width="8" height="8" fill="#00b89c" opacity="0.1"/>
+            <rect x="24" y="34" width="8" height="8" fill="#00b89c" opacity="0.3"/>
+            <rect x="34" y="34" width="8" height="8" fill="#00b89c" opacity="0.8"/>
+            <text x="50" y="28" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>DSM Matrix</h3>
+        <p>Design Structure Matrix — diagonal = self, off-diagonal = dependencies</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SECTION 7: COMBINED / RECOMMENDED ═══ -->
+<div class="section" style="background: #0e0e12;">
+  <div class="section-label" style="color: var(--warm);">07 / Recommended</div>
+  <div class="section-title">Final Candidates</div>
+  <div class="section-desc">Strongest concepts combining product identity with visual clarity at all sizes.</div>
+
+  <div class="logo-grid">
+
+    <!-- PICK 1: Shield + Treemap (simplified) -->
+    <div class="logo-card" style="border-color: var(--accent); border-width: 2px;">
+      <div class="logo-display" style="height: 240px;">
+        <div class="logo-dark" data-label="dark" style="flex-direction: column; gap: 12px;">
+          <svg viewBox="0 0 48 56" width="64">
+            <path d="M24 2 L46 10 L46 32 C46 44 36 52 24 56 C12 52 2 44 2 32 L2 10 Z" fill="#00d4aa" opacity="0.08"/>
+            <path d="M24 2 L46 10 L46 32 C46 44 36 52 24 56 C12 52 2 44 2 32 L2 10 Z" fill="none" stroke="#00d4aa" stroke-width="2"/>
+            <rect x="10" y="16" width="12" height="16" rx="1.5" fill="#00d4aa" opacity="0.7"/>
+            <rect x="24" y="16" width="14" height="7" rx="1.5" fill="#00d4aa" opacity="0.5"/>
+            <rect x="24" y="25" width="14" height="7" rx="1.5" fill="#00d4aa" opacity="0.3"/>
+            <rect x="10" y="34" width="28" height="7" rx="1.5" fill="#00d4aa" opacity="0.4"/>
+          </svg>
+          <svg viewBox="0 0 120 24" width="100">
+            <text x="0" y="18" font-family="'Instrument Sans', sans-serif" font-size="20" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light" style="flex-direction: column; gap: 12px;">
+          <svg viewBox="0 0 48 56" width="64">
+            <path d="M24 2 L46 10 L46 32 C46 44 36 52 24 56 C12 52 2 44 2 32 L2 10 Z" fill="#00b89c" opacity="0.06"/>
+            <path d="M24 2 L46 10 L46 32 C46 44 36 52 24 56 C12 52 2 44 2 32 L2 10 Z" fill="none" stroke="#0d0d10" stroke-width="2"/>
+            <rect x="10" y="16" width="12" height="16" rx="1.5" fill="#00b89c" opacity="0.7"/>
+            <rect x="24" y="16" width="14" height="7" rx="1.5" fill="#00b89c" opacity="0.5"/>
+            <rect x="24" y="25" width="14" height="7" rx="1.5" fill="#00b89c" opacity="0.3"/>
+            <rect x="10" y="34" width="28" height="7" rx="1.5" fill="#00b89c" opacity="0.4"/>
+          </svg>
+          <svg viewBox="0 0 120 24" width="100">
+            <text x="0" y="18" font-family="'Instrument Sans', sans-serif" font-size="20" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Shield + Treemap (Recommended #1)</h3>
+        <p>Combines guardian concept with the product's core visual. Works at all sizes.</p>
+      </div>
+    </div>
+
+    <!-- PICK 2: DSM Matrix -->
+    <div class="logo-card" style="border-color: var(--accent2); border-width: 2px;">
+      <div class="logo-display" style="height: 240px;">
+        <div class="logo-dark" data-label="dark" style="flex-direction: column; gap: 12px;">
+          <svg viewBox="0 0 44 44" width="56">
+            <rect x="2" y="2" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.85"/>
+            <rect x="13" y="2" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.15"/>
+            <rect x="24" y="2" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.3"/>
+            <rect x="35" y="2" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.1"/>
+            <rect x="2" y="13" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.4"/>
+            <rect x="13" y="13" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.85"/>
+            <rect x="24" y="13" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.1"/>
+            <rect x="35" y="13" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.25"/>
+            <rect x="2" y="24" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.15"/>
+            <rect x="13" y="24" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.35"/>
+            <rect x="24" y="24" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.85"/>
+            <rect x="35" y="24" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.5"/>
+            <rect x="2" y="35" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.2"/>
+            <rect x="13" y="35" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.1"/>
+            <rect x="24" y="35" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.35"/>
+            <rect x="35" y="35" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.85"/>
+          </svg>
+          <svg viewBox="0 0 120 24" width="100">
+            <text x="0" y="18" font-family="'Instrument Sans', sans-serif" font-size="20" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light" style="flex-direction: column; gap: 12px;">
+          <svg viewBox="0 0 44 44" width="56">
+            <rect x="2" y="2" width="9" height="9" rx="1" fill="#00b89c" opacity="0.85"/>
+            <rect x="13" y="2" width="9" height="9" rx="1" fill="#00b89c" opacity="0.15"/>
+            <rect x="24" y="2" width="9" height="9" rx="1" fill="#00b89c" opacity="0.3"/>
+            <rect x="35" y="2" width="9" height="9" rx="1" fill="#00b89c" opacity="0.1"/>
+            <rect x="2" y="13" width="9" height="9" rx="1" fill="#00b89c" opacity="0.4"/>
+            <rect x="13" y="13" width="9" height="9" rx="1" fill="#00b89c" opacity="0.85"/>
+            <rect x="24" y="13" width="9" height="9" rx="1" fill="#00b89c" opacity="0.1"/>
+            <rect x="35" y="13" width="9" height="9" rx="1" fill="#00b89c" opacity="0.25"/>
+            <rect x="2" y="24" width="9" height="9" rx="1" fill="#00b89c" opacity="0.15"/>
+            <rect x="13" y="24" width="9" height="9" rx="1" fill="#00b89c" opacity="0.35"/>
+            <rect x="24" y="24" width="9" height="9" rx="1" fill="#00b89c" opacity="0.85"/>
+            <rect x="35" y="24" width="9" height="9" rx="1" fill="#00b89c" opacity="0.5"/>
+            <rect x="2" y="35" width="9" height="9" rx="1" fill="#00b89c" opacity="0.2"/>
+            <rect x="13" y="35" width="9" height="9" rx="1" fill="#00b89c" opacity="0.1"/>
+            <rect x="24" y="35" width="9" height="9" rx="1" fill="#00b89c" opacity="0.35"/>
+            <rect x="35" y="35" width="9" height="9" rx="1" fill="#00b89c" opacity="0.85"/>
+          </svg>
+          <svg viewBox="0 0 120 24" width="100">
+            <text x="0" y="18" font-family="'Instrument Sans', sans-serif" font-size="20" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>DSM Matrix (Recommended #2)</h3>
+        <p>Unique to sentrux — no other tool uses DSM as identity. Scales to favicon perfectly.</p>
+      </div>
+    </div>
+
+    <!-- PICK 3: Circuit S -->
+    <div class="logo-card" style="border-color: var(--warm); border-width: 2px;">
+      <div class="logo-display" style="height: 240px;">
+        <div class="logo-dark" data-label="dark" style="flex-direction: column; gap: 12px;">
+          <svg viewBox="0 0 36 44" width="48">
+            <path d="M32 4 L8 4 L8 22 L32 22 L32 40 L8 40" fill="none" stroke="#00d4aa" stroke-width="3" stroke-linecap="square"/>
+            <circle cx="8" cy="4" r="3" fill="#00d4aa"/>
+            <circle cx="32" cy="22" r="3" fill="#00d4aa"/>
+            <circle cx="8" cy="40" r="3" fill="#00d4aa"/>
+          </svg>
+          <svg viewBox="0 0 120 24" width="100">
+            <text x="0" y="18" font-family="'Instrument Sans', sans-serif" font-size="20" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+        <div class="logo-light" data-label="light" style="flex-direction: column; gap: 12px;">
+          <svg viewBox="0 0 36 44" width="48">
+            <path d="M32 4 L8 4 L8 22 L32 22 L32 40 L8 40" fill="none" stroke="#0d0d10" stroke-width="3" stroke-linecap="square"/>
+            <circle cx="8" cy="4" r="3" fill="#00b89c"/>
+            <circle cx="32" cy="22" r="3" fill="#00b89c"/>
+            <circle cx="8" cy="40" r="3" fill="#00b89c"/>
+          </svg>
+          <svg viewBox="0 0 120 24" width="100">
+            <text x="0" y="18" font-family="'Instrument Sans', sans-serif" font-size="20" font-weight="700" fill="#111" letter-spacing="-0.5">sentrux</text>
+          </svg>
+        </div>
+      </div>
+      <div class="logo-meta">
+        <h3>Circuit S (Recommended #3)</h3>
+        <p>Bold, memorable, works at any size. The S = structure + sentry.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  sentrux brand exploration / 2026
+</div>
+
+</body>
+</html>

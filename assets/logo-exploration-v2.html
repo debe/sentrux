@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>sentrux — Brand Exploration v2</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800;900&family=Syne:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #08080a; --surface: #0f0f13; --border: #1a1a20;
+    --text: #e8e6e3; --dim: #555; --accent: #00d4aa; --accent2: #0099ff;
+    --warm: #ff9f43; --coral: #ff6b6b; --violet: #a78bfa; --lime: #84cc16;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Instrument Sans', sans-serif; }
+
+  .header { padding: 60px 48px 32px; border-bottom: 1px solid var(--border); }
+  .header h1 { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: var(--dim); margin-bottom: 12px; }
+  .header h2 { font-size: 40px; font-weight: 700; letter-spacing: -1px; }
+  .header h2 span { color: var(--accent); }
+
+  .section { padding: 48px; border-bottom: 1px solid var(--border); }
+  .section-num { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .section-title { font-size: 24px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.3px; }
+  .section-desc { font-size: 13px; color: var(--dim); margin-bottom: 32px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .card { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; transition: border-color 0.2s; }
+  .card:hover { border-color: #333; }
+  .card.pick { border-color: var(--accent); border-width: 2px; }
+  .card.pick2 { border-color: var(--accent2); border-width: 2px; }
+  .card.pick3 { border-color: var(--warm); border-width: 2px; }
+
+  .dual { display: grid; grid-template-columns: 1fr 1fr; min-height: 160px; }
+  .dk, .lt { display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .dk { background: #0b0b0e; }
+  .lt { background: #f2f1ed; }
+
+  .tall .dual { min-height: 220px; }
+  .tall .dk, .tall .lt { flex-direction: column; gap: 10px; }
+
+  .meta { padding: 12px 16px; background: var(--surface); border-top: 1px solid var(--border); }
+  .meta h3 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .meta p { font-size: 11px; color: var(--dim); font-family: 'DM Mono', monospace; }
+
+  .footer { padding: 32px 48px; text-align: center; color: var(--dim); font-size: 11px; font-family: 'DM Mono', monospace; }
+
+  .highlight { background: #0d1117; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Brand Exploration v2 — Extended</h1>
+  <h2><span>sentrux</span> — 30 Logo Concepts</h2>
+</div>
+
+<!-- ═══ 01: TREEMAP FAMILY ═══ -->
+<div class="section">
+  <div class="section-num">01 / Treemap Variations</div>
+  <div class="section-title">Nested Structure</div>
+  <div class="section-desc">The product's signature — nested rectangles representing code modules and files.</div>
+  <div class="grid">
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="52">
+        <rect x="2" y="2" width="20" height="24" rx="2" fill="#00d4aa" opacity="0.8"/>
+        <rect x="24" y="2" width="22" height="11" rx="2" fill="#00d4aa" opacity="0.5"/>
+        <rect x="24" y="15" width="22" height="11" rx="2" fill="#00d4aa" opacity="0.3"/>
+        <rect x="2" y="28" width="14" height="18" rx="2" fill="#00d4aa" opacity="0.5"/>
+        <rect x="18" y="28" width="28" height="8" rx="2" fill="#00d4aa" opacity="0.4"/>
+        <rect x="18" y="38" width="16" height="8" rx="2" fill="#00d4aa" opacity="0.25"/>
+        <rect x="36" y="38" width="10" height="8" rx="2" fill="#00d4aa" opacity="0.15"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="52">
+        <rect x="2" y="2" width="20" height="24" rx="2" fill="#00a88a" opacity="0.8"/>
+        <rect x="24" y="2" width="22" height="11" rx="2" fill="#00a88a" opacity="0.5"/>
+        <rect x="24" y="15" width="22" height="11" rx="2" fill="#00a88a" opacity="0.3"/>
+        <rect x="2" y="28" width="14" height="18" rx="2" fill="#00a88a" opacity="0.5"/>
+        <rect x="18" y="28" width="28" height="8" rx="2" fill="#00a88a" opacity="0.4"/>
+        <rect x="18" y="38" width="16" height="8" rx="2" fill="#00a88a" opacity="0.25"/>
+        <rect x="36" y="38" width="10" height="8" rx="2" fill="#00a88a" opacity="0.15"/>
+      </svg></div>
+    </div><div class="meta"><h3>Classic Treemap</h3><p>Pure squarified layout — largest file dominates</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="52">
+        <rect x="2" y="2" width="44" height="44" rx="4" fill="none" stroke="#00d4aa" stroke-width="1.5" opacity="0.4"/>
+        <rect x="6" y="6" width="16" height="20" rx="1.5" fill="#00d4aa" opacity="0.7"/>
+        <rect x="24" y="6" width="18" height="9" rx="1.5" fill="#00d4aa" opacity="0.45"/>
+        <rect x="24" y="17" width="18" height="9" rx="1.5" fill="#00d4aa" opacity="0.3"/>
+        <rect x="6" y="28" width="36" height="6" rx="1.5" fill="#00d4aa" opacity="0.4"/>
+        <rect x="6" y="36" width="18" height="6" rx="1.5" fill="#00d4aa" opacity="0.25"/>
+        <rect x="26" y="36" width="16" height="6" rx="1.5" fill="#00d4aa" opacity="0.2"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="52">
+        <rect x="2" y="2" width="44" height="44" rx="4" fill="none" stroke="#111" stroke-width="1.5" opacity="0.3"/>
+        <rect x="6" y="6" width="16" height="20" rx="1.5" fill="#00a88a" opacity="0.7"/>
+        <rect x="24" y="6" width="18" height="9" rx="1.5" fill="#00a88a" opacity="0.45"/>
+        <rect x="24" y="17" width="18" height="9" rx="1.5" fill="#00a88a" opacity="0.3"/>
+        <rect x="6" y="28" width="36" height="6" rx="1.5" fill="#00a88a" opacity="0.4"/>
+        <rect x="6" y="36" width="18" height="6" rx="1.5" fill="#00a88a" opacity="0.25"/>
+        <rect x="26" y="36" width="16" height="6" rx="1.5" fill="#00a88a" opacity="0.2"/>
+      </svg></div>
+    </div><div class="meta"><h3>Bounded Treemap</h3><p>Structure within clear boundaries — contained architecture</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="52">
+        <rect x="2" y="2" width="44" height="44" rx="6" fill="#00d4aa" opacity="0.06"/>
+        <rect x="6" y="6" width="14" height="18" rx="2" fill="#00d4aa"/>
+        <rect x="22" y="6" width="20" height="8" rx="2" fill="#00d4aa" opacity="0.6"/>
+        <rect x="22" y="16" width="10" height="8" rx="2" fill="#00d4aa" opacity="0.4"/>
+        <rect x="34" y="16" width="8" height="8" rx="2" fill="#00d4aa" opacity="0.3"/>
+        <rect x="6" y="26" width="36" height="6" rx="2" fill="#00d4aa" opacity="0.5"/>
+        <rect x="6" y="34" width="20" height="8" rx="2" fill="#00d4aa" opacity="0.35"/>
+        <rect x="28" y="34" width="14" height="8" rx="2" fill="#00d4aa" opacity="0.2"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="52">
+        <rect x="2" y="2" width="44" height="44" rx="6" fill="#00a88a" opacity="0.05"/>
+        <rect x="6" y="6" width="14" height="18" rx="2" fill="#00a88a"/>
+        <rect x="22" y="6" width="20" height="8" rx="2" fill="#00a88a" opacity="0.6"/>
+        <rect x="22" y="16" width="10" height="8" rx="2" fill="#00a88a" opacity="0.4"/>
+        <rect x="34" y="16" width="8" height="8" rx="2" fill="#00a88a" opacity="0.3"/>
+        <rect x="6" y="26" width="36" height="6" rx="2" fill="#00a88a" opacity="0.5"/>
+        <rect x="6" y="34" width="20" height="8" rx="2" fill="#00a88a" opacity="0.35"/>
+        <rect x="28" y="34" width="14" height="8" rx="2" fill="#00a88a" opacity="0.2"/>
+      </svg></div>
+    </div><div class="meta"><h3>Soft Treemap</h3><p>Rounded corners, softer feel — friendly developer tool</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="52">
+        <rect x="4" y="4" width="40" height="40" rx="3" fill="none" stroke="#00d4aa" stroke-width="1"/>
+        <rect x="7" y="7" width="12" height="16" fill="#4ecdc4"/>
+        <rect x="21" y="7" width="20" height="7" fill="#a8e6cf"/>
+        <rect x="21" y="16" width="20" height="7" fill="#ffd93d"/>
+        <rect x="7" y="25" width="34" height="5" fill="#ff8b67"/>
+        <rect x="7" y="32" width="17" height="9" fill="#ff6b6b" opacity="0.7"/>
+        <rect x="26" y="32" width="15" height="9" fill="#4ecdc4" opacity="0.5"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="52">
+        <rect x="4" y="4" width="40" height="40" rx="3" fill="none" stroke="#333" stroke-width="1"/>
+        <rect x="7" y="7" width="12" height="16" fill="#4ecdc4"/>
+        <rect x="21" y="7" width="20" height="7" fill="#a8e6cf"/>
+        <rect x="21" y="16" width="20" height="7" fill="#ffd93d"/>
+        <rect x="7" y="25" width="34" height="5" fill="#ff8b67"/>
+        <rect x="7" y="32" width="17" height="9" fill="#ff6b6b" opacity="0.7"/>
+        <rect x="26" y="32" width="15" height="9" fill="#4ecdc4" opacity="0.5"/>
+      </svg></div>
+    </div><div class="meta"><h3>Graded Treemap</h3><p>A-F grade colors — green(A) to red(F) showing health spectrum</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="52">
+        <rect x="3" y="3" width="42" height="42" rx="3" fill="#00d4aa" opacity="0.04"/>
+        <rect x="6" y="6" width="16" height="16" rx="1" fill="#00d4aa" opacity="0.8"/>
+        <rect x="6" y="24" width="16" height="8" rx="1" fill="#00d4aa" opacity="0.4"/>
+        <rect x="6" y="34" width="8" height="8" rx="1" fill="#00d4aa" opacity="0.25"/>
+        <rect x="16" y="34" width="6" height="8" rx="1" fill="#00d4aa" opacity="0.15"/>
+        <rect x="24" y="6" width="18" height="10" rx="1" fill="#00d4aa" opacity="0.55"/>
+        <rect x="24" y="18" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.35"/>
+        <rect x="36" y="18" width="6" height="10" rx="1" fill="#00d4aa" opacity="0.2"/>
+        <rect x="24" y="30" width="18" height="12" rx="1" fill="#00d4aa" opacity="0.45"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="52">
+        <rect x="3" y="3" width="42" height="42" rx="3" fill="#00a88a" opacity="0.04"/>
+        <rect x="6" y="6" width="16" height="16" rx="1" fill="#00a88a" opacity="0.8"/>
+        <rect x="6" y="24" width="16" height="8" rx="1" fill="#00a88a" opacity="0.4"/>
+        <rect x="6" y="34" width="8" height="8" rx="1" fill="#00a88a" opacity="0.25"/>
+        <rect x="16" y="34" width="6" height="8" rx="1" fill="#00a88a" opacity="0.15"/>
+        <rect x="24" y="6" width="18" height="10" rx="1" fill="#00a88a" opacity="0.55"/>
+        <rect x="24" y="18" width="10" height="10" rx="1" fill="#00a88a" opacity="0.35"/>
+        <rect x="36" y="18" width="6" height="10" rx="1" fill="#00a88a" opacity="0.2"/>
+        <rect x="24" y="30" width="18" height="12" rx="1" fill="#00a88a" opacity="0.45"/>
+      </svg></div>
+    </div><div class="meta"><h3>Deep Treemap</h3><p>More subdivisions — shows depth of analysis</p></div></div>
+
+  </div>
+</div>
+
+<!-- ═══ 02: SHIELD / GUARDIAN ═══ -->
+<div class="section">
+  <div class="section-num">02 / Shield & Guardian</div>
+  <div class="section-title">Sentry Concept</div>
+  <div class="section-desc">The name: sen(try) + (st)rux(ture). A guardian watching over code.</div>
+  <div class="grid">
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 56" width="48">
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="#00d4aa" opacity="0.08"/>
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="none" stroke="#00d4aa" stroke-width="2"/>
+        <rect x="11" y="16" width="10" height="14" rx="1" fill="#00d4aa" opacity="0.7"/>
+        <rect x="23" y="16" width="14" height="6" rx="1" fill="#00d4aa" opacity="0.45"/>
+        <rect x="23" y="24" width="14" height="6" rx="1" fill="#00d4aa" opacity="0.3"/>
+        <rect x="11" y="32" width="26" height="6" rx="1" fill="#00d4aa" opacity="0.4"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 56" width="48">
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="#00a88a" opacity="0.06"/>
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="none" stroke="#111" stroke-width="2"/>
+        <rect x="11" y="16" width="10" height="14" rx="1" fill="#00a88a" opacity="0.7"/>
+        <rect x="23" y="16" width="14" height="6" rx="1" fill="#00a88a" opacity="0.45"/>
+        <rect x="23" y="24" width="14" height="6" rx="1" fill="#00a88a" opacity="0.3"/>
+        <rect x="11" y="32" width="26" height="6" rx="1" fill="#00a88a" opacity="0.4"/>
+      </svg></div>
+    </div><div class="meta"><h3>Shield Treemap</h3><p>Classic shield with treemap interior</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 56" width="48">
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="#00d4aa" opacity="0.12"/>
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="none" stroke="#00d4aa" stroke-width="2"/>
+        <text x="24" y="36" text-anchor="middle" font-family="'Outfit', sans-serif" font-size="28" font-weight="800" fill="#00d4aa">A</text>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 56" width="48">
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="#00a88a" opacity="0.08"/>
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="none" stroke="#111" stroke-width="2"/>
+        <text x="24" y="36" text-anchor="middle" font-family="'Outfit', sans-serif" font-size="28" font-weight="800" fill="#00a88a">A</text>
+      </svg></div>
+    </div><div class="meta"><h3>Shield Grade</h3><p>Shield with health grade — "we protect your A"</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 56" width="48">
+        <path d="M24 4 L42 11 L42 30 C42 40 34 47 24 52 C14 47 6 40 6 30 L6 11 Z" fill="none" stroke="#00d4aa" stroke-width="1.5"/>
+        <path d="M24 12 L36 16 L36 28 C36 34 31 38 24 41 C17 38 12 34 12 28 L12 16 Z" fill="none" stroke="#00d4aa" stroke-width="1" opacity="0.4"/>
+        <circle cx="24" cy="26" r="4" fill="#00d4aa" opacity="0.8"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 56" width="48">
+        <path d="M24 4 L42 11 L42 30 C42 40 34 47 24 52 C14 47 6 40 6 30 L6 11 Z" fill="none" stroke="#111" stroke-width="1.5"/>
+        <path d="M24 12 L36 16 L36 28 C36 34 31 38 24 41 C17 38 12 34 12 28 L12 16 Z" fill="none" stroke="#00a88a" stroke-width="1" opacity="0.4"/>
+        <circle cx="24" cy="26" r="4" fill="#00a88a" opacity="0.8"/>
+      </svg></div>
+    </div><div class="meta"><h3>Double Shield</h3><p>Nested shields — layers of protection</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="#00d4aa" opacity="0.08" transform="scale(0.85) translate(4,0)"/>
+        <line x1="24" y1="10" x2="24" y2="44" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+        <line x1="8" y1="26" x2="40" y2="26" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+        <circle cx="24" cy="26" r="6" fill="none" stroke="#00d4aa" stroke-width="1.5"/>
+        <circle cx="24" cy="26" r="2" fill="#00d4aa"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="#00a88a" opacity="0.06" transform="scale(0.85) translate(4,0)"/>
+        <line x1="24" y1="10" x2="24" y2="44" stroke="#00a88a" stroke-width="1" opacity="0.3"/>
+        <line x1="8" y1="26" x2="40" y2="26" stroke="#00a88a" stroke-width="1" opacity="0.3"/>
+        <circle cx="24" cy="26" r="6" fill="none" stroke="#111" stroke-width="1.5"/>
+        <circle cx="24" cy="26" r="2" fill="#00a88a"/>
+      </svg></div>
+    </div><div class="meta"><h3>Shield Target</h3><p>Crosshair + shield — precision structural analysis</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 52" width="48">
+        <path d="M24 3 L44 10 L44 32 C44 42 35 48 24 52 C13 48 4 42 4 32 L4 10 Z" fill="#00d4aa"/>
+        <rect x="11" y="16" width="10" height="14" rx="1" fill="#0b0b0e" opacity="0.6"/>
+        <rect x="23" y="16" width="14" height="6" rx="1" fill="#0b0b0e" opacity="0.4"/>
+        <rect x="23" y="24" width="14" height="6" rx="1" fill="#0b0b0e" opacity="0.3"/>
+        <rect x="11" y="32" width="26" height="6" rx="1" fill="#0b0b0e" opacity="0.35"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 52" width="48">
+        <path d="M24 3 L44 10 L44 32 C44 42 35 48 24 52 C13 48 4 42 4 32 L4 10 Z" fill="#00a88a"/>
+        <rect x="11" y="16" width="10" height="14" rx="1" fill="#fff" opacity="0.6"/>
+        <rect x="23" y="16" width="14" height="6" rx="1" fill="#fff" opacity="0.4"/>
+        <rect x="23" y="24" width="14" height="6" rx="1" fill="#fff" opacity="0.3"/>
+        <rect x="11" y="32" width="26" height="6" rx="1" fill="#fff" opacity="0.35"/>
+      </svg></div>
+    </div><div class="meta"><h3>Shield Solid</h3><p>Inverted — solid shield with cutout treemap</p></div></div>
+
+  </div>
+</div>
+
+<!-- ═══ 03: GRAPH / NETWORK ═══ -->
+<div class="section">
+  <div class="section-num">03 / Graph & Network</div>
+  <div class="section-title">Dependencies</div>
+  <div class="section-desc">Nodes and edges — the dependency relationships between code files.</div>
+  <div class="grid">
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <line x1="12" y1="10" x2="26" y2="20" stroke="#00d4aa" stroke-width="1" opacity="0.4"/>
+        <line x1="12" y1="10" x2="18" y2="36" stroke="#00d4aa" stroke-width="1" opacity="0.4"/>
+        <line x1="26" y1="20" x2="40" y2="12" stroke="#00d4aa" stroke-width="1" opacity="0.4"/>
+        <line x1="26" y1="20" x2="36" y2="38" stroke="#00d4aa" stroke-width="1" opacity="0.4"/>
+        <line x1="18" y1="36" x2="36" y2="38" stroke="#00d4aa" stroke-width="1" opacity="0.4"/>
+        <line x1="40" y1="12" x2="36" y2="38" stroke="#00d4aa" stroke-width="1" opacity="0.4"/>
+        <circle cx="12" cy="10" r="4" fill="#00d4aa"/>
+        <circle cx="26" cy="20" r="5.5" fill="#00d4aa" opacity="0.8"/>
+        <circle cx="40" cy="12" r="3.5" fill="#00d4aa" opacity="0.6"/>
+        <circle cx="18" cy="36" r="3" fill="#00d4aa" opacity="0.5"/>
+        <circle cx="36" cy="38" r="4.5" fill="#00d4aa" opacity="0.7"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <line x1="12" y1="10" x2="26" y2="20" stroke="#00a88a" stroke-width="1" opacity="0.4"/>
+        <line x1="12" y1="10" x2="18" y2="36" stroke="#00a88a" stroke-width="1" opacity="0.4"/>
+        <line x1="26" y1="20" x2="40" y2="12" stroke="#00a88a" stroke-width="1" opacity="0.4"/>
+        <line x1="26" y1="20" x2="36" y2="38" stroke="#00a88a" stroke-width="1" opacity="0.4"/>
+        <line x1="18" y1="36" x2="36" y2="38" stroke="#00a88a" stroke-width="1" opacity="0.4"/>
+        <line x1="40" y1="12" x2="36" y2="38" stroke="#00a88a" stroke-width="1" opacity="0.4"/>
+        <circle cx="12" cy="10" r="4" fill="#00a88a"/>
+        <circle cx="26" cy="20" r="5.5" fill="#00a88a" opacity="0.8"/>
+        <circle cx="40" cy="12" r="3.5" fill="#00a88a" opacity="0.6"/>
+        <circle cx="18" cy="36" r="3" fill="#00a88a" opacity="0.5"/>
+        <circle cx="36" cy="38" r="4.5" fill="#00a88a" opacity="0.7"/>
+      </svg></div>
+    </div><div class="meta"><h3>Import Graph</h3><p>Nodes sized by blast radius, edges = dependencies</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <circle cx="24" cy="8" r="5" fill="#00d4aa"/>
+        <circle cx="10" cy="24" r="4" fill="#00d4aa" opacity="0.7"/>
+        <circle cx="24" cy="24" r="4" fill="#00d4aa" opacity="0.7"/>
+        <circle cx="38" cy="24" r="4" fill="#00d4aa" opacity="0.7"/>
+        <circle cx="16" cy="40" r="3" fill="#00d4aa" opacity="0.45"/>
+        <circle cx="32" cy="40" r="3" fill="#00d4aa" opacity="0.45"/>
+        <line x1="24" y1="8" x2="10" y2="24" stroke="#00d4aa" stroke-width="1" opacity="0.35"/>
+        <line x1="24" y1="8" x2="24" y2="24" stroke="#00d4aa" stroke-width="1" opacity="0.35"/>
+        <line x1="24" y1="8" x2="38" y2="24" stroke="#00d4aa" stroke-width="1" opacity="0.35"/>
+        <line x1="10" y1="24" x2="16" y2="40" stroke="#00d4aa" stroke-width="1" opacity="0.25"/>
+        <line x1="24" y1="24" x2="16" y2="40" stroke="#00d4aa" stroke-width="1" opacity="0.25"/>
+        <line x1="24" y1="24" x2="32" y2="40" stroke="#00d4aa" stroke-width="1" opacity="0.25"/>
+        <line x1="38" y1="24" x2="32" y2="40" stroke="#00d4aa" stroke-width="1" opacity="0.25"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <circle cx="24" cy="8" r="5" fill="#00a88a"/>
+        <circle cx="10" cy="24" r="4" fill="#00a88a" opacity="0.7"/>
+        <circle cx="24" cy="24" r="4" fill="#00a88a" opacity="0.7"/>
+        <circle cx="38" cy="24" r="4" fill="#00a88a" opacity="0.7"/>
+        <circle cx="16" cy="40" r="3" fill="#00a88a" opacity="0.45"/>
+        <circle cx="32" cy="40" r="3" fill="#00a88a" opacity="0.45"/>
+        <line x1="24" y1="8" x2="10" y2="24" stroke="#00a88a" stroke-width="1" opacity="0.35"/>
+        <line x1="24" y1="8" x2="24" y2="24" stroke="#00a88a" stroke-width="1" opacity="0.35"/>
+        <line x1="24" y1="8" x2="38" y2="24" stroke="#00a88a" stroke-width="1" opacity="0.35"/>
+        <line x1="10" y1="24" x2="16" y2="40" stroke="#00a88a" stroke-width="1" opacity="0.25"/>
+        <line x1="24" y1="24" x2="16" y2="40" stroke="#00a88a" stroke-width="1" opacity="0.25"/>
+        <line x1="24" y1="24" x2="32" y2="40" stroke="#00a88a" stroke-width="1" opacity="0.25"/>
+        <line x1="38" y1="24" x2="32" y2="40" stroke="#00a88a" stroke-width="1" opacity="0.25"/>
+      </svg></div>
+    </div><div class="meta"><h3>Levelized DAG</h3><p>Architecture levels — top module depends on layers below</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <rect x="18" y="4" width="12" height="8" rx="2" fill="#00d4aa"/>
+        <rect x="4" y="20" width="12" height="8" rx="2" fill="#00d4aa" opacity="0.65"/>
+        <rect x="32" y="20" width="12" height="8" rx="2" fill="#00d4aa" opacity="0.65"/>
+        <rect x="18" y="36" width="12" height="8" rx="2" fill="#00d4aa" opacity="0.4"/>
+        <line x1="24" y1="12" x2="10" y2="20" stroke="#00d4aa" stroke-width="1.2" opacity="0.4"/>
+        <line x1="24" y1="12" x2="38" y2="20" stroke="#00d4aa" stroke-width="1.2" opacity="0.4"/>
+        <line x1="10" y1="28" x2="24" y2="36" stroke="#00d4aa" stroke-width="1.2" opacity="0.3"/>
+        <line x1="38" y1="28" x2="24" y2="36" stroke="#00d4aa" stroke-width="1.2" opacity="0.3"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <rect x="18" y="4" width="12" height="8" rx="2" fill="#00a88a"/>
+        <rect x="4" y="20" width="12" height="8" rx="2" fill="#00a88a" opacity="0.65"/>
+        <rect x="32" y="20" width="12" height="8" rx="2" fill="#00a88a" opacity="0.65"/>
+        <rect x="18" y="36" width="12" height="8" rx="2" fill="#00a88a" opacity="0.4"/>
+        <line x1="24" y1="12" x2="10" y2="20" stroke="#00a88a" stroke-width="1.2" opacity="0.4"/>
+        <line x1="24" y1="12" x2="38" y2="20" stroke="#00a88a" stroke-width="1.2" opacity="0.4"/>
+        <line x1="10" y1="28" x2="24" y2="36" stroke="#00a88a" stroke-width="1.2" opacity="0.3"/>
+        <line x1="38" y1="28" x2="24" y2="36" stroke="#00a88a" stroke-width="1.2" opacity="0.3"/>
+      </svg></div>
+    </div><div class="meta"><h3>Module Blocks</h3><p>Rectangular nodes — closer to actual codebase representation</p></div></div>
+
+  </div>
+</div>
+
+<!-- ═══ 04: DSM / MATRIX ═══ -->
+<div class="section">
+  <div class="section-num">04 / Matrix</div>
+  <div class="section-title">DSM & Grid</div>
+  <div class="section-desc">Design Structure Matrix — the mathematical heart of dependency analysis.</div>
+  <div class="grid">
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <g transform="translate(2,2)">
+          <rect x="0" y="0" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.85"/>
+          <rect x="11" y="0" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.15"/>
+          <rect x="22" y="0" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.35"/>
+          <rect x="33" y="0" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.1"/>
+          <rect x="0" y="11" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.4"/>
+          <rect x="11" y="11" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.85"/>
+          <rect x="22" y="11" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.1"/>
+          <rect x="33" y="11" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.25"/>
+          <rect x="0" y="22" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.15"/>
+          <rect x="11" y="22" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.3"/>
+          <rect x="22" y="22" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.85"/>
+          <rect x="33" y="22" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.5"/>
+          <rect x="0" y="33" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.2"/>
+          <rect x="11" y="33" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.1"/>
+          <rect x="22" y="33" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.3"/>
+          <rect x="33" y="33" width="10" height="10" rx="1" fill="#00d4aa" opacity="0.85"/>
+        </g>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <g transform="translate(2,2)">
+          <rect x="0" y="0" width="10" height="10" rx="1" fill="#00a88a" opacity="0.85"/>
+          <rect x="11" y="0" width="10" height="10" rx="1" fill="#00a88a" opacity="0.15"/>
+          <rect x="22" y="0" width="10" height="10" rx="1" fill="#00a88a" opacity="0.35"/>
+          <rect x="33" y="0" width="10" height="10" rx="1" fill="#00a88a" opacity="0.1"/>
+          <rect x="0" y="11" width="10" height="10" rx="1" fill="#00a88a" opacity="0.4"/>
+          <rect x="11" y="11" width="10" height="10" rx="1" fill="#00a88a" opacity="0.85"/>
+          <rect x="22" y="11" width="10" height="10" rx="1" fill="#00a88a" opacity="0.1"/>
+          <rect x="33" y="11" width="10" height="10" rx="1" fill="#00a88a" opacity="0.25"/>
+          <rect x="0" y="22" width="10" height="10" rx="1" fill="#00a88a" opacity="0.15"/>
+          <rect x="11" y="22" width="10" height="10" rx="1" fill="#00a88a" opacity="0.3"/>
+          <rect x="22" y="22" width="10" height="10" rx="1" fill="#00a88a" opacity="0.85"/>
+          <rect x="33" y="22" width="10" height="10" rx="1" fill="#00a88a" opacity="0.5"/>
+          <rect x="0" y="33" width="10" height="10" rx="1" fill="#00a88a" opacity="0.2"/>
+          <rect x="11" y="33" width="10" height="10" rx="1" fill="#00a88a" opacity="0.1"/>
+          <rect x="22" y="33" width="10" height="10" rx="1" fill="#00a88a" opacity="0.3"/>
+          <rect x="33" y="33" width="10" height="10" rx="1" fill="#00a88a" opacity="0.85"/>
+        </g>
+      </svg></div>
+    </div><div class="meta"><h3>DSM 4x4</h3><p>Diagonal = self, off-diagonal = coupling intensity</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <g transform="translate(4,4)">
+          <rect x="0" y="0" width="7" height="7" fill="#00d4aa" opacity="0.9"/>
+          <rect x="8" y="0" width="7" height="7" fill="#00d4aa" opacity="0.1"/>
+          <rect x="16" y="0" width="7" height="7" fill="#00d4aa" opacity="0.2"/>
+          <rect x="24" y="0" width="7" height="7" fill="#00d4aa" opacity="0.05"/>
+          <rect x="32" y="0" width="7" height="7" fill="#00d4aa" opacity="0.15"/>
+          <rect x="0" y="8" width="7" height="7" fill="#00d4aa" opacity="0.35"/>
+          <rect x="8" y="8" width="7" height="7" fill="#00d4aa" opacity="0.9"/>
+          <rect x="16" y="8" width="7" height="7" fill="#00d4aa" opacity="0.1"/>
+          <rect x="24" y="8" width="7" height="7" fill="#00d4aa" opacity="0.3"/>
+          <rect x="32" y="8" width="7" height="7" fill="#00d4aa" opacity="0.05"/>
+          <rect x="0" y="16" width="7" height="7" fill="#00d4aa" opacity="0.1"/>
+          <rect x="8" y="16" width="7" height="7" fill="#00d4aa" opacity="0.2"/>
+          <rect x="16" y="16" width="7" height="7" fill="#00d4aa" opacity="0.9"/>
+          <rect x="24" y="16" width="7" height="7" fill="#00d4aa" opacity="0.45"/>
+          <rect x="32" y="16" width="7" height="7" fill="#00d4aa" opacity="0.3"/>
+          <rect x="0" y="24" width="7" height="7" fill="#00d4aa" opacity="0.15"/>
+          <rect x="8" y="24" width="7" height="7" fill="#00d4aa" opacity="0.05"/>
+          <rect x="16" y="24" width="7" height="7" fill="#00d4aa" opacity="0.25"/>
+          <rect x="24" y="24" width="7" height="7" fill="#00d4aa" opacity="0.9"/>
+          <rect x="32" y="24" width="7" height="7" fill="#00d4aa" opacity="0.4"/>
+          <rect x="0" y="32" width="7" height="7" fill="#00d4aa" opacity="0.05"/>
+          <rect x="8" y="32" width="7" height="7" fill="#00d4aa" opacity="0.1"/>
+          <rect x="16" y="32" width="7" height="7" fill="#00d4aa" opacity="0.2"/>
+          <rect x="24" y="32" width="7" height="7" fill="#00d4aa" opacity="0.15"/>
+          <rect x="32" y="32" width="7" height="7" fill="#00d4aa" opacity="0.9"/>
+        </g>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <g transform="translate(4,4)">
+          <rect x="0" y="0" width="7" height="7" fill="#00a88a" opacity="0.9"/>
+          <rect x="8" y="0" width="7" height="7" fill="#00a88a" opacity="0.1"/>
+          <rect x="16" y="0" width="7" height="7" fill="#00a88a" opacity="0.2"/>
+          <rect x="24" y="0" width="7" height="7" fill="#00a88a" opacity="0.05"/>
+          <rect x="32" y="0" width="7" height="7" fill="#00a88a" opacity="0.15"/>
+          <rect x="0" y="8" width="7" height="7" fill="#00a88a" opacity="0.35"/>
+          <rect x="8" y="8" width="7" height="7" fill="#00a88a" opacity="0.9"/>
+          <rect x="16" y="8" width="7" height="7" fill="#00a88a" opacity="0.1"/>
+          <rect x="24" y="8" width="7" height="7" fill="#00a88a" opacity="0.3"/>
+          <rect x="32" y="8" width="7" height="7" fill="#00a88a" opacity="0.05"/>
+          <rect x="0" y="16" width="7" height="7" fill="#00a88a" opacity="0.1"/>
+          <rect x="8" y="16" width="7" height="7" fill="#00a88a" opacity="0.2"/>
+          <rect x="16" y="16" width="7" height="7" fill="#00a88a" opacity="0.9"/>
+          <rect x="24" y="16" width="7" height="7" fill="#00a88a" opacity="0.45"/>
+          <rect x="32" y="16" width="7" height="7" fill="#00a88a" opacity="0.3"/>
+          <rect x="0" y="24" width="7" height="7" fill="#00a88a" opacity="0.15"/>
+          <rect x="8" y="24" width="7" height="7" fill="#00a88a" opacity="0.05"/>
+          <rect x="16" y="24" width="7" height="7" fill="#00a88a" opacity="0.25"/>
+          <rect x="24" y="24" width="7" height="7" fill="#00a88a" opacity="0.9"/>
+          <rect x="32" y="24" width="7" height="7" fill="#00a88a" opacity="0.4"/>
+          <rect x="0" y="32" width="7" height="7" fill="#00a88a" opacity="0.05"/>
+          <rect x="8" y="32" width="7" height="7" fill="#00a88a" opacity="0.1"/>
+          <rect x="16" y="32" width="7" height="7" fill="#00a88a" opacity="0.2"/>
+          <rect x="24" y="32" width="7" height="7" fill="#00a88a" opacity="0.15"/>
+          <rect x="32" y="32" width="7" height="7" fill="#00a88a" opacity="0.9"/>
+        </g>
+      </svg></div>
+    </div><div class="meta"><h3>DSM 5x5</h3><p>Higher resolution matrix — more detailed at larger sizes</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <rect x="2" y="2" width="44" height="44" rx="4" fill="#00d4aa" opacity="0.04"/>
+        <rect x="6" y="6" width="8" height="8" rx="1" fill="#00d4aa" opacity="0.9"/>
+        <rect x="16" y="6" width="8" height="8" rx="1" fill="#00d4aa" opacity="0.1"/>
+        <rect x="26" y="6" width="8" height="8" rx="1" fill="#ff6b6b" opacity="0.6"/>
+        <rect x="36" y="6" width="6" height="8" rx="1" fill="#00d4aa" opacity="0.05"/>
+        <rect x="6" y="16" width="8" height="8" rx="1" fill="#00d4aa" opacity="0.3"/>
+        <rect x="16" y="16" width="8" height="8" rx="1" fill="#00d4aa" opacity="0.9"/>
+        <rect x="26" y="16" width="8" height="8" rx="1" fill="#00d4aa" opacity="0.1"/>
+        <rect x="36" y="16" width="6" height="8" rx="1" fill="#00d4aa" opacity="0.2"/>
+        <rect x="6" y="26" width="8" height="8" rx="1" fill="#00d4aa" opacity="0.1"/>
+        <rect x="16" y="26" width="8" height="8" rx="1" fill="#00d4aa" opacity="0.25"/>
+        <rect x="26" y="26" width="8" height="8" rx="1" fill="#00d4aa" opacity="0.9"/>
+        <rect x="36" y="26" width="6" height="8" rx="1" fill="#00d4aa" opacity="0.4"/>
+        <rect x="6" y="36" width="8" height="6" rx="1" fill="#00d4aa" opacity="0.15"/>
+        <rect x="16" y="36" width="8" height="6" rx="1" fill="#00d4aa" opacity="0.05"/>
+        <rect x="26" y="36" width="8" height="6" rx="1" fill="#00d4aa" opacity="0.3"/>
+        <rect x="36" y="36" width="6" height="6" rx="1" fill="#00d4aa" opacity="0.9"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <rect x="2" y="2" width="44" height="44" rx="4" fill="#00a88a" opacity="0.03"/>
+        <rect x="6" y="6" width="8" height="8" rx="1" fill="#00a88a" opacity="0.9"/>
+        <rect x="16" y="6" width="8" height="8" rx="1" fill="#00a88a" opacity="0.1"/>
+        <rect x="26" y="6" width="8" height="8" rx="1" fill="#ff4757" opacity="0.5"/>
+        <rect x="36" y="6" width="6" height="8" rx="1" fill="#00a88a" opacity="0.05"/>
+        <rect x="6" y="16" width="8" height="8" rx="1" fill="#00a88a" opacity="0.3"/>
+        <rect x="16" y="16" width="8" height="8" rx="1" fill="#00a88a" opacity="0.9"/>
+        <rect x="26" y="16" width="8" height="8" rx="1" fill="#00a88a" opacity="0.1"/>
+        <rect x="36" y="16" width="6" height="8" rx="1" fill="#00a88a" opacity="0.2"/>
+        <rect x="6" y="26" width="8" height="8" rx="1" fill="#00a88a" opacity="0.1"/>
+        <rect x="16" y="26" width="8" height="8" rx="1" fill="#00a88a" opacity="0.25"/>
+        <rect x="26" y="26" width="8" height="8" rx="1" fill="#00a88a" opacity="0.9"/>
+        <rect x="36" y="26" width="6" height="8" rx="1" fill="#00a88a" opacity="0.4"/>
+        <rect x="6" y="36" width="8" height="6" rx="1" fill="#00a88a" opacity="0.15"/>
+        <rect x="16" y="36" width="8" height="6" rx="1" fill="#00a88a" opacity="0.05"/>
+        <rect x="26" y="36" width="8" height="6" rx="1" fill="#00a88a" opacity="0.3"/>
+        <rect x="36" y="36" width="6" height="6" rx="1" fill="#00a88a" opacity="0.9"/>
+      </svg></div>
+    </div><div class="meta"><h3>DSM with Violation</h3><p>Red cell = above-diagonal dependency (upward violation)</p></div></div>
+
+  </div>
+</div>
+
+<!-- ═══ 05: TYPOGRAPHY ═══ -->
+<div class="section">
+  <div class="section-num">05 / Typography</div>
+  <div class="section-title">Wordmarks</div>
+  <div class="section-desc">The name alone, crafted with intention. No icon needed when type is strong enough.</div>
+  <div class="grid">
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 160 40" width="140"><text x="4" y="30" font-family="'Outfit', sans-serif" font-size="30" font-weight="800" fill="#e8e6e3" letter-spacing="-1.5">sentrux</text></svg></div>
+      <div class="lt"><svg viewBox="0 0 160 40" width="140"><text x="4" y="30" font-family="'Outfit', sans-serif" font-size="30" font-weight="800" fill="#111" letter-spacing="-1.5">sentrux</text></svg></div>
+    </div><div class="meta"><h3>Outfit Black</h3><p>Heavy geometric sans — modern SaaS feel</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 160 40" width="140"><text x="4" y="28" font-family="'Syne', sans-serif" font-size="26" font-weight="800" fill="#e8e6e3" letter-spacing="1">SENTRUX</text></svg></div>
+      <div class="lt"><svg viewBox="0 0 160 40" width="140"><text x="4" y="28" font-family="'Syne', sans-serif" font-size="26" font-weight="800" fill="#111" letter-spacing="1">SENTRUX</text></svg></div>
+    </div><div class="meta"><h3>Syne Bold Caps</h3><p>Strong, distinctive, geometric letterforms</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 160 40" width="140"><text x="4" y="28" font-family="'IBM Plex Mono', monospace" font-size="24" font-weight="600" fill="#e8e6e3" letter-spacing="3">sentrux</text></svg></div>
+      <div class="lt"><svg viewBox="0 0 160 40" width="140"><text x="4" y="28" font-family="'IBM Plex Mono', monospace" font-size="24" font-weight="600" fill="#111" letter-spacing="3">sentrux</text></svg></div>
+    </div><div class="meta"><h3>IBM Plex Mono</h3><p>Engineering precision — terminal aesthetic</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 160 40" width="140">
+        <text x="4" y="28" font-family="'Manrope', sans-serif" font-size="26" font-weight="300" fill="#00d4aa" letter-spacing="0">sen</text>
+        <text x="52" y="28" font-family="'Manrope', sans-serif" font-size="26" font-weight="800" fill="#e8e6e3" letter-spacing="0">trux</text>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 160 40" width="140">
+        <text x="4" y="28" font-family="'Manrope', sans-serif" font-size="26" font-weight="300" fill="#00a88a" letter-spacing="0">sen</text>
+        <text x="52" y="28" font-family="'Manrope', sans-serif" font-size="26" font-weight="800" fill="#111" letter-spacing="0">trux</text>
+      </svg></div>
+    </div><div class="meta"><h3>Weight Split</h3><p>sen (light, sentry) + trux (bold, structure)</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 160 40" width="140">
+        <text x="4" y="28" font-family="'JetBrains Mono', monospace" font-size="24" font-weight="700" fill="#00d4aa">$</text>
+        <text x="22" y="28" font-family="'JetBrains Mono', monospace" font-size="24" font-weight="400" fill="#e8e6e3" letter-spacing="1">sentrux</text>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 160 40" width="140">
+        <text x="4" y="28" font-family="'JetBrains Mono', monospace" font-size="24" font-weight="700" fill="#00a88a">$</text>
+        <text x="22" y="28" font-family="'JetBrains Mono', monospace" font-size="24" font-weight="400" fill="#111" letter-spacing="1">sentrux</text>
+      </svg></div>
+    </div><div class="meta"><h3>Terminal Prompt</h3><p>$ prefix — this is a CLI tool, own it</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 160 50" width="140">
+        <text x="4" y="18" font-family="'DM Mono', monospace" font-size="12" font-weight="300" fill="#00d4aa" letter-spacing="5">SEN</text>
+        <text x="4" y="38" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">TRUX</text>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 160 50" width="140">
+        <text x="4" y="18" font-family="'DM Mono', monospace" font-size="12" font-weight="300" fill="#00a88a" letter-spacing="5">SEN</text>
+        <text x="4" y="38" font-family="'Instrument Sans', sans-serif" font-size="22" font-weight="700" fill="#111" letter-spacing="-0.5">TRUX</text>
+      </svg></div>
+    </div><div class="meta"><h3>Stacked Dual-Font</h3><p>Mono sen + sans trux — two worlds combined</p></div></div>
+
+  </div>
+</div>
+
+<!-- ═══ 06: TECHNICAL ═══ -->
+<div class="section">
+  <div class="section-num">06 / Technical</div>
+  <div class="section-title">Circuit, Hex, Bracket</div>
+  <div class="section-desc">Engineering symbols — the language of structure and precision.</div>
+  <div class="grid">
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 44 48" width="44">
+        <path d="M36 6 L10 6 L10 24 L36 24 L36 42 L10 42" fill="none" stroke="#00d4aa" stroke-width="3" stroke-linecap="square"/>
+        <circle cx="10" cy="6" r="3.5" fill="#00d4aa"/>
+        <circle cx="36" cy="24" r="3.5" fill="#00d4aa"/>
+        <circle cx="10" cy="42" r="3.5" fill="#00d4aa"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 44 48" width="44">
+        <path d="M36 6 L10 6 L10 24 L36 24 L36 42 L10 42" fill="none" stroke="#111" stroke-width="3" stroke-linecap="square"/>
+        <circle cx="10" cy="6" r="3.5" fill="#00a88a"/>
+        <circle cx="36" cy="24" r="3.5" fill="#00a88a"/>
+        <circle cx="10" cy="42" r="3.5" fill="#00a88a"/>
+      </svg></div>
+    </div><div class="meta"><h3>Circuit S</h3><p>Letter S as PCB trace — engineering identity</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <path d="M36 6 L10 6 L10 24 L36 24 L36 42 L10 42" fill="none" stroke="#00d4aa" stroke-width="2" stroke-linecap="square" stroke-dasharray="4 2"/>
+        <circle cx="10" cy="6" r="2.5" fill="#00d4aa"/>
+        <circle cx="36" cy="24" r="2.5" fill="#00d4aa"/>
+        <circle cx="10" cy="42" r="2.5" fill="#00d4aa"/>
+        <circle cx="36" cy="6" r="1.5" fill="#00d4aa" opacity="0.3"/>
+        <circle cx="10" cy="24" r="1.5" fill="#00d4aa" opacity="0.3"/>
+        <circle cx="36" cy="42" r="1.5" fill="#00d4aa" opacity="0.3"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <path d="M36 6 L10 6 L10 24 L36 24 L36 42 L10 42" fill="none" stroke="#111" stroke-width="2" stroke-linecap="square" stroke-dasharray="4 2"/>
+        <circle cx="10" cy="6" r="2.5" fill="#00a88a"/>
+        <circle cx="36" cy="24" r="2.5" fill="#00a88a"/>
+        <circle cx="10" cy="42" r="2.5" fill="#00a88a"/>
+        <circle cx="36" cy="6" r="1.5" fill="#00a88a" opacity="0.3"/>
+        <circle cx="10" cy="24" r="1.5" fill="#00a88a" opacity="0.3"/>
+        <circle cx="36" cy="42" r="1.5" fill="#00a88a" opacity="0.3"/>
+      </svg></div>
+    </div><div class="meta"><h3>Dashed Circuit S</h3><p>Dashed line = dependency edges in the product</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="#00d4aa" opacity="0.08" stroke="#00d4aa" stroke-width="1.5"/>
+        <polygon points="24,12 34,18 34,30 24,36 14,30 14,18" fill="#00d4aa" opacity="0.15"/>
+        <polygon points="24,18 30,22 30,28 24,32 18,28 18,22" fill="#00d4aa" opacity="0.5"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <polygon points="24,4 42,14 42,34 24,44 6,34 6,14" fill="#00a88a" opacity="0.06" stroke="#111" stroke-width="1.5"/>
+        <polygon points="24,12 34,18 34,30 24,36 14,30 14,18" fill="#00a88a" opacity="0.12"/>
+        <polygon points="24,18 30,22 30,28 24,32 18,28 18,22" fill="#00a88a" opacity="0.5"/>
+      </svg></div>
+    </div><div class="meta"><h3>Nested Hexagon</h3><p>Concentric hexagons — layers of architecture</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <polygon points="16,4 28,10 28,22 16,28 4,22 4,10" fill="#00d4aa" opacity="0.7"/>
+        <polygon points="32,12 44,18 44,30 32,36 20,30 20,18" fill="#00d4aa" opacity="0.4"/>
+        <polygon points="16,26 28,32 28,44 16,50 4,44 4,32" fill="#00d4aa" opacity="0.25"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <polygon points="16,4 28,10 28,22 16,28 4,22 4,10" fill="#00a88a" opacity="0.7"/>
+        <polygon points="32,12 44,18 44,30 32,36 20,30 20,18" fill="#00a88a" opacity="0.4"/>
+        <polygon points="16,26 28,32 28,44 16,50 4,44 4,32" fill="#00a88a" opacity="0.25"/>
+      </svg></div>
+    </div><div class="meta"><h3>Hex Cluster</h3><p>Interlocking modules — like code modules that fit together</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 48" width="48">
+        <text x="4" y="36" font-family="'JetBrains Mono', monospace" font-size="38" font-weight="700" fill="#00d4aa" opacity="0.15">&lt;/&gt;</text>
+        <rect x="14" y="10" width="8" height="12" rx="1" fill="#00d4aa" opacity="0.7"/>
+        <rect x="24" y="10" width="10" height="5" rx="1" fill="#00d4aa" opacity="0.45"/>
+        <rect x="24" y="17" width="10" height="5" rx="1" fill="#00d4aa" opacity="0.3"/>
+        <rect x="14" y="24" width="20" height="5" rx="1" fill="#00d4aa" opacity="0.4"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 48 48" width="48">
+        <text x="4" y="36" font-family="'JetBrains Mono', monospace" font-size="38" font-weight="700" fill="#00a88a" opacity="0.1">&lt;/&gt;</text>
+        <rect x="14" y="10" width="8" height="12" rx="1" fill="#00a88a" opacity="0.7"/>
+        <rect x="24" y="10" width="10" height="5" rx="1" fill="#00a88a" opacity="0.45"/>
+        <rect x="24" y="17" width="10" height="5" rx="1" fill="#00a88a" opacity="0.3"/>
+        <rect x="14" y="24" width="20" height="5" rx="1" fill="#00a88a" opacity="0.4"/>
+      </svg></div>
+    </div><div class="meta"><h3>Code Tag + Treemap</h3><p>HTML/code brackets backdrop with treemap overlay</p></div></div>
+
+  </div>
+</div>
+
+<!-- ═══ 07: EYE / VISION ═══ -->
+<div class="section">
+  <div class="section-num">07 / Vision</div>
+  <div class="section-title">Seeing Structure</div>
+  <div class="section-desc">The eye sees what humans miss — architecture patterns, hidden coupling, decay.</div>
+  <div class="grid">
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 56 40" width="60">
+        <ellipse cx="28" cy="20" rx="24" ry="14" fill="none" stroke="#00d4aa" stroke-width="1.8"/>
+        <circle cx="28" cy="20" r="9" fill="#00d4aa" opacity="0.15"/>
+        <rect x="22" y="14" width="5" height="5" rx="0.5" fill="#00d4aa" opacity="0.8"/>
+        <rect x="28" y="14" width="5" height="5" rx="0.5" fill="#00d4aa" opacity="0.5"/>
+        <rect x="22" y="20" width="5" height="5" rx="0.5" fill="#00d4aa" opacity="0.4"/>
+        <rect x="28" y="20" width="5" height="5" rx="0.5" fill="#00d4aa" opacity="0.65"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 56 40" width="60">
+        <ellipse cx="28" cy="20" rx="24" ry="14" fill="none" stroke="#111" stroke-width="1.8"/>
+        <circle cx="28" cy="20" r="9" fill="#00a88a" opacity="0.1"/>
+        <rect x="22" y="14" width="5" height="5" rx="0.5" fill="#00a88a" opacity="0.8"/>
+        <rect x="28" y="14" width="5" height="5" rx="0.5" fill="#00a88a" opacity="0.5"/>
+        <rect x="22" y="20" width="5" height="5" rx="0.5" fill="#00a88a" opacity="0.4"/>
+        <rect x="28" y="20" width="5" height="5" rx="0.5" fill="#00a88a" opacity="0.65"/>
+      </svg></div>
+    </div><div class="meta"><h3>Structural Eye</h3><p>Treemap as pupil — seeing code structure</p></div></div>
+
+    <div class="card"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 56 40" width="60">
+        <ellipse cx="28" cy="20" rx="24" ry="14" fill="none" stroke="#00d4aa" stroke-width="1.5"/>
+        <circle cx="28" cy="20" r="8" fill="none" stroke="#00d4aa" stroke-width="1.5"/>
+        <circle cx="28" cy="20" r="3" fill="#00d4aa"/>
+        <line x1="28" y1="6" x2="28" y2="10" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+        <line x1="28" y1="30" x2="28" y2="34" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+        <line x1="8" y1="20" x2="16" y2="20" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+        <line x1="40" y1="20" x2="48" y2="20" stroke="#00d4aa" stroke-width="1" opacity="0.3"/>
+      </svg></div>
+      <div class="lt"><svg viewBox="0 0 56 40" width="60">
+        <ellipse cx="28" cy="20" rx="24" ry="14" fill="none" stroke="#111" stroke-width="1.5"/>
+        <circle cx="28" cy="20" r="8" fill="none" stroke="#111" stroke-width="1.5"/>
+        <circle cx="28" cy="20" r="3" fill="#00a88a"/>
+        <line x1="28" y1="6" x2="28" y2="10" stroke="#00a88a" stroke-width="1" opacity="0.3"/>
+        <line x1="28" y1="30" x2="28" y2="34" stroke="#00a88a" stroke-width="1" opacity="0.3"/>
+        <line x1="8" y1="20" x2="16" y2="20" stroke="#00a88a" stroke-width="1" opacity="0.3"/>
+        <line x1="40" y1="20" x2="48" y2="20" stroke="#00a88a" stroke-width="1" opacity="0.3"/>
+      </svg></div>
+    </div><div class="meta"><h3>Scanning Eye</h3><p>Eye with scanning crosshairs — active analysis</p></div></div>
+
+  </div>
+</div>
+
+<!-- ═══ TOP PICKS ═══ -->
+<div class="section highlight">
+  <div class="section-num" style="color: var(--warm);">Top Picks / with Wordmark</div>
+  <div class="section-title">Final Candidates at Scale</div>
+  <div class="section-desc">The strongest concepts shown large with the wordmark — as they'd appear in README, website, app.</div>
+  <div class="grid">
+
+    <div class="card pick tall"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 48 56" width="56">
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="#00d4aa" opacity="0.08"/>
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="none" stroke="#00d4aa" stroke-width="2"/>
+        <rect x="11" y="16" width="10" height="14" rx="1" fill="#00d4aa" opacity="0.7"/>
+        <rect x="23" y="16" width="14" height="6" rx="1" fill="#00d4aa" opacity="0.45"/>
+        <rect x="23" y="24" width="14" height="6" rx="1" fill="#00d4aa" opacity="0.3"/>
+        <rect x="11" y="32" width="26" height="6" rx="1" fill="#00d4aa" opacity="0.4"/>
+      </svg>
+      <svg viewBox="0 0 120 22" width="96"><text x="0" y="17" font-family="'Instrument Sans', sans-serif" font-size="19" font-weight="700" fill="#e8e6e3" letter-spacing="-0.3">sentrux</text></svg></div>
+      <div class="lt"><svg viewBox="0 0 48 56" width="56">
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="#00a88a" opacity="0.06"/>
+        <path d="M24 2 L44 10 L44 30 C44 42 35 50 24 54 C13 50 4 42 4 30 L4 10 Z" fill="none" stroke="#111" stroke-width="2"/>
+        <rect x="11" y="16" width="10" height="14" rx="1" fill="#00a88a" opacity="0.7"/>
+        <rect x="23" y="16" width="14" height="6" rx="1" fill="#00a88a" opacity="0.45"/>
+        <rect x="23" y="24" width="14" height="6" rx="1" fill="#00a88a" opacity="0.3"/>
+        <rect x="11" y="32" width="26" height="6" rx="1" fill="#00a88a" opacity="0.4"/>
+      </svg>
+      <svg viewBox="0 0 120 22" width="96"><text x="0" y="17" font-family="'Instrument Sans', sans-serif" font-size="19" font-weight="700" fill="#111" letter-spacing="-0.3">sentrux</text></svg></div>
+    </div><div class="meta"><h3>#1 Shield + Treemap</h3><p>Best overall: combines guardian + product visual + memorable + scalable</p></div></div>
+
+    <div class="card pick2 tall"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 44 44" width="52">
+        <g transform="translate(2,2)">
+          <rect x="0" y="0" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.9"/>
+          <rect x="11" y="0" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.12"/>
+          <rect x="22" y="0" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.3"/>
+          <rect x="33" y="0" width="7" height="9" rx="1" fill="#00d4aa" opacity="0.08"/>
+          <rect x="0" y="11" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.35"/>
+          <rect x="11" y="11" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.9"/>
+          <rect x="22" y="11" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.08"/>
+          <rect x="33" y="11" width="7" height="9" rx="1" fill="#00d4aa" opacity="0.22"/>
+          <rect x="0" y="22" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.12"/>
+          <rect x="11" y="22" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.28"/>
+          <rect x="22" y="22" width="9" height="9" rx="1" fill="#00d4aa" opacity="0.9"/>
+          <rect x="33" y="22" width="7" height="9" rx="1" fill="#00d4aa" opacity="0.45"/>
+          <rect x="0" y="33" width="9" height="7" rx="1" fill="#00d4aa" opacity="0.18"/>
+          <rect x="11" y="33" width="9" height="7" rx="1" fill="#00d4aa" opacity="0.08"/>
+          <rect x="22" y="33" width="9" height="7" rx="1" fill="#00d4aa" opacity="0.3"/>
+          <rect x="33" y="33" width="7" height="7" rx="1" fill="#00d4aa" opacity="0.9"/>
+        </g>
+      </svg>
+      <svg viewBox="0 0 120 22" width="96"><text x="0" y="17" font-family="'Instrument Sans', sans-serif" font-size="19" font-weight="700" fill="#e8e6e3" letter-spacing="-0.3">sentrux</text></svg></div>
+      <div class="lt"><svg viewBox="0 0 44 44" width="52">
+        <g transform="translate(2,2)">
+          <rect x="0" y="0" width="9" height="9" rx="1" fill="#00a88a" opacity="0.9"/>
+          <rect x="11" y="0" width="9" height="9" rx="1" fill="#00a88a" opacity="0.12"/>
+          <rect x="22" y="0" width="9" height="9" rx="1" fill="#00a88a" opacity="0.3"/>
+          <rect x="33" y="0" width="7" height="9" rx="1" fill="#00a88a" opacity="0.08"/>
+          <rect x="0" y="11" width="9" height="9" rx="1" fill="#00a88a" opacity="0.35"/>
+          <rect x="11" y="11" width="9" height="9" rx="1" fill="#00a88a" opacity="0.9"/>
+          <rect x="22" y="11" width="9" height="9" rx="1" fill="#00a88a" opacity="0.08"/>
+          <rect x="33" y="11" width="7" height="9" rx="1" fill="#00a88a" opacity="0.22"/>
+          <rect x="0" y="22" width="9" height="9" rx="1" fill="#00a88a" opacity="0.12"/>
+          <rect x="11" y="22" width="9" height="9" rx="1" fill="#00a88a" opacity="0.28"/>
+          <rect x="22" y="22" width="9" height="9" rx="1" fill="#00a88a" opacity="0.9"/>
+          <rect x="33" y="22" width="7" height="9" rx="1" fill="#00a88a" opacity="0.45"/>
+          <rect x="0" y="33" width="9" height="7" rx="1" fill="#00a88a" opacity="0.18"/>
+          <rect x="11" y="33" width="9" height="7" rx="1" fill="#00a88a" opacity="0.08"/>
+          <rect x="22" y="33" width="9" height="7" rx="1" fill="#00a88a" opacity="0.3"/>
+          <rect x="33" y="33" width="7" height="7" rx="1" fill="#00a88a" opacity="0.9"/>
+        </g>
+      </svg>
+      <svg viewBox="0 0 120 22" width="96"><text x="0" y="17" font-family="'Instrument Sans', sans-serif" font-size="19" font-weight="700" fill="#111" letter-spacing="-0.3">sentrux</text></svg></div>
+    </div><div class="meta"><h3>#2 DSM Matrix</h3><p>Most unique: no other tool uses this. Perfect favicon. Reads as "data analysis"</p></div></div>
+
+    <div class="card pick3 tall"><div class="dual">
+      <div class="dk"><svg viewBox="0 0 40 48" width="44">
+        <path d="M34 6 L10 6 L10 24 L34 24 L34 42 L10 42" fill="none" stroke="#00d4aa" stroke-width="3" stroke-linecap="square"/>
+        <circle cx="10" cy="6" r="3.5" fill="#00d4aa"/>
+        <circle cx="34" cy="24" r="3.5" fill="#00d4aa"/>
+        <circle cx="10" cy="42" r="3.5" fill="#00d4aa"/>
+      </svg>
+      <svg viewBox="0 0 120 22" width="96"><text x="0" y="17" font-family="'Instrument Sans', sans-serif" font-size="19" font-weight="700" fill="#e8e6e3" letter-spacing="-0.3">sentrux</text></svg></div>
+      <div class="lt"><svg viewBox="0 0 40 48" width="44">
+        <path d="M34 6 L10 6 L10 24 L34 24 L34 42 L10 42" fill="none" stroke="#111" stroke-width="3" stroke-linecap="square"/>
+        <circle cx="10" cy="6" r="3.5" fill="#00a88a"/>
+        <circle cx="34" cy="24" r="3.5" fill="#00a88a"/>
+        <circle cx="10" cy="42" r="3.5" fill="#00a88a"/>
+      </svg>
+      <svg viewBox="0 0 120 22" width="96"><text x="0" y="17" font-family="'Instrument Sans', sans-serif" font-size="19" font-weight="700" fill="#111" letter-spacing="-0.3">sentrux</text></svg></div>
+    </div><div class="meta"><h3>#3 Circuit S</h3><p>Most memorable: one shape, instant recognition, engineering DNA</p></div></div>
+
+  </div>
+</div>
+
+<div class="footer">sentrux brand exploration v2 / 30 concepts / 2026</div>
+
+</body>
+</html>

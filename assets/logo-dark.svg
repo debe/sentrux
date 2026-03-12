@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" width="200" height="48">
+  <rect x="2" y="2" width="20" height="24" rx="2" fill="#00d4aa" opacity="0.8"/>
+  <rect x="24" y="2" width="22" height="11" rx="2" fill="#00d4aa" opacity="0.5"/>
+  <rect x="24" y="15" width="22" height="11" rx="2" fill="#00d4aa" opacity="0.3"/>
+  <rect x="2" y="28" width="14" height="18" rx="2" fill="#00d4aa" opacity="0.5"/>
+  <rect x="18" y="28" width="28" height="8" rx="2" fill="#00d4aa" opacity="0.4"/>
+  <rect x="18" y="38" width="16" height="8" rx="2" fill="#00d4aa" opacity="0.25"/>
+  <rect x="36" y="38" width="10" height="8" rx="2" fill="#00d4aa" opacity="0.15"/>
+  <text x="56" y="32" font-family="'Instrument Sans', -apple-system, sans-serif" font-size="24" font-weight="700" fill="#e8e6e3" letter-spacing="-0.5">sentrux</text>
+</svg>
