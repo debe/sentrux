@@ -14,7 +14,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 /// URL to check for latest version. Cloudflare Worker endpoint that
 /// serves version info while counting daily active users.
 const UPDATE_CHECK_URL: &str =
-    "https://sentrux-api.tfcene.workers.dev/version";
+    "https://api.sentrux.dev/version";
 
 /// How often to check (24 hours).
 const CHECK_INTERVAL: Duration = Duration::from_secs(86400);

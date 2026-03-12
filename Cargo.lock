@@ -3757,7 +3757,7 @@ checksum = "d767eb0aabc880b29956c35734170f26ed551a859dbd361d140cdbeca61ab1e2"
 
 [[package]]
 name = "sentrux"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "eframe",
  "egui",
@@ -3766,7 +3766,7 @@ dependencies = [
 
 [[package]]
 name = "sentrux-core"
-version = "0.3.3"
+version = "0.3.4"
 dependencies = [
  "crossbeam-channel",
  "dashmap 6.1.0",
