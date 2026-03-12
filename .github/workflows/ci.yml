@@ -6,11 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  # tree-sitter grammar crates pull in two versions (0.20 and 0.25)
-  # with duplicate C symbols. Allow on Linux linker.
-  CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-Clink-args=-Wl,--allow-multiple-definition"
-
 jobs:
   test:
     strategy:

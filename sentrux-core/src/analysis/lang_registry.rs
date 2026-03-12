@@ -186,12 +186,8 @@ impl LangRegistry {
             include_str!("../queries/scss/tags.scm"),
             &["scss"],
         );
-        self.register_transmuted_lang(
-            "kotlin",
-            tree_sitter_kotlin::language(),
-            include_str!("../queries/kotlin/tags.scm"),
-            &["kt", "kts"],
-        );
+        // kotlin: tree-sitter-kotlin requires tree-sitter 0.20/0.21, incompatible with 0.25
+        // Will re-add when tree-sitter-kotlin supports 0.25+
         self.register_static(
             "swift",
             tree_sitter_swift::LANGUAGE.into(),
@@ -238,12 +234,7 @@ impl LangRegistry {
             include_str!("../queries/r/tags.scm"),
             &["r", "R"],
         );
-        self.register_transmuted_lang(
-            "dockerfile",
-            tree_sitter_dockerfile::language(),
-            include_str!("../queries/dockerfile/tags.scm"),
-            &["dockerfile"],
-        );
+        // dockerfile: tree-sitter-dockerfile requires tree-sitter 0.20, incompatible with 0.25
         self.register_static(
             "ocaml",
             tree_sitter_ocaml::LANGUAGE_OCAML.into(),
@@ -442,14 +433,12 @@ mod tests {
             "css",
             "scss",
             "swift",
-            "kotlin",
             "lua",
             "scala",
             "elixir",
             "haskell",
             "zig",
             "r",
-            "dockerfile",
             "ocaml",
             "ocaml_interface",
         ] {

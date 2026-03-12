@@ -7,9 +7,6 @@ on:
 permissions:
   contents: write
 
-env:
-  CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "-Clink-args=-Wl,--allow-multiple-definition"
-
 jobs:
   build:
     strategy:

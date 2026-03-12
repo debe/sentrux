@@ -11,42 +11,7 @@ mod tests {
 
     // ---- Oracle tests: new languages ----
 
-    #[test]
-    fn oracle_kotlin() {
-        let code = br#"
-package com.example
-
-import java.util.ArrayList
-
-class UserService {
-    fun getUser(id: Int): String {
-        return "User $id"
-    }
-
-    fun deleteUser(id: Int) {
-        println("Deleting user $id")
-    }
-}
-
-object AppConfig {
-    val name = "MyApp"
-}
-
-fun main() {
-    val svc = UserService()
-    svc.getUser(1)
-    println(AppConfig.name)
-}
-"#;
-        let sa = parse_bytes(code, "kotlin").expect("kotlin parse failed");
-        let fns = sa.functions.as_ref().expect("no functions");
-        // getUser, deleteUser, main = 3
-        assert_eq!(fns.len(), 3, "expected 3 functions, got {:?}", fns);
-        let cls = sa.cls.as_ref().expect("no classes");
-        // UserService + AppConfig = 2
-        assert_eq!(cls.len(), 2, "expected 2 class-like items, got {:?}", cls);
-        assert!(sa.imp.is_some(), "expected imports");
-    }
+    // kotlin: temporarily removed — tree-sitter-kotlin incompatible with tree-sitter 0.25
 
     #[test]
     fn oracle_scala() {
@@ -347,22 +312,7 @@ print(result)
         assert!(all_calls.len() >= 2, "expected at least 2 calls, got {:?}", all_calls);
     }
 
-    #[test]
-    fn oracle_dockerfile() {
-        let code = br#"
-FROM node:18-alpine
-WORKDIR /app
-COPY package.json .
-RUN npm install
-COPY . .
-EXPOSE 3000
-CMD ["node", "server.js"]
-"#;
-        let sa = parse_bytes(code, "dockerfile").expect("dockerfile parse failed");
-        let imp = sa.imp.as_ref().expect("no imports");
-        // FROM node:18-alpine -> "node"
-        assert!(imp.len() >= 1, "expected at least 1 import, got {:?}", imp);
-    }
+    // dockerfile: temporarily removed — tree-sitter-dockerfile incompatible with tree-sitter 0.25
 
     #[test]
     fn oracle_ocaml() {
