@@ -20,6 +20,8 @@ Live architecture visualization + structural quality gate for AI-agent-written c
 
 ![sentrux demo — AI agent builds a FastAPI project while sentrux visualizes architecture in real-time](assets/demo.gif)
 
+<sub>**Demo:** Claude Code builds a FastAPI task management API from a single prompt. sentrux visualizes the architecture growing in real-time — files appear, dependency edges form, health grades update live. **Final result: Health Grade D** (cohesion F, 25% dead code, 2% comments). Even with careful prompting, AI agents accumulate structural debt without a quality gate.</sub>
+
 ## Why
 
 In the AI agent era, code is written faster than humans can review. AI agents modify dozens of files per session — you see a stream of "Modified src/foo.rs" but lose the big picture: how files relate, where coupling grows, when architecture degrades.
