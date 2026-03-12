@@ -335,6 +335,9 @@ capabilities = ["functions", "classes", "imports"]
                 println!("Downloading {name} plugin for {platform_key}...");
                 println!("  {url}");
 
+                // Ensure plugins directory exists before downloading
+                std::fs::create_dir_all(&dir).unwrap();
+
                 let output = std::process::Command::new("curl")
                     .args(["-fsSL", &url, "-o"])
                     .arg(dir.join(format!("{name}.tar.gz")))
@@ -342,8 +345,6 @@ capabilities = ["functions", "classes", "imports"]
 
                 match output {
                     Ok(s) if s.success() => {
-                        // Extract
-                        std::fs::create_dir_all(&dir).unwrap();
                         let extract = std::process::Command::new("tar")
                             .args(["xzf", &format!("{name}.tar.gz")])
                             .current_dir(&dir)
