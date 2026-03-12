@@ -199,12 +199,12 @@ fn auto_install_plugins_if_needed() {
         Some(d) => d,
         None => return,
     };
-    // If plugins dir exists and has any subdirectories, skip
+    // Check if any plugin actually loads (not just directories exist)
+    // This handles upgrades where old broken plugins remain
     if dir.is_dir() {
-        if let Ok(entries) = std::fs::read_dir(&dir) {
-            if entries.filter_map(|e| e.ok()).any(|e| e.path().is_dir()) {
-                return; // already has plugins installed
-            }
+        let (loaded, _) = sentrux_core::analysis::plugin::load_all_plugins();
+        if !loaded.is_empty() {
+            return; // working plugins found, skip auto-install
         }
     }
 
