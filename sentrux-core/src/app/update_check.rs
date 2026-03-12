@@ -159,13 +159,6 @@ fn check_and_notify(current_version: &str) {
     let scans = SCANS.load(Ordering::Relaxed);
     let mcp = MCP_CALLS.load(Ordering::Relaxed);
     let gates = GATE_RUNS.load(Ordering::Relaxed);
-    let grade = LAST_GRADE.load(Ordering::Relaxed);
-    let files = LAST_FILES.load(Ordering::Relaxed);
-
-    let grade_str = match grade {
-        1 => "A", 2 => "B", 3 => "C", 4 => "D", 5 => "E", 6 => "F", _ => "-",
-    };
-
     let url = format!(
         "{}?v={}&p={}&new={}&m={}&pl={}&t={}&s={}&mc={}&g={}",
         UPDATE_CHECK_URL,
