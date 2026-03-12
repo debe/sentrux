@@ -59,23 +59,41 @@ The agent starts hallucinating functions that don't exist. It puts new code in t
 
 Everyone assumes the AI got worse. **It didn't.** Your codebase did.
 
+Here's what actually happened: when you used an IDE, you saw the file tree. You opened files. You built a mental model of the architecture — which module does what, how they connect, where things belong. You were the governor. Every edit passed through your understanding of the whole.
+
+Then AI agents moved us to the terminal. The agent modifies dozens of files per session. You see a stream of `Modified src/foo.rs` — but you've lost the spatial awareness. You don't see where that file sits in the dependency graph. You don't see that it just created a cycle. You don't see that three modules now depend on a file that was supposed to be internal. Many developers let AI agents build entire applications without ever opening the file browser.
+
+**You've lost control. And you don't even know it yet.**
+
 Every AI session silently degrades your architecture. Same function names, different purposes, scattered across files. Unrelated code dumped in the same folder. Dependencies tangling into spaghetti. When the agent searches your project, it finds twenty conflicting matches — and picks the wrong one. Every session makes the mess worse. Every mess makes the next session harder.
 
 This is the dirty secret of AI-assisted development: **the better the AI generates code, the faster your codebase becomes ungovernable.**
 
-Nobody planned for this. The traditional answer — *"design your architecture first"* — assumes you know what you're building before you build it. But that's not how anyone actually works with AI agents. You prototype. You iterate. You follow inspiration. You let the conversation drive the code.
-
-That creative flow is exactly what makes AI agents powerful. And it's exactly what destroys codebases.
+The traditional answer — *"plan your architecture first, then let AI implement"* — sounds right but misses the point. That's not how anyone actually works with AI agents. You prototype fast. You iterate through conversation. You follow inspiration. You let the creative flow drive the code. That creative flow is exactly what makes AI agents powerful. And it's exactly what destroys codebases.
 
 ## The solution
 
 **sentrux is the missing feedback loop.**
 
-It watches your codebase in real-time — not the diffs, not the terminal output — the *actual architecture*. Every file. Every dependency. Every structural relationship. Visualized as a live interactive treemap that updates as the agent writes code.
+In the 1780s, James Watt built the centrifugal governor — a device that sensed a steam engine's speed and adjusted the valve automatically. Before it, a worker stood next to the engine turning the valve by hand. After it, the worker's job changed: from turning the valve to designing the governor.
+
+Kubernetes did the same thing for infrastructure. You declare desired state. A controller observes actual state. When they diverge, the controller reconciles. The engineer's job shifted from restarting services to writing the spec.
+
+Now it's happening to code. OpenAI calls it [harness engineering](https://openai.com/index/building-with-agents/): engineers who no longer write code, but instead design feedback loops and codify architectural constraints — then agents write the code. A million lines in five months, zero written by hand.
+
+Same pattern each time. Norbert Wiener named it in 1948: **cybernetics** — from the Greek *κυβερνήτης*, steersman. You stop turning the valve. You steer.
+
+The codebase was the last holdout. Compilers close a feedback loop on syntax. Test suites close a loop on behavior. Linters close a loop on style. But architecture — does this change fit the system? is this abstraction going to cause problems? — had no sensor and no actuator. Only humans could judge that, and humans can't keep up with machine-speed code generation.
+
+**sentrux closes the loop at the architecture level.**
+
+It watches your codebase in real-time — not the diffs, not the terminal output — the *actual structure*. Every file. Every dependency. Every architectural relationship. Visualized as a live interactive treemap that updates as the agent writes code.
 
 14 health dimensions. Graded A through F. Computed in milliseconds.
 
 When architecture degrades, you see it immediately — not two weeks later when everything is broken and nobody remembers which session caused it.
+
+You don't need to out-implement the machine. You need to out-evaluate it. sentrux gives you the sensor. Your rules give you the spec. The agent is the actuator. **The loop closes.**
 
 <br>
 
@@ -204,6 +222,24 @@ sentrux check .
 ## Supported languages
 
 Rust · Python · JavaScript · TypeScript · Go · C · C++ · Java · Ruby · C# · PHP · Bash · HTML · CSS · SCSS · Swift · Lua · Scala · Elixir · Haskell · Zig · R · OCaml
+
+---
+
+## Philosophy
+
+**The human role is changing — from writing code to governing code.**
+
+Every engineering practice that mattered before AI — documentation, testing, codified architecture, fast feedback loops — now matters exponentially more. Skip the tests and the feedback loop can't close. Skip the architectural constraints and drift compounds at machine speed. And here's the trap: you can't use agents to clean up the mess if the agents don't know what clean looks like.
+
+sentrux is built on three beliefs:
+
+**1. Human-in-the-loop is non-negotiable.** AI agents are powerful but limited. They cannot hold the big picture and the small details at the same time. A human must be able to see, at any moment, what the agent is doing to the whole — not just which file it touched, but what that file means to the architecture. sentrux makes that possible.
+
+**2. Verification is more valuable than generation.** Generating a correct solution is harder than verifying one (the intuition behind P vs NP). You don't need to out-code the machine. You need to out-evaluate it — specify what "correct" looks like, recognize when the output misses, judge whether the direction is right. sentrux turns architectural judgment into machine-readable grades and constraints.
+
+**3. Good systems make good outcomes inevitable.** A well-designed system constrains behavior so that the right thing is the easy thing. A quality gate that blocks degradation before it ships. A rules engine that encodes your architectural decisions. A visual map that makes structural rot impossible to ignore. The practices haven't changed. The penalty for ignoring them has become unbearable.
+
+*The workers who designed Watt's governor didn't go back to turning valves. Not because they couldn't. Because it no longer made sense.*
 
 ---
 
