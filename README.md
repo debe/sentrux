@@ -19,6 +19,10 @@ Live codebase visualization and structural quality analysis. See your architectu
 
 ## Install
 
+```bash
+curl -fsSL https://raw.githubusercontent.com/sentrux/sentrux/main/install.sh | sh
+```
+
 ### From source
 
 ```bash
@@ -28,9 +32,7 @@ cargo build --release
 # Binary at target/release/sentrux
 ```
 
-### From GitHub Releases
-
-Download the latest binary from [Releases](https://github.com/sentrux/sentrux/releases).
+Or download binaries directly from [Releases](https://github.com/sentrux/sentrux/releases).
 
 ## Quick start
 
