@@ -15,7 +15,7 @@
 [![CI](https://github.com/sentrux/sentrux/actions/workflows/ci.yml/badge.svg)](https://github.com/sentrux/sentrux/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/sentrux/sentrux)](https://github.com/sentrux/sentrux/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Stars](https://img.shields.io/github/stars/sentrux/sentrux?style=flat)](https://github.com/sentrux/sentrux/stargazers)
+
 
 **English** | [中文](README.zh-CN.md) | [Deutsch](README.de.md) | [日本語](README.ja.md)
 
