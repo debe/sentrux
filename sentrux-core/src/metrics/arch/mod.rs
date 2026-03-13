@@ -365,7 +365,7 @@ fn find_max_non_foundation_blast(
         // Package-index files (__init__.py, index.js, mod.rs, etc.) are barrel
         // re-exporters — their high blast radius reflects re-exports, not genuine
         // change risk. Treat them as foundation regardless of instability.
-        let is_barrel = super::is_package_index_file(path);
+        let is_barrel = super::is_package_index_for_path(path);
         let is_foundation = is_barrel
             || is_foundation_module(&module)
             || ca >= MIN_FILE_FAN_IN_FOUNDATION;

@@ -66,10 +66,10 @@ pub(crate) fn extract_import_modules(text: &str, lang: &str) -> Vec<String> {
         .collect()
 }
 
-/// Languages where '.' is a module separator (not a file extension).
-/// Single source of truth — used by both direct-capture and extract paths.
+/// Whether '.' is a module separator (not a file extension) for this language.
+/// Reads from the language profile (Layer 2). Falls back to false for unknown languages.
 pub(crate) fn lang_uses_dot_separator(lang: &str) -> bool {
-    matches!(lang, "python" | "java" | "csharp" | "scala" | "kotlin" | "ruby" | "php")
+    crate::analysis::lang_registry::profile(lang).semantics.dot_is_module_separator
 }
 
 /// Normalize a module path to slash-separated form.
@@ -191,34 +191,10 @@ pub(crate) fn extract_base_classes(node: tree_sitter::Node, content: &[u8], lang
 
 // ── Complexity counting ─────────────────────────────────────────────────
 
-/// Get language-specific complexity keywords.
-fn complexity_keywords(lang: &str) -> &'static [&'static str] {
-    match lang {
-        "python" => &[" if ", "\tif ", "elif ", "for ", "while ", "except ", " and ", " or "],
-        "rust" => &[
-            " if ", "\tif ", "else if", "for ", "while ", "loop ", "&&", "||",
-            "=> ", "=>{",
-        ],
-        "go" => &[
-            " if ", "\tif ", "else if", "for ", "switch ", "select ", "case ", "&&", "||",
-        ],
-        "java" | "csharp" | "cpp" | "c" => &[
-            " if ", "\tif ", "if(", "else if", "for ", "for(", "while ", "while(",
-            "switch ", "case ", "catch ", "&&", "||",
-        ],
-        "ruby" => &[
-            " if ", "\tif ", "elsif ", "unless ", "while ", "until ", "for ", "case ", "when ",
-            "&&", "||",
-        ],
-        "php" => &[
-            " if ", "\tif ", "if(", "elseif ", "for ", "for(", "foreach ", "while ", "while(",
-            "switch ", "case ", "catch ", "&&", "||",
-        ],
-        _ => &[
-            " if ", "\tif ", "if(", "else if", "for ", "for(", "while ", "while(",
-            "switch ", "case ", "&&", "||",
-        ],
-    }
+/// Get language-specific complexity keywords from the language profile.
+/// Falls back to the profile's compiled defaults when plugin.toml omits [semantics.complexity].
+fn complexity_keywords_for(lang: &str) -> Vec<String> {
+    crate::analysis::lang_registry::profile(lang).semantics.complexity.cc.clone()
 }
 
 /// Deduplicate and sort keywords longest-first for non-overlapping matching.
@@ -271,9 +247,10 @@ fn count_keyword_in_line(
 }
 
 pub(crate) fn count_complexity(body: &str, lang: &str) -> u32 {
-    let keywords = complexity_keywords(lang);
+    let keywords = complexity_keywords_for(lang);
     let code_lines = strip_strings_and_comments(body, lang);
-    let deduped_keywords = prepare_keywords(keywords);
+    let kw_refs: Vec<&str> = keywords.iter().map(|s| s.as_str()).collect();
+    let deduped_keywords = prepare_keywords(&kw_refs);
 
     let mut cc = 1u32;
     for line in code_lines.lines() {
@@ -287,26 +264,14 @@ pub(crate) fn count_complexity(body: &str, lang: &str) -> u32 {
     cc
 }
 
-/// Get branch keywords for cognitive complexity by language.
-fn cog_branch_keywords(lang: &str) -> &'static [&'static str] {
-    match lang {
-        "python" => &["if ", "elif ", "for ", "while ", "except ", "else:"],
-        "rust" => &["if ", "else if", "for ", "while ", "loop ", "match "],
-        "go" => &["if ", "else if", "for ", "switch ", "select ", "case "],
-        "java" | "csharp" | "cpp" | "c" => &["if ", "if(", "else if", "for ", "for(", "while ", "while(", "switch ", "case ", "catch "],
-        "ruby" => &["if ", "elsif ", "unless ", "while ", "until ", "for ", "case ", "when "],
-        "php" => &["if ", "if(", "elseif ", "for ", "for(", "foreach ", "while ", "while(", "switch ", "case ", "catch "],
-        _ => &["if ", "if(", "else if", "for ", "for(", "while ", "while(", "switch ", "case "],
-    }
+/// Get branch keywords for cognitive complexity from the language profile.
+fn cog_branch_keywords_for(lang: &str) -> Vec<String> {
+    crate::analysis::lang_registry::profile(lang).semantics.complexity.cog_branch.clone()
 }
 
-/// Get nesting-increasing keywords for cognitive complexity by language.
-fn cog_nesting_keywords(lang: &str) -> &'static [&'static str] {
-    match lang {
-        "python" => &["if ", "elif ", "for ", "while "],
-        "rust" => &["if ", "for ", "while ", "loop ", "match "],
-        _ => &["if ", "if(", "for ", "for(", "while ", "while(", "switch "],
-    }
+/// Get nesting-increasing keywords for cognitive complexity from the language profile.
+fn cog_nesting_keywords_for(lang: &str) -> Vec<String> {
+    crate::analysis::lang_registry::profile(lang).semantics.complexity.cog_nesting.clone()
 }
 
 /// Check if any branch keyword matches this trimmed line. Returns branch penalty if matched.
@@ -350,8 +315,10 @@ fn cog_update_nesting(trimmed: &str, nesting: i32, nesting_kw: &[&str]) -> i32 {
 /// (if/for/while/match/loop) increase depth for their body.
 pub(crate) fn count_cognitive_complexity(body: &str, lang: &str) -> u32 {
     let code_lines = strip_strings_and_comments(body, lang);
-    let branch_kw = cog_branch_keywords(lang);
-    let nesting_kw = cog_nesting_keywords(lang);
+    let branch_kw_owned = cog_branch_keywords_for(lang);
+    let nesting_kw_owned = cog_nesting_keywords_for(lang);
+    let branch_kw: Vec<&str> = branch_kw_owned.iter().map(|s| s.as_str()).collect();
+    let nesting_kw: Vec<&str> = nesting_kw_owned.iter().map(|s| s.as_str()).collect();
 
     let mut cog = 0u32;
     let mut nesting: i32 = 0;
@@ -359,9 +326,9 @@ pub(crate) fn count_cognitive_complexity(body: &str, lang: &str) -> u32 {
     for line in code_lines.lines() {
         let trimmed = line.trim();
         if trimmed.is_empty() { continue; }
-        cog += cog_branch_penalty(trimmed, branch_kw, nesting);
+        cog += cog_branch_penalty(trimmed, &branch_kw, nesting);
         cog += cog_logic_penalty(trimmed);
-        nesting = cog_update_nesting(trimmed, nesting, nesting_kw);
+        nesting = cog_update_nesting(trimmed, nesting, &nesting_kw);
     }
     cog
 }

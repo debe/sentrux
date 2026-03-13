@@ -8,25 +8,10 @@
 
 use std::collections::HashMap;
 
-// ── Named constants — no magic numbers [ref:736ae249] ──
-
-/// Cyclomatic complexity threshold per function.
-/// Our counter includes boolean operators (&&, ||, and, or) — this is "extended
-/// cyclomatic complexity" (Myers 1977), not McCabe's original. Extended CC runs
-/// ~30-50% higher than McCabe, so the threshold is 15 (not McCabe's 10).
-pub(crate) const CC_THRESHOLD_HIGH: u32 = 15;
-/// Function length threshold in lines (industry consensus: >50 = should split)
-pub(crate) const FUNC_LENGTH_THRESHOLD: u32 = 50;
-/// Fan-out threshold: file imports >15 others = god file (Robert C. Martin)
-pub(crate) const FAN_OUT_THRESHOLD: usize = 15;
-/// Fan-in threshold: file imported by >20 others = high blast radius
-pub(crate) const FAN_IN_THRESHOLD: usize = 20;
-/// File size threshold: >500 lines = large (industry consensus)
-pub(crate) const LARGE_FILE_THRESHOLD: u32 = 500;
-/// Cognitive complexity threshold per function (SonarSource 2016)
-pub(crate) const COG_THRESHOLD_HIGH: u32 = 15;
-/// Parameter count threshold per function (>4 = code smell)
-pub(crate) const PARAM_THRESHOLD_HIGH: u32 = 4;
+// ── Thresholds are now per-language, read from LanguageProfile ──
+// See analysis/plugin/profile.rs for defaults (LanguageThresholds::default()).
+// Per-language overrides come from plugin.toml [thresholds].
+// Project-level overrides come from .sentrux/rules.toml.
 
 /// Per-dimension grades and raw values.
 ///

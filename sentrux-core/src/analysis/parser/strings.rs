@@ -143,7 +143,7 @@ impl StripState {
     }
 
     /// Process one line, returning the stripped output (or None to skip the line).
-    fn process_line(&mut self, line: &str, lang: &str, hash_is_comment: bool) -> Option<String> {
+    fn process_line(&mut self, line: &str, hash_is_comment: bool, has_triple_quote_strings: bool) -> Option<String> {
         let trimmed = line.trim_start();
 
         if let Some(tq_char) = self.in_triple_quote {
@@ -170,7 +170,7 @@ impl StripState {
             }
         }
 
-        if lang == "python" {
+        if has_triple_quote_strings {
             if let Some((tq_char, out)) = detect_python_triple_quote(trimmed) {
                 self.in_triple_quote = Some(tq_char);
                 return out;
@@ -183,12 +183,18 @@ impl StripState {
 /// Strip strings and comments from source code, returning only code lines.
 /// Handles block comments (with nesting for Rust), single-line comments,
 /// triple-quoted strings (Python), and string literals.
+///
+/// Language-specific behavior is driven by the language profile (Layer 2):
+/// - `hash_is_comment`: from `profile.semantics.hash_is_comment`
+/// - `has_triple_quote_strings`: from `profile.semantics.has_triple_quote_strings`
 pub(crate) fn strip_strings_and_comments(body: &str, lang: &str) -> String {
-    let hash_is_comment = matches!(lang, "python" | "ruby" | "bash" | "r");
+    let profile = crate::analysis::lang_registry::profile(lang);
+    let hash_is_comment = profile.semantics.hash_is_comment;
+    let has_triple_quote_strings = profile.semantics.has_triple_quote_strings;
     let mut state = StripState::new();
 
     body.lines()
-        .filter_map(|line| state.process_line(line, lang, hash_is_comment))
+        .filter_map(|line| state.process_line(line, hash_is_comment, has_triple_quote_strings))
         .collect::<Vec<_>>()
         .join("\n")
 }

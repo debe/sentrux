@@ -3,6 +3,7 @@
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::path::Path;
+use super::profile::{LanguageSemantics, LanguageThresholds};
 
 /// Root manifest structure parsed from plugin.toml.
 #[derive(Debug, Deserialize)]
@@ -12,6 +13,12 @@ pub struct PluginManifest {
     pub queries: QueryInfo,
     #[serde(default)]
     pub checksums: HashMap<String, String>,
+    /// Layer 2: language-specific semantic knowledge (optional, defaults apply).
+    #[serde(default)]
+    pub semantics: LanguageSemantics,
+    /// Layer 2: language-specific metric thresholds (optional, defaults apply).
+    #[serde(default)]
+    pub thresholds: LanguageThresholds,
 }
 
 #[derive(Debug, Deserialize)]

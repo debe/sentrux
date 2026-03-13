@@ -9,6 +9,7 @@
 //! Plugin languages take priority over built-in (allows user overrides).
 
 use super::manifest::PluginManifest;
+use super::profile::LanguageProfile;
 use std::path::{Path, PathBuf};
 use tree_sitter::Language;
 
@@ -27,6 +28,8 @@ pub struct LoadedPlugin {
     pub grammar: Language,
     /// Compiled tree-sitter query source
     pub query_src: String,
+    /// Layer 2: language profile (semantics + thresholds)
+    pub profile: LanguageProfile,
 }
 
 /// Error loading a plugin (non-fatal — logged and skipped).
@@ -132,6 +135,12 @@ fn load_single_plugin(plugin_dir: &Path) -> Result<LoadedPlugin, String> {
     tree_sitter::Query::new(&grammar, &query_src)
         .map_err(|e| format!("Query compilation failed: {:?}", e))?;
 
+    let profile = LanguageProfile {
+        name: manifest.plugin.name.clone(),
+        semantics: manifest.semantics,
+        thresholds: manifest.thresholds,
+    };
+
     Ok(LoadedPlugin {
         name: manifest.plugin.name,
         display_name: manifest.plugin.display_name,
@@ -139,6 +148,7 @@ fn load_single_plugin(plugin_dir: &Path) -> Result<LoadedPlugin, String> {
         extensions: manifest.plugin.extensions,
         grammar,
         query_src,
+        profile,
     })
 }
 

@@ -214,67 +214,59 @@ fn build_risk_gaps(
 
 // ── Test file detection ──
 
-/// Detect if a file path is a test file based on naming conventions.
-/// Covers Rust, Python, JavaScript/TypeScript, Go, Java, C#, Ruby, PHP, etc.
+/// Detect if a file path is a test file.
+///
+/// Uses a two-layer approach:
+/// 1. Universal directory patterns (test/, tests/, __tests__/, spec/) — cross-language
+/// 2. Language-specific file patterns from the plugin profile (test_suffixes, test_prefixes)
+/// 3. Universal filename fallbacks (PascalCase Test/Spec suffixes, stem matching)
 pub fn is_test_file(path: &str) -> bool {
     let lower = path.to_lowercase();
+
+    // Layer 1: Universal directory patterns (cross-language)
     if is_test_directory(&lower) {
         return true;
     }
-    is_test_filename(path, &lower)
+
+    // Layer 2: Language-specific patterns from plugin profile
+    let ext = path.rsplit('.').next().unwrap_or("");
+    let lang = crate::analysis::lang_registry::detect_lang_from_ext(ext);
+    let profile = crate::analysis::lang_registry::profile(&lang);
+    if profile.is_test_file(path) {
+        return true;
+    }
+
+    // Layer 3: Universal filename fallbacks (PascalCase, stems)
+    is_test_filename_universal(path, &lower)
 }
 
-/// Known test directory prefixes (path starts with these).
-const TEST_DIR_PREFIXES: &[&str] = &[
+/// Universal test directory prefixes (cross-language conventions).
+const UNIVERSAL_TEST_DIR_PREFIXES: &[&str] = &[
     "test/", "tests/", "__tests__/", "spec/", "specs/",
     "fixtures/", "testdata/",
 ];
 
-/// Known test directory infixes (path contains these).
-const TEST_DIR_INFIXES: &[&str] = &[
+/// Universal test directory infixes (cross-language conventions).
+const UNIVERSAL_TEST_DIR_INFIXES: &[&str] = &[
     "/test/", "/tests/", "/__tests__/", "/spec/", "/specs/",
     "/fixtures/", "/testdata/",
 ];
 
 /// Check if the file lives in a known test/spec/fixture directory.
 fn is_test_directory(lower: &str) -> bool {
-    TEST_DIR_PREFIXES.iter().any(|p| lower.starts_with(p))
-        || TEST_DIR_INFIXES.iter().any(|p| lower.contains(p))
+    UNIVERSAL_TEST_DIR_PREFIXES.iter().any(|p| lower.starts_with(p))
+        || UNIVERSAL_TEST_DIR_INFIXES.iter().any(|p| lower.contains(p))
 }
 
-/// File suffixes that indicate test files (checked against lowered filename).
-const TEST_SUFFIXES: &[&str] = &[
-    "_test.rs", "_test.go", "_test.py",
-    ".test.js", ".test.ts", ".test.tsx", ".test.jsx",
-    ".spec.js", ".spec.ts", ".spec.tsx", ".spec.jsx",
-    "_spec.rb",
-];
-
-/// Stem suffixes that indicate test files (checked against name without extension).
-const TEST_STEM_SUFFIXES: &[&str] = &[
+/// Universal stem suffixes for test detection (language-agnostic fallback).
+const UNIVERSAL_STEM_SUFFIXES: &[&str] = &[
     "_test", "_tests", "_spec", ".test", ".spec",
 ];
 
-/// Check if a lowered filename matches test naming conventions by suffix.
-fn has_test_suffix(name: &str) -> bool {
-    name.starts_with("test_") || TEST_SUFFIXES.iter().any(|s| name.ends_with(s))
-}
-
-/// Check if the stem (name without extension) matches test naming.
-fn has_test_stem(name_no_ext: &str) -> bool {
-    matches!(name_no_ext, "test" | "tests" | "spec")
-        || TEST_STEM_SUFFIXES.iter().any(|s| name_no_ext.ends_with(s))
-}
-
-/// Check if the original (non-lowered) stem matches PascalCase test patterns.
-fn has_pascal_test_suffix(orig_no_ext: &str) -> bool {
-    orig_no_ext.ends_with("Test") || orig_no_ext.ends_with("Tests") || orig_no_ext.ends_with("Spec")
-}
-
-/// Check if the filename matches test naming conventions across languages.
-fn is_test_filename(path: &str, lower: &str) -> bool {
+/// Universal filename fallbacks — PascalCase patterns and stem matching.
+/// These catch tests in languages without specific profile patterns.
+fn is_test_filename_universal(path: &str, lower: &str) -> bool {
     let name = lower.rsplit('/').next().unwrap_or(lower);
-    // Strip only the last extension, not all dots
     let name_no_ext = match name.rfind('.') {
         Some(dot) => &name[..dot],
         None => name,
@@ -285,7 +277,20 @@ fn is_test_filename(path: &str, lower: &str) -> bool {
         None => orig_name,
     };
 
-    has_test_suffix(name) || has_test_stem(name_no_ext) || has_pascal_test_suffix(orig_no_ext)
+    // Stem-based detection
+    if matches!(name_no_ext, "test" | "tests" | "spec") {
+        return true;
+    }
+    if UNIVERSAL_STEM_SUFFIXES.iter().any(|s| name_no_ext.ends_with(s)) {
+        return true;
+    }
+
+    // PascalCase test patterns (Java, C#, Kotlin)
+    if orig_no_ext.ends_with("Test") || orig_no_ext.ends_with("Tests") || orig_no_ext.ends_with("Spec") {
+        return true;
+    }
+
+    false
 }
 
 // ── Internal helpers ──

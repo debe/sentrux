@@ -4,6 +4,7 @@
 //! No grammars are compiled into the binary. This keeps the binary small (~5MB)
 //! and allows anyone to add language support without recompilation.
 
+use crate::analysis::plugin::profile::{LanguageProfile, DEFAULT_PROFILE};
 use std::collections::HashMap;
 use tree_sitter::{Language, Query};
 
@@ -17,6 +18,8 @@ pub struct PluginLangConfig {
     pub query: Query,
     /// File extensions (owned)
     pub extensions: Vec<String>,
+    /// Layer 2: language profile (semantics + thresholds from plugin.toml)
+    pub profile: LanguageProfile,
 }
 
 /// Central registry mapping language names and file extensions to loaded plugins.
@@ -73,6 +76,7 @@ impl LangRegistry {
                         grammar: plugin.grammar,
                         query,
                         extensions: plugin.extensions,
+                        profile: plugin.profile,
                     });
                     self.by_name.insert(name, idx);
                     for ext in extensions {
@@ -91,6 +95,11 @@ impl LangRegistry {
     /// Look up by language name.
     pub fn get(&self, name: &str) -> Option<&PluginLangConfig> {
         self.by_name.get(name).map(|&idx| &self.configs[idx])
+    }
+
+    /// Get the language profile by name. Returns default profile if not found.
+    pub fn profile(&self, name: &str) -> &LanguageProfile {
+        self.get(name).map(|c| &c.profile).unwrap_or(&DEFAULT_PROFILE)
     }
 
     /// Look up by file extension (without dot).
@@ -119,6 +128,11 @@ impl LangRegistry {
 /// Get language config by name.
 pub fn get(name: &str) -> Option<&'static PluginLangConfig> {
     REGISTRY.get(name)
+}
+
+/// Get language profile by name. Returns default profile if no plugin loaded.
+pub fn profile(name: &str) -> &'static LanguageProfile {
+    REGISTRY.profile(name)
 }
 
 /// Get grammar + query for a language name.

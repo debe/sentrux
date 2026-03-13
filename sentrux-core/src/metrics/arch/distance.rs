@@ -115,27 +115,38 @@ fn is_abstract_kind(kind: Option<&str>) -> bool {
     matches!(kind, Some("interface") | Some("adt"))
 }
 
-/// Python base classes that indicate an abstract type.
-/// `typing.Protocol` (PEP 544) is the idiomatic way to define structural
-/// interfaces in modern Python — equivalent to Go interfaces or TypeScript
-/// structural types. `abc.ABC` / `ABCMeta` are the traditional approach.
-const PYTHON_ABSTRACT_BASES: &[&str] = &[
-    "Protocol", "ABC", "ABCMeta",
-];
-
-/// Check whether a class's base classes indicate it is abstract (Python).
-/// Covers `typing.Protocol`, `abc.ABC`, and `abc.ABCMeta`.
-fn has_abstract_base(bases: Option<&Vec<String>>) -> bool {
-    match bases {
-        Some(bs) => bs.iter().any(|b| {
-            let name = b.rsplit('.').next().unwrap_or(b);
-            PYTHON_ABSTRACT_BASES.contains(&name)
-        }),
-        None => false,
+/// Check whether a class is abstract based on its language profile.
+/// Reads `abstract_base_classes` (e.g., Python: Protocol, ABC, ABCMeta)
+/// and `abstract_keywords` (e.g., Java/C#: abstract) from plugin.toml [semantics].
+/// This replaces the Python-only hardcoded check with a per-language mechanism.
+fn is_abstract_by_profile(
+    cls: &crate::core::types::ClassInfo,
+    profile: &crate::analysis::plugin::profile::LanguageProfile,
+) -> bool {
+    // Check base classes (Python Protocol, ABC, ABCMeta)
+    if profile.has_abstract_base(cls.b.as_ref()) {
+        return true;
     }
+    // Check abstract keywords in class name context (Java/C# abstract class)
+    // Note: this is a heuristic. The class kind from tree-sitter is checked
+    // separately via is_abstract_kind(). This catches cases where tree-sitter
+    // can't distinguish abstract from concrete (e.g., Java `abstract class`).
+    if !profile.semantics.abstract_keywords.is_empty() {
+        if let Some(kind) = cls.k.as_deref() {
+            if kind == "class" {
+                // For languages with abstract keywords, we'd need the source text
+                // to check. For now, the abstract_keywords mechanism works via
+                // tree-sitter query improvements (capturing abstract_class_declaration
+                // as @definition.interface). This is a future enhancement.
+                // TODO: pass source text context for keyword matching
+            }
+        }
+    }
+    false
 }
 
 /// Count abstract and total types in a single file node's class list.
+/// Uses the file's language profile for abstract base detection (per-language).
 fn count_file_types(
     node: &crate::core::types::FileNode,
     module_abstract: &mut HashMap<String, usize>,
@@ -145,13 +156,14 @@ fn count_file_types(
         Some(cls) if !cls.is_empty() => cls,
         _ => return,
     };
+    let profile = crate::analysis::lang_registry::profile(&node.lang);
     let module = crate::core::path_utils::module_of(&node.path).to_string();
     // Count abstract and total in a single pass, then insert once to avoid N string clones.
     let mut total_count = 0usize;
     let mut abstract_count = 0usize;
     for cls in classes {
         total_count += 1;
-        if is_abstract_kind(cls.k.as_deref()) || has_abstract_base(cls.b.as_ref()) {
+        if is_abstract_kind(cls.k.as_deref()) || is_abstract_by_profile(cls, profile) {
             abstract_count += 1;
         }
     }

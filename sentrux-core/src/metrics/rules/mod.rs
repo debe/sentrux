@@ -22,11 +22,28 @@ use std::path::Path;
 // ── Rule definitions (parsed from TOML) ──
 
 /// Root config structure for `.sentrux/rules.toml`.
+///
+/// Supports per-language constraint overrides via `[language.<name>.constraints]`:
+/// ```toml
+/// [constraints]
+/// max_cc = 20              # global default
+///
+/// [language.python.constraints]
+/// max_cc = 10              # stricter for Python
+///
+/// [language.rust.constraints]
+/// max_cc = 25              # more lenient for Rust match arms
+/// ```
 #[derive(Debug, Clone, Deserialize)]
 pub struct RulesConfig {
     /// Structural constraints (thresholds on existing metrics).
     #[serde(default)]
     pub constraints: Constraints,
+
+    /// Per-language constraint overrides (highest priority in the cascade).
+    /// Keys are language names (e.g., "python", "rust").
+    #[serde(default)]
+    pub language: std::collections::HashMap<String, LanguageConstraints>,
 
     /// Layer definitions for dependency direction enforcement.
     #[serde(default)]
@@ -35,6 +52,25 @@ pub struct RulesConfig {
     /// Explicit deny rules between file patterns.
     #[serde(default)]
     pub boundaries: Vec<BoundaryRule>,
+}
+
+/// Per-language section in rules.toml.
+#[derive(Debug, Clone, Deserialize, Default)]
+pub struct LanguageConstraints {
+    /// Language-specific constraint overrides.
+    #[serde(default)]
+    pub constraints: Constraints,
+}
+
+impl RulesConfig {
+    /// Get effective constraints for a specific language.
+    /// Merges: language-specific overrides > global constraints.
+    pub fn effective_constraints(&self, lang: &str) -> Constraints {
+        match self.language.get(lang) {
+            Some(lc) => self.constraints.merge(&lc.constraints),
+            None => self.constraints.clone(),
+        }
+    }
 }
 
 

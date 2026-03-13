@@ -47,23 +47,17 @@ pub(crate) fn compute_exec_depth(
     exec_depth
 }
 
-/// Languages that can contain executable entry points (main functions, server
-/// start, CLI commands). Markup/style languages (html, css, scss) and config
-/// formats cannot. We check the lang_registry: if a file's language has a
-/// registered grammar AND is not in the non-executable set, it can have entry
-/// points. Unrecognized languages are conservatively allowed through so we
-/// don't accidentally filter out custom/new languages.
+/// Whether a language can contain executable entry points.
+/// Reads `is_executable` from the language profile (Layer 2).
+/// Non-executable languages (html, css, scss, markdown, etc.) return false.
+/// Unknown languages are conservatively allowed (may have entry points).
 fn can_have_entry_points(lang: &str) -> bool {
-    const NON_EXECUTABLE_LANGS: &[&str] = &[
-        "html", "css", "scss", "markdown", "json", "toml", "yaml", "xml",
-    ];
-    if NON_EXECUTABLE_LANGS.contains(&lang) {
+    // Non-plugin languages (json, toml, yaml, xml, markdown) aren't executable
+    const NON_EXECUTABLE_FALLBACKS: &[&str] = &["json", "toml", "yaml", "xml", "markdown"];
+    if NON_EXECUTABLE_FALLBACKS.contains(&lang) {
         return false;
     }
-    // If the lang_registry recognizes this language, it's a real programming
-    // language with a tree-sitter grammar — allow it. Also allow unknown
-    // languages (they may have entry points we just can't parse).
-    true
+    lang_registry::profile(lang).semantics.is_executable
 }
 
 /// Detect if a file is an entry point
@@ -132,6 +126,12 @@ fn is_main_entry_by_name(file: &FileNode) -> bool {
         return false;
     }
     // app.*/server.*/program.* only near project root (depth <= 2) [ref:daa66d13]
+    // Check language profile for custom main filenames first
+    let profile = lang_registry::profile(&file.lang);
+    if !profile.semantics.main_filenames.is_empty() {
+        return profile.semantics.main_filenames.iter().any(|mf| name_lower == mf.to_lowercase());
+    }
+    // Universal fallback: common app/server/program entry point patterns
     path_depth <= 2
         && matches!(
             name_lower.as_str(),

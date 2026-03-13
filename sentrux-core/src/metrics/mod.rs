@@ -39,21 +39,20 @@ use stability::{
     compute_avg_cohesion, compute_coupling_score, compute_shannon_entropy,
     compute_stable_modules,
 };
-use types::{
-    CC_THRESHOLD_HIGH, FUNC_LENGTH_THRESHOLD, FAN_OUT_THRESHOLD, FAN_IN_THRESHOLD,
-    LARGE_FILE_THRESHOLD, COG_THRESHOLD_HIGH, PARAM_THRESHOLD_HIGH,
-};
+// Threshold constants are no longer imported — thresholds are now per-language,
+// read from the LanguageProfile at runtime via lang_registry::profile().
 use crate::core::types::{EntryPoint, ImportEdge};
 use crate::core::snapshot::Snapshot;
 use crate::core::types::FileNode;
 use std::collections::{HashMap, HashSet};
 
-/// Check if a file path ends with a known package-index filename.
-/// Package-index files (__init__.py, mod.rs, index.js, etc.) act as barrel
-/// re-exporters whose fan-in reflects re-exports, not genuine coupling.
-pub(crate) fn is_package_index_file(path: &str) -> bool {
-    let filename = path.rsplit('/').next().unwrap_or(path);
-    crate::analysis::resolver::helpers::PACKAGE_INDEX_FILES.contains(&filename)
+/// Check if a file is a package-index / barrel file via its language profile.
+/// Now reads from plugin.toml [semantics] package_index_files per language,
+/// instead of a single hardcoded list.
+pub(crate) fn is_package_index_for_path(path: &str) -> bool {
+    let ext = path.rsplit('.').next().unwrap_or("");
+    let lang = crate::analysis::lang_registry::detect_lang_from_ext(ext);
+    crate::analysis::lang_registry::profile(&lang).is_package_index_file(path)
 }
 
 /// Compute per-file fan-out and fan-in counts from import edges.
@@ -70,7 +69,21 @@ fn compute_fan_maps(import_edges: &[ImportEdge]) -> (HashMap<String, usize>, Has
     (fan_out, fan_in)
 }
 
-/// Detect god files: files with fan-out exceeding FAN_OUT_THRESHOLD.
+/// Resolve file path to its language profile's fan-out threshold.
+fn fan_out_threshold_for_path(path: &str) -> usize {
+    let ext = path.rsplit('.').next().unwrap_or("");
+    let lang = crate::analysis::lang_registry::detect_lang_from_ext(ext);
+    crate::analysis::lang_registry::profile(&lang).thresholds.fan_out
+}
+
+/// Resolve file path to its language profile's fan-in threshold.
+fn fan_in_threshold_for_path(path: &str) -> usize {
+    let ext = path.rsplit('.').next().unwrap_or("");
+    let lang = crate::analysis::lang_registry::detect_lang_from_ext(ext);
+    crate::analysis::lang_registry::profile(&lang).thresholds.fan_in
+}
+
+/// Detect god files: files with fan-out exceeding per-language FAN_OUT threshold.
 /// Entry-point files are excluded (they legitimately import many modules).
 fn detect_god_files(
     fan_out: &HashMap<String, usize>,
@@ -83,7 +96,10 @@ fn detect_god_files(
     let mut v: Vec<FileMetric> = fan_out
         .iter()
         .filter(|(path, &count)| {
-            count > FAN_OUT_THRESHOLD && !entry_file_set.contains(path.as_str())
+            let threshold = fan_out_threshold_for_path(path);
+            count > threshold
+                && !entry_file_set.contains(path.as_str())
+                && !is_package_index_for_path(path)
         })
         .map(|(path, &count)| FileMetric { path: path.clone(), value: count })
         .collect();
@@ -99,10 +115,11 @@ fn detect_hotspot_files(fan_in: &HashMap<String, usize>, fan_out: &HashMap<Strin
     let mut v: Vec<FileMetric> = fan_in
         .iter()
         .filter(|(path, &count)| {
-            if count <= FAN_IN_THRESHOLD { return false; }
+            let threshold = fan_in_threshold_for_path(path);
+            if count <= threshold { return false; }
             // Exclude package-index / barrel files — their high fan-in is an
             // artifact of re-exporting, not a design flaw.
-            if is_package_index_file(path) { return false; }
+            if is_package_index_for_path(path) { return false; }
             // Exclude stable foundations (I < 0.15): high fan-in + low fan-out
             // is GOOD architecture (Martin's SDP). Only flag unstable hotspots.
             let fo = *fan_out.get(path.as_str()).unwrap_or(&0);
@@ -148,10 +165,11 @@ fn compute_instability(
 }
 
 /// Collect functions exceeding a threshold on a given metric.
-/// `extract_value` returns Some(value) if the function exceeds the threshold.
+/// `extract_value` receives the file (for language-aware thresholds) and each function.
+/// Returns Some(value) if the function exceeds the threshold.
 fn collect_functions_exceeding(
     files: &[&FileNode],
-    extract_value: impl Fn(&crate::core::types::FuncInfo) -> Option<u32>,
+    extract_value: impl Fn(&FileNode, &crate::core::types::FuncInfo) -> Option<u32>,
 ) -> Vec<FuncMetric> {
     let mut result = Vec::new();
     for file in files {
@@ -160,7 +178,7 @@ fn collect_functions_exceeding(
             None => continue,
         };
         for f in funcs {
-            if let Some(value) = extract_value(f) {
+            if let Some(value) = extract_value(file, f) {
                 result.push(FuncMetric {
                     file: file.path.clone(),
                     func: f.n.clone(),
@@ -173,27 +191,30 @@ fn collect_functions_exceeding(
     result
 }
 
-/// Collect complex functions (CC > 15) and long functions (> 50 lines) from all files.
+/// Collect complex functions and long functions from all files.
+/// Thresholds are per-language: reads from the file's language profile.
 fn collect_per_function_metrics(
     files: &[&FileNode],
 ) -> (Vec<FuncMetric>, Vec<FuncMetric>) {
-    let complex_functions = collect_functions_exceeding(files, |f| {
-        f.cc.filter(|&cc| cc > CC_THRESHOLD_HIGH)
+    let complex_functions = collect_functions_exceeding(files, |file, f| {
+        let threshold = crate::analysis::lang_registry::profile(&file.lang).thresholds.cc_high;
+        f.cc.filter(|&cc| cc > threshold)
     });
-    let long_functions = collect_functions_exceeding(files, |f| {
-        if f.ln > FUNC_LENGTH_THRESHOLD { Some(f.ln) } else { None }
+    let long_functions = collect_functions_exceeding(files, |file, f| {
+        let threshold = crate::analysis::lang_registry::profile(&file.lang).thresholds.func_length;
+        if f.ln > threshold { Some(f.ln) } else { None }
     });
     (complex_functions, long_functions)
 }
 
 /// Collect ALL function cyclomatic complexities (unfiltered, for rules engine).
 fn collect_all_function_ccs(files: &[&FileNode]) -> Vec<FuncMetric> {
-    collect_functions_exceeding(files, |f| f.cc)
+    collect_functions_exceeding(files, |_file, f| f.cc)
 }
 
 /// Collect ALL function line counts (unfiltered, for rules engine).
 fn collect_all_function_lines(files: &[&FileNode]) -> Vec<FuncMetric> {
-    collect_functions_exceeding(files, |f| Some(f.ln))
+    collect_functions_exceeding(files, |_file, f| Some(f.ln))
 }
 
 /// Collect ALL file line counts (unfiltered, for rules engine).
@@ -215,13 +236,17 @@ fn compute_comment_ratio(files: &[&FileNode]) -> Option<f64> {
     } else { None }
 }
 
-/// Compute large file statistics: files exceeding LARGE_FILE_THRESHOLD lines.
+/// Compute large file statistics: files exceeding per-language large_file_lines threshold.
 /// Returns (long_files_list, count, ratio_vs_total_code_files).
 fn compute_large_file_stats(
     files: &[&FileNode],
 ) -> (Vec<FileMetric>, usize, f64) {
     let long_files: Vec<FileMetric> = files.iter()
-        .filter(|f| !f.lang.is_empty() && f.lang != "unknown" && f.lines > LARGE_FILE_THRESHOLD)
+        .filter(|f| {
+            if f.lang.is_empty() || f.lang == "unknown" { return false; }
+            let threshold = crate::analysis::lang_registry::profile(&f.lang).thresholds.large_file_lines;
+            f.lines > threshold
+        })
         .map(|f| FileMetric { path: f.path.clone(), value: f.lines as usize })
         .collect();
     let large_file_count = long_files.len();
@@ -232,17 +257,19 @@ fn compute_large_file_stats(
     (long_files, large_file_count, large_file_ratio)
 }
 
-/// Collect functions with cognitive complexity > threshold.
+/// Collect functions with cognitive complexity > threshold (per-language).
 fn collect_cog_complex_functions(files: &[&FileNode]) -> Vec<FuncMetric> {
-    collect_functions_exceeding(files, |f| {
-        f.cog.filter(|&cog| cog > COG_THRESHOLD_HIGH)
+    collect_functions_exceeding(files, |file, f| {
+        let threshold = crate::analysis::lang_registry::profile(&file.lang).thresholds.cog_high;
+        f.cog.filter(|&cog| cog > threshold)
     })
 }
 
-/// Collect functions with parameter count > threshold.
+/// Collect functions with parameter count > threshold (per-language).
 fn collect_high_param_functions(files: &[&FileNode]) -> Vec<FuncMetric> {
-    collect_functions_exceeding(files, |f| {
-        f.pc.filter(|&pc| pc > PARAM_THRESHOLD_HIGH)
+    collect_functions_exceeding(files, |file, f| {
+        let threshold = crate::analysis::lang_registry::profile(&file.lang).thresholds.param_high;
+        f.pc.filter(|&pc| pc > threshold)
     })
 }
 

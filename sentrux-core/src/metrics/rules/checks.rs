@@ -44,6 +44,21 @@ impl Constraints {
         if self.max_upward_violations.is_some() { n += 1; }
         n
     }
+
+    /// Merge language-specific overrides into this constraint set.
+    /// For each field, the override takes precedence if set.
+    pub fn merge(&self, override_with: &Constraints) -> Constraints {
+        Constraints {
+            max_grade: override_with.max_grade.or(self.max_grade),
+            max_coupling: override_with.max_coupling.or(self.max_coupling),
+            max_cycles: override_with.max_cycles.or(self.max_cycles),
+            max_cc: override_with.max_cc.or(self.max_cc),
+            max_file_lines: override_with.max_file_lines.or(self.max_file_lines),
+            max_fn_lines: override_with.max_fn_lines.or(self.max_fn_lines),
+            no_god_files: override_with.no_god_files || self.no_god_files,
+            max_upward_violations: override_with.max_upward_violations.or(self.max_upward_violations),
+        }
+    }
 }
 
 /// Result of running all architecture rules against a codebase.
