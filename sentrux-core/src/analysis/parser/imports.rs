@@ -47,6 +47,7 @@ pub(crate) fn extract_import_modules(text: &str, lang: &str) -> Vec<String> {
         "html" => lang_extractors::extract_html(text),
         "css" | "scss" | "sass" => lang_extractors::extract_css(text),
         "scala" | "swift" | "kotlin" => lang_extractors::extract_jvm_like(text),
+        "elixir" => lang_extractors::extract_elixir(text),
         _ => lang_extractors::extract_fallback(text),
     };
 

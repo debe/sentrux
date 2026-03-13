@@ -220,6 +220,102 @@ pub(super) fn extract_jvm_like(text: &str) -> Vec<String> {
     if s.is_empty() { vec![] } else { vec![s] }
 }
 
+/// Convert a PascalCase string to snake_case.
+/// Examples: "GenServer" → "gen_server", "HTTPClient" → "http_client", "IO" → "io"
+fn pascal_to_snake(s: &str) -> String {
+    let mut result = String::with_capacity(s.len() + 4);
+    let chars: Vec<char> = s.chars().collect();
+    for (i, &c) in chars.iter().enumerate() {
+        if c.is_uppercase() {
+            if i > 0 {
+                let prev = chars[i - 1];
+                if prev.is_lowercase() || prev.is_ascii_digit()
+                    || (prev.is_uppercase()
+                        && chars.get(i + 1).is_some_and(|ch| ch.is_lowercase()))
+                {
+                    result.push('_');
+                }
+            }
+            result.push(c.to_lowercase().next().unwrap());
+        } else {
+            result.push(c);
+        }
+    }
+    result
+}
+
+/// Convert an Elixir module name to a file-system path.
+/// "Collect.Listing" → "collect/listing", "GenServer" → "gen_server"
+fn elixir_module_to_path(module: &str) -> String {
+    module
+        .split('.')
+        .map(pascal_to_snake)
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
+/// Expand Elixir multi-alias syntax: "Collect.{Listing, Offer}" → ["collect/listing", "collect/offer"]
+fn expand_elixir_multi_alias(text: &str) -> Vec<String> {
+    let brace_start = match text.find('{') {
+        Some(i) => i,
+        None => return vec![],
+    };
+    let brace_end = match text.find('}') {
+        Some(i) => i,
+        None => return vec![],
+    };
+    // Prefix is everything before ".{" — strip the trailing dot
+    let prefix = text[..brace_start].trim_end_matches('.');
+    let items = &text[brace_start + 1..brace_end];
+    items
+        .split(',')
+        .map(|item| {
+            let name = item.trim();
+            if name.is_empty() {
+                String::new()
+            } else {
+                elixir_module_to_path(&format!("{}.{}", prefix, name))
+            }
+        })
+        .filter(|s| !s.is_empty())
+        .collect()
+}
+
+pub(super) fn extract_elixir(text: &str) -> Vec<String> {
+    let trimmed = text.trim();
+    // Strip keyword prefix
+    let rest = if let Some(r) = trimmed.strip_prefix("alias ") { r }
+        else if let Some(r) = trimmed.strip_prefix("import ") { r }
+        else if let Some(r) = trimmed.strip_prefix("use ") { r }
+        else if let Some(r) = trimmed.strip_prefix("require ") { r }
+        else { return vec![] };
+
+    let rest = rest.trim_start();
+
+    // Stop at first newline (multi-line do blocks)
+    let rest = rest.split('\n').next().unwrap_or(rest);
+
+    // Handle multi-alias: alias Collect.{Listing, Offer}
+    if rest.contains('{') {
+        return expand_elixir_multi_alias(rest);
+    }
+
+    // Extract module name: first token (PascalCase segments separated by dots)
+    // Stop at comma (options), whitespace after module, or "do"
+    let module = rest
+        .split(|c: char| c == ',' || c == ' ' || c == '\t')
+        .next()
+        .unwrap_or("")
+        .trim();
+
+    if module.is_empty() || !module.starts_with(|c: char| c.is_uppercase()) {
+        return vec![];
+    }
+
+    let path = elixir_module_to_path(module);
+    if path.is_empty() { vec![] } else { vec![path] }
+}
+
 pub(super) fn extract_fallback(text: &str) -> Vec<String> {
     // Search for standalone "from" keyword (word boundary), not substring inside
     // identifiers like "transform", "perform", "platform".

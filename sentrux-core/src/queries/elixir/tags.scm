@@ -36,3 +36,10 @@
 (binary_operator
   operator: "|>"
   right: (identifier) @name) @reference.call
+
+; ---- Import appendix (custom) ----
+; alias/import/use/require — capture the whole call as @import
+; so extract_elixir() can parse the keyword + module name from text.
+(call
+  target: (identifier) @_import_kw
+  (#any-of? @_import_kw "alias" "import" "use" "require")) @import
