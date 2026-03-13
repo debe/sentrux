@@ -551,36 +551,62 @@ capabilities = ["functions", "classes", "imports"]
         .filter(|p| std::path::Path::new(p).is_dir())
     };
 
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([1600.0, 1000.0])
-            .with_maximized(true)
-            .with_title(if sentrux_core::license::current_tier() >= sentrux_core::license::Tier::Pro { "Sentrux Pro" } else { "sentrux" }),
-        renderer: eframe::Renderer::Wgpu,
-        wgpu_options: eframe::egui_wgpu::WgpuConfiguration {
-            wgpu_setup: eframe::egui_wgpu::WgpuSetup::CreateNew(eframe::egui_wgpu::WgpuSetupCreateNew {
-                instance_descriptor: eframe::wgpu::InstanceDescriptor {
-                    // Vulkan surface creation via EGL/DRI3 is unreliable on many
-                    // Linux setups; default to GL (still hardware-accelerated).
-                    // Override with WGPU_BACKEND=vulkan if desired.
-                    backends: eframe::wgpu::Backends::from_env()
-                        .unwrap_or(if cfg!(target_os = "linux") {
-                            eframe::wgpu::Backends::GL
-                        } else {
-                            eframe::wgpu::Backends::PRIMARY | eframe::wgpu::Backends::GL
-                        }),
-                    ..Default::default()
-                },
-                ..Default::default()
-            }),
-            ..Default::default()
-        },
-        ..Default::default()
+    // Runtime backend fallback: try all backends first, then narrow down on failure.
+    // This handles every Linux GPU driver situation without compile-time guessing.
+    // User can always override with WGPU_BACKEND=vulkan|gl|dx12|metal env var.
+    let env_backends = eframe::wgpu::Backends::from_env();
+    let backend_attempts: Vec<eframe::wgpu::Backends> = if env_backends.is_some() {
+        // User explicitly chose — respect it, no fallback
+        vec![env_backends.unwrap()]
+    } else {
+        vec![
+            eframe::wgpu::Backends::PRIMARY | eframe::wgpu::Backends::GL, // try everything
+            eframe::wgpu::Backends::GL,                                    // GL-only fallback
+            eframe::wgpu::Backends::PRIMARY,                               // native-only fallback
+        ]
     };
 
-    eframe::run_native(
-        "Sentrux",
-        options,
-        Box::new(move |cc| Ok(Box::new(app::SentruxApp::new(cc, initial_path)))),
-    )
+    let title = if sentrux_core::license::current_tier() >= sentrux_core::license::Tier::Pro { "Sentrux Pro" } else { "sentrux" };
+
+    for (i, backends) in backend_attempts.iter().enumerate() {
+        eprintln!("[gpu] attempt {}/{}: backends {:?}", i + 1, backend_attempts.len(), backends);
+
+        let options = eframe::NativeOptions {
+            viewport: egui::ViewportBuilder::default()
+                .with_inner_size([1600.0, 1000.0])
+                .with_maximized(true)
+                .with_title(title),
+            renderer: eframe::Renderer::Wgpu,
+            wgpu_options: eframe::egui_wgpu::WgpuConfiguration {
+                wgpu_setup: eframe::egui_wgpu::WgpuSetup::CreateNew(eframe::egui_wgpu::WgpuSetupCreateNew {
+                    instance_descriptor: eframe::wgpu::InstanceDescriptor {
+                        backends: *backends,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        let path_clone = initial_path.clone();
+        let result = eframe::run_native(
+            "Sentrux",
+            options,
+            Box::new(move |cc| Ok(Box::new(app::SentruxApp::new(cc, path_clone)))),
+        );
+
+        match result {
+            Ok(()) => return Ok(()),
+            Err(e) => {
+                eprintln!("[gpu] backend {:?} failed: {}", backends, e);
+                if i + 1 == backend_attempts.len() {
+                    eprintln!("[gpu] all backends exhausted — try setting WGPU_BACKEND=gl or WGPU_BACKEND=vulkan");
+                    return Err(e);
+                }
+            }
+        }
+    }
+    Ok(())
 }

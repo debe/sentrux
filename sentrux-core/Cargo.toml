@@ -1,6 +1,6 @@
 [package]
 name = "sentrux-core"
-version = "0.3.10"
+version = "0.3.11"
 edition = "2021"
 description = "Core library for sentrux — structural quality analysis engine"
 license = "MIT"
