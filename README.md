@@ -142,7 +142,7 @@ Claude Code:
 /plugin install sentrux
 ```
 
-Cursor / Windsurf / other MCP clients — add to your MCP config:
+Cursor / Windsurf / OpenCode / OpenClaw / any MCP client — add to your MCP config:
 
 ```json
 {
