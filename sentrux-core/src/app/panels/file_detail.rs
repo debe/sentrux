@@ -62,16 +62,7 @@ pub(crate) fn draw_file_detail(
     let is_pro = crate::license::current_tier().is_pro();
 
     if !is_pro {
-        ui.add_space(4.0);
-        ui.label(
-            egui::RichText::new("Upgrade to Pro for file-level details:")
-                .monospace().size(8.0).color(tc.text_secondary),
-        );
-        ui.label(
-            egui::RichText::new("  imports, importers, functions, blast radius")
-                .monospace().size(8.0).color(egui::Color32::from_rgb(100, 100, 110)),
-        );
-        return;
+        return; // Free: show basic info only, no upsell text
     }
 
     // ── PRO ONLY: detailed metrics ──

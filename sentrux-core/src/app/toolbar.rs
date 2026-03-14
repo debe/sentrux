@@ -377,7 +377,6 @@ fn draw_toggle_buttons(ui: &mut egui::Ui, state: &mut AppState) {
                             "complex_fn": d.complex_fn.to_string(),
                             "dead_code": d.dead_code.to_string(),
                         },
-                        "upgrade": "sentrux.dev/pro for full details"
                     })
                 };
                 let json = serde_json::to_string_pretty(&summary).unwrap_or_default();
