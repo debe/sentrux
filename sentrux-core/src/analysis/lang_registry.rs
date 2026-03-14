@@ -218,6 +218,11 @@ pub fn all_package_index_files() -> std::collections::HashSet<&'static str> {
     REGISTRY.all_package_index_files()
 }
 
+/// Iterate over all loaded language profiles.
+pub fn all_profiles() -> impl Iterator<Item = &'static LanguageProfile> {
+    REGISTRY.all_profiles()
+}
+
 /// Detect language name from file extension string.
 pub fn detect_lang_from_ext(ext: &str) -> String {
     if let Some(config) = REGISTRY.get_by_ext(ext) {

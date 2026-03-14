@@ -1,8 +1,8 @@
-//! Suffix-index import resolver — Tier 2 resolution for non-JS/TS languages.
+//! Unified import resolver — suffix-index for ALL languages.
 //!
 //! Resolves import specifiers by matching against a suffix index of all known
-//! file paths. Handles relative imports, language-specific conventions (Rust mod,
-//! Python package, Go package), and monorepo project boundaries.
+//! file paths. Handles relative imports, path aliases (from plugin-declared
+//! config files like tsconfig.json), and monorepo project boundaries.
 
 use crate::core::types::ImportEdge;
 use crate::core::types::FileNode;
@@ -100,9 +100,12 @@ pub(crate) fn resolve_path_imports_ref(files: &[&FileNode], scan_root: Option<&P
     let t_project_map = t0.elapsed();
 
     let suffix_index = build_module_suffix_index(&known_files, scan_root, &project_map);
+
+    // Load path aliases from plugin-declared config files (tsconfig.json, etc.)
+    let path_aliases = load_path_aliases(&project_map, scan_root);
     let t_suffix = t0.elapsed();
 
-    let edges = resolve_tier2_imports(files, &known_files, &project_map, &suffix_index, &exts);
+    let edges = resolve_tier2_imports(files, &known_files, &project_map, &suffix_index, &exts, &path_aliases);
     let t_total = t0.elapsed();
 
     eprintln!(
@@ -154,11 +157,11 @@ fn resolve_tier2_imports(
     project_map: &HashMap<String, String>,
     suffix_index: &SuffixIndex<'_>,
     exts: &[&str],
+    path_aliases: &HashMap<String, Vec<PathAlias>>,
 ) -> Vec<ImportEdge> {
     let stats = ResolutionStats::new();
     let idx = ResolutionIndex { known_files, project_map, suffix_index };
     let env = ResolveEnv { suffix_index, known_files, exts };
-    // All languages go through the unified suffix-index resolver (no tier split)
     let edges: Vec<ImportEdge> = files
         .par_iter()
         .filter(|f| !f.is_dir)
@@ -170,9 +173,15 @@ fn resolve_tier2_imports(
             let file_dir = Path::new(&file.path).parent().unwrap_or(Path::new(""));
             let src_project = project_map.get(&file.path).map(|s| s.as_str()).unwrap_or("");
 
+            // Get path aliases for this file's project
+            let project_aliases = path_aliases.get(src_project).map(|v| v.as_slice()).unwrap_or(&[]);
+
             imports.iter()
                 .filter_map(|specifier| {
-                    let src = SourceContext { specifier, file, file_dir, src_project };
+                    // Apply path alias substitution before resolving
+                    let resolved_spec = apply_path_alias(specifier, project_aliases);
+                    let spec_ref = resolved_spec.as_deref().unwrap_or(specifier);
+                    let src = SourceContext { specifier: spec_ref, file, file_dir, src_project };
                     resolve_single_specifier(&src, &idx, &env, &stats)
                 })
                 .collect()
@@ -536,3 +545,106 @@ fn resolve_module_import(
     None
 }
 
+// ── Path alias resolution (data-driven from plugin.toml) ──────────────
+
+/// A single path alias mapping: prefix → replacement paths.
+pub(crate) struct PathAlias {
+    prefix: String,
+    replacements: Vec<String>,
+}
+
+/// Apply path alias substitution to a specifier.
+fn apply_path_alias(specifier: &str, aliases: &[PathAlias]) -> Option<String> {
+    for alias in aliases {
+        if specifier.starts_with(&alias.prefix) {
+            let remainder = &specifier[alias.prefix.len()..];
+            if let Some(replacement) = alias.replacements.first() {
+                return Some(format!("{}{}", replacement, remainder));
+            }
+        }
+    }
+    None
+}
+
+/// Load path aliases from plugin-declared config files (tsconfig.json, etc.).
+fn load_path_aliases(
+    project_map: &HashMap<String, String>,
+    scan_root: &Path,
+) -> HashMap<String, Vec<PathAlias>> {
+    let mut result: HashMap<String, Vec<PathAlias>> = HashMap::new();
+    let unique_roots: HashSet<&str> = project_map.values().map(|s| s.as_str()).collect();
+
+    for profile in crate::analysis::lang_registry::all_profiles() {
+        let resolver = &profile.semantics.resolver;
+        if resolver.path_alias_file.is_empty() || resolver.path_alias_field.is_empty() {
+            continue;
+        }
+        for &project_dir in &unique_roots {
+            if result.contains_key(project_dir) {
+                continue;
+            }
+            let config_path = if project_dir.is_empty() {
+                scan_root.join(&resolver.path_alias_file)
+            } else {
+                scan_root.join(project_dir).join(&resolver.path_alias_file)
+            };
+            if !config_path.exists() {
+                continue;
+            }
+            if let Some(aliases) = parse_path_alias_config(
+                &config_path, &resolver.path_alias_field, &resolver.path_alias_base_url,
+            ) {
+                result.insert(project_dir.to_string(), aliases);
+            }
+        }
+    }
+    result
+}
+
+/// Parse a JSON config file and extract path alias mappings.
+fn parse_path_alias_config(
+    config_path: &Path,
+    field_path: &str,
+    base_url_path: &str,
+) -> Option<Vec<PathAlias>> {
+    let content = std::fs::read_to_string(config_path).ok()?;
+    let json: serde_json::Value = serde_json::from_str(&content).ok()?;
+
+    let base_url = if !base_url_path.is_empty() {
+        navigate_json(&json, base_url_path)
+            .and_then(|v| v.as_str())
+            .unwrap_or(".")
+    } else { "." };
+
+    let paths_obj = navigate_json(&json, field_path)?.as_object()?;
+    let mut aliases = Vec::new();
+
+    for (pattern, mapped) in paths_obj {
+        let prefix = pattern.trim_end_matches('*');
+        if prefix.is_empty() { continue; }
+        let replacements: Vec<String> = match mapped {
+            serde_json::Value::Array(arr) => arr.iter()
+                .filter_map(|v| v.as_str())
+                .map(|s| {
+                    let stripped = s.trim_end_matches('*');
+                    if base_url == "." { stripped.to_string() }
+                    else { format!("{}/{}", base_url.trim_end_matches('/'), stripped.trim_start_matches("./")) }
+                })
+                .collect(),
+            _ => continue,
+        };
+        if !replacements.is_empty() {
+            aliases.push(PathAlias { prefix: prefix.to_string(), replacements });
+        }
+    }
+
+    aliases.sort_by(|a, b| b.prefix.len().cmp(&a.prefix.len()));
+    if aliases.is_empty() { None } else { Some(aliases) }
+}
+
+/// Navigate a JSON value by dot-separated path.
+fn navigate_json<'a>(value: &'a serde_json::Value, path: &str) -> Option<&'a serde_json::Value> {
+    let mut current = value;
+    for key in path.split('.') { current = current.get(key)?; }
+    Some(current)
+}
