@@ -5,7 +5,6 @@
 //! and per-match-kind processing (func def, class def, import, call).
 
 use super::imports::{
-    count_complexity, count_cognitive_complexity,
     count_complexity_ast, count_cognitive_complexity_ast,
     count_parameters, hash_body,
     extract_base_classes,
@@ -236,15 +235,14 @@ pub(super) fn process_func_def(
         let body = node.utf8_text(pctx.content).unwrap_or("");
         let profile = crate::analysis::lang_registry::profile(pctx.lang);
         let (cc, cog) = if profile.semantics.complexity.is_configured() {
-            // AST-based: walk tree-sitter nodes directly (no text scanning)
+            // AST-based: walk tree-sitter nodes directly
             let cc = count_complexity_ast(node, pctx.content, profile);
             let cog = count_cognitive_complexity_ast(node, pctx.content, profile);
             (cc, cog)
         } else {
-            // Legacy fallback: text-based keyword scanning
-            let cc = count_complexity(body, pctx.lang);
-            let cog = count_cognitive_complexity(body, pctx.lang);
-            (cc, cog)
+            // No complexity config → CC=1 (base path), COG=0
+            // Languages must declare branch_nodes in plugin.toml to get complexity analysis.
+            (1u32, 0u32)
         };
         let pc = count_parameters(node, pctx.content);
         let bh = hash_body(body, pctx.lang);

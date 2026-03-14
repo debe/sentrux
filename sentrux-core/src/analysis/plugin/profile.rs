@@ -133,10 +133,8 @@ pub struct LanguageSemantics {
     #[serde(default)]
     pub complexity: ComplexityNodes,
 
-    /// Legacy text-based complexity keywords (deprecated, fallback only).
-    /// Used when complexity.branch_nodes is empty (plugin hasn't been updated yet).
-    #[serde(default, rename = "complexity_keywords")]
-    pub complexity_keywords_legacy: Option<ComplexityKeywordsLegacy>,
+    // Legacy complexity_keywords section is ignored if present in plugin.toml.
+    // All complexity analysis uses AST node-based branch_nodes/logic_nodes.
 }
 
 /// AST-based import path extraction configuration.
@@ -375,15 +373,6 @@ pub struct ComplexityNodes {
     pub nesting_nodes: Vec<String>,
 }
 
-/// Legacy text-based complexity keywords (for backward compatibility during migration).
-#[derive(Debug, Clone, Deserialize)]
-#[serde(default)]
-pub struct ComplexityKeywordsLegacy {
-    pub cc: Vec<String>,
-    pub cog_branch: Vec<String>,
-    pub cog_nesting: Vec<String>,
-}
-
 // ── Thresholds: what's normal for this language ──
 
 /// Per-language metric thresholds.
@@ -462,28 +451,6 @@ impl Default for ComplexityNodes {
     }
 }
 
-impl Default for ComplexityKeywordsLegacy {
-    fn default() -> Self {
-        Self {
-            cc: vec![
-                " if ".into(), "\tif ".into(), "if(".into(),
-                "else if".into(), "for ".into(), "for(".into(),
-                "while ".into(), "while(".into(), "switch ".into(),
-                "case ".into(), "catch ".into(), "&&".into(), "||".into(),
-            ],
-            cog_branch: vec![
-                "if ".into(), "if(".into(), "else if".into(),
-                "for ".into(), "for(".into(), "while ".into(), "while(".into(),
-                "switch ".into(), "case ".into(), "catch ".into(),
-            ],
-            cog_nesting: vec![
-                "if ".into(), "if(".into(), "for ".into(), "for(".into(),
-                "while ".into(), "while(".into(), "switch ".into(),
-            ],
-        }
-    }
-}
-
 impl ComplexityNodes {
     /// Whether this profile has AST-based complexity nodes configured.
     /// If false, the platform should fall back to legacy text-based counting.
@@ -514,7 +481,6 @@ impl Default for LanguageSemantics {
             test_suffixes: Vec::new(),
             test_prefixes: Vec::new(),
             complexity: ComplexityNodes::default(),
-            complexity_keywords_legacy: None,
         }
     }
 }
