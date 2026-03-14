@@ -463,7 +463,7 @@ impl Default for LanguageSemantics {
     fn default() -> Self {
         Self {
             dot_is_module_separator: false,
-            import_extractor: "fallback".into(),
+            import_extractor: String::new(),
             base_class_extractor: "generic".into(),
             base_class_node_kinds: Vec::new(),
             import_ast: ImportAstConfig::default(),
@@ -690,7 +690,7 @@ mod tests {
         assert_eq!(sem.package_index_files, vec!["__init__.py"]);
         // Defaults for omitted fields
         assert!(!sem.has_triple_quote_strings);
-        assert_eq!(sem.import_extractor, "fallback");
+        assert_eq!(sem.import_extractor, "");
     }
 
     #[test]
