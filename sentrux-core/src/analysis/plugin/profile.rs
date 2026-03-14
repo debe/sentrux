@@ -258,6 +258,12 @@ pub struct ProjectConfig {
     /// Whether directories act as implicit packages (no index file needed).
     /// True for Go (any .go file in a dir is part of the package).
     pub directory_is_package: bool,
+
+    /// Whether all files in the same project implicitly see each other.
+    /// True for Swift, Objective-C (all files in same Xcode target are visible).
+    /// When true, call edges are created between any files with matching function
+    /// names, without requiring an import edge as proof.
+    pub implicit_module: bool,
 }
 
 impl Default for ProjectConfig {
@@ -268,6 +274,7 @@ impl Default for ProjectConfig {
             source_dirs: Vec::new(),
             mod_declaration_files: Vec::new(),
             directory_is_package: false,
+            implicit_module: false,
         }
     }
 }

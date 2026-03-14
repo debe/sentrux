@@ -188,6 +188,7 @@ fn resolve_call_targets<'a>(
     lang_map: &HashMap<&'a str, &'a str>,
     imported_files: Option<&HashSet<&'a str>>,
     max_call_targets: usize,
+    implicit_module: bool,
 ) -> Vec<&'a str> {
     let targets = match func_map.get(call_name) {
         Some(t) => t,
@@ -198,7 +199,7 @@ fn resolve_call_targets<'a>(
         .filter(|t| {
             **t != file_path
                 && lang_map.get(*t).copied().unwrap_or("") == src_lang
-                && imported_files.is_some_and(|imp| imp.contains(*t))
+                && (implicit_module || imported_files.is_some_and(|imp| imp.contains(*t)))
         })
         .copied()
         .collect();
@@ -224,6 +225,9 @@ fn compute_call_edges<'a>(
                 return edges;
             }
             let imported_files = import_targets.get(file.path.as_str());
+            // Check if this language has implicit module visibility (e.g., Swift)
+            let profile = crate::analysis::lang_registry::profile(src_lang);
+            let implicit = profile.semantics.project.implicit_module;
             let sa = match &file.sa {
                 Some(sa) => sa,
                 None => return edges,
@@ -231,7 +235,7 @@ fn compute_call_edges<'a>(
 
             let mut emit_call = |from_func: &str, call_name: &str| {
                 let targets = resolve_call_targets(
-                    call_name, &file.path, src_lang, func_map, lang_map, imported_files, max_call_targets,
+                    call_name, &file.path, src_lang, func_map, lang_map, imported_files, max_call_targets, implicit,
                 );
                 for target_file in targets {
                     edges.push(CallEdge {
