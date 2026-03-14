@@ -2403,50 +2403,38 @@ logic_nodes = ["binary_expression"]
 logic_operators = ["&&", "||", "&", "|"]
 nesting_nodes = ["if_statement", "for_statement", "while_statement", "repeat_statement"]
 "#,
-r#"; Official tree-sitter-r tags.scm (v1.2.0)
+r#"; R tags.scm — verified against actual AST
 
+; function definitions: hello <- function(x) { x }
 (binary_operator
     lhs: (identifier) @name
     operator: "<-"
-    rhs: (function_definition)
-) @definition.function
+    rhs: (function_definition)) @definition.function
 
 (binary_operator
     lhs: (identifier) @name
     operator: "="
-    rhs: (function_definition)
-) @definition.function
+    rhs: (function_definition)) @definition.function
 
-(binary_operator
-    lhs: (string) @name
-    operator: "<-"
-    rhs: (function_definition)
-) @definition.function
-
-(binary_operator
-    lhs: (string) @name
-    operator: "="
-    rhs: (function_definition)
-) @definition.function
-
+; calls
 (call
-    function: (identifier) @name
-) @reference.call
+    function: (identifier) @name) @reference.call
 
-(call
-    function: (namespace_operator
-        rhs: (identifier) @name
-    )
-) @reference.call
-
-; ---- Import appendix (custom) ----
-
-; library("package") / require("package") / source("file.R")
+; imports: library(pkg) — argument is identifier, not string
 (call
     function: (identifier) @_fn
     arguments: (arguments
-        (string) @import.module)
-    (#match? @_fn "^(library|require|source)$")) @import
+        (argument
+            value: (identifier) @import.module))
+    (#any-of? @_fn "library" "require" "source")) @import
+
+; imports with string: library("pkg")
+(call
+    function: (identifier) @_fn2
+    arguments: (arguments
+        (argument
+            value: (string) @import.module))
+    (#any-of? @_fn2 "library" "require" "source")) @import
 "#),
     ("ruby",
 r#"[plugin]

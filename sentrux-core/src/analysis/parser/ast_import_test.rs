@@ -173,6 +173,7 @@ require Logger
             ("fsharp", "let greet name = printfn name\ntype Cat = { Name: string }\nmodule MyMod =\n  let x = 1\nopen System\n"),
             ("solidity", "pragma solidity ^0.8.0;\nimport \"./Ownable.sol\";\ncontract Token {\n  function transfer(address to) public {}\n}\n"),
             ("dart", "import 'dart:io';\nimport 'package:flutter/material.dart';\nvoid greet(String name) {\n  print(name);\n}\nclass Cat {\n  String name;\n}\n"),
+            ("r", "library(ggplot2)\nhello <- function(x) { x }\n"),
             ("nix", "{ pkgs }:\nlet\n  utils = import ./utils.nix;\n  hello = name: \"hello\";\nin\n  hello pkgs\n"),
             ("objective-c", "#import <Foundation/Foundation.h>\n#import \"MyClass.h\"\n@interface Cat : NSObject\n@end\nvoid hello() {}\n"),
             ("ocaml", "let greet name = print_string name\nmodule M = struct end\ntype cat = { name: string }\nopen List\n"),
