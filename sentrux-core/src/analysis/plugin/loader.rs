@@ -260,4 +260,52 @@ mod tests {
         // Should not crash even if dir doesn't exist
         let _ = (loaded, errors);
     }
+
+    /// Diagnostic: dump all node types for grammars that fail to load.
+    /// Run: cargo test dump_failing_grammar_nodes -- --ignored --nocapture
+    #[test]
+    #[ignore]
+    fn dump_failing_grammar_nodes() {
+        let dir = plugins_dir().unwrap();
+        let failing = [
+            "nim", "perl", "erlang", "fsharp", "kotlin", "solidity",
+            "powershell", "julia", "groovy", "protobuf", "ocaml",
+            "nix", "dart", "svelte", "vue", "objective-c",
+        ];
+        for name in &failing {
+            let plugin_dir = dir.join(name);
+            let grammar_file = PluginManifest::grammar_filename();
+            let grammar_path = plugin_dir.join("grammars").join(grammar_file);
+            if !grammar_path.exists() {
+                println!("\nSKIP {} — no grammar", name);
+                continue;
+            }
+            // Try loading with the plugin name, then with symbol_name from toml
+            let symbol = if let Ok(manifest) = PluginManifest::load(&plugin_dir) {
+                manifest.grammar.symbol_name.unwrap_or(name.to_string())
+            } else {
+                name.to_string()
+            };
+            match load_grammar_dynamic(&grammar_path, &symbol) {
+                Ok(lang) => {
+                    println!("\n=== {} ({} node types, symbol: tree_sitter_{}) ===", name, lang.node_kind_count(), symbol);
+                    for id in 0..lang.node_kind_count() as u16 {
+                        if lang.node_kind_is_named(id) {
+                            let kind = lang.node_kind_for_id(id).unwrap_or("?");
+                            // Also check fields
+                            println!("  {}", kind);
+                        }
+                    }
+                    // Dump field names
+                    println!("  --- fields ---");
+                    for id in 0..lang.field_count() as u16 {
+                        if let Some(fname) = lang.field_name_for_id(id) {
+                            println!("  field: {}", fname);
+                        }
+                    }
+                }
+                Err(e) => println!("\nFAIL {}: {}", name, e),
+            }
+        }
+    }
 }

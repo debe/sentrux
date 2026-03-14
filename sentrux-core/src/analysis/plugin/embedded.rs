@@ -590,25 +590,13 @@ logic_nodes = ["binary_expression"]
 logic_operators = ["&&", "||"]
 nesting_nodes = ["if_statement", "for_statement", "while_statement", "do_statement", "switch_statement"]
 "#,
-r#"; Dart tags.scm
-
-(function_signature
-  name: (identifier) @name) @definition.function
-
-(method_signature
-  (function_signature
-    name: (identifier) @name)) @definition.function
-
-(class_definition
-  name: (identifier) @name) @definition.class
-
-(enum_declaration
-  name: (identifier) @name) @definition.class
-
-; ---- Import appendix ----
-
-(import_or_export
-  (configurable_uri) @import.module) @import
+r#"(function_signature) @definition.function
+(method_signature) @definition.function
+(class_definition) @definition.class
+(enum_declaration) @definition.class
+(mixin_declaration) @definition.class
+(library_import) @import
+(library_export) @import
 "#),
     ("dockerfile",
 r#"[plugin]
@@ -628,6 +616,11 @@ license = "MIT"
 source = "https://github.com/camdencheek/tree-sitter-dockerfile"
 ref = "main"
 abi_version = 14
+
+[queries]
+capabilities = []
+
+[checksums]
 
 [semantics]
 is_executable = false
@@ -776,33 +769,14 @@ nesting_nodes = ["if_expr", "case_expr", "receive_expr", "try_expr"]
 "#,
 r#"; Erlang tags.scm
 
-(function_clause
-  name: (atom) @name) @definition.function
+(fun_decl
+  (function_clause
+    name: (atom) @name)) @definition.function
 
-(attribute
-  name: (atom) @attr_name
-  (#eq? @attr_name "module")) @definition.module
+(module_attribute
+  name: (atom) @name) @definition.module
 
-; ---- Import appendix ----
-; UNTESTED: @import.module captures are best-effort without grammar validation
-
-; -import(lists, [...]). — the first argument after the attribute name is the module atom
-; In WhatsApp/tree-sitter-erlang, attribute arguments are (arguments (atom) ...)
-(attribute
-  name: (atom) @_attr_name
-  (arguments (atom) @import.module)
-  (#eq? @_attr_name "import")) @import
-
-; -include("file.hrl") / -include_lib("file.hrl") — string argument
-(attribute
-  name: (atom) @_attr_name2
-  (arguments (string) @import.module)
-  (#match? @_attr_name2 "^(include|include_lib)$")) @import
-
-; Fallback for any import/include/include_lib without specific module capture
-(attribute
-  name: (atom) @attr_name
-  (#match? @attr_name "^(import|include|include_lib)$")) @import
+(import_attribute) @import
 "#),
     ("fsharp",
 r##"[plugin]
@@ -846,23 +820,10 @@ logic_nodes = ["infix_expression"]
 logic_operators = ["&&", "||"]
 nesting_nodes = ["if_expression", "match_expression", "for_expression", "while_expression", "try_expression"]
 "##,
-r#"; F# tags.scm
-
-(function_or_value_defn
-  (value_declaration_left
-    (identifier_pattern) @name)) @definition.function
-
-(type_definition
-  (type_name
-    (long_identifier) @name)) @definition.class
-
-(module_defn
-  (long_identifier) @name) @definition.module
-
-; ---- Import appendix ----
-
-(open_declaration
-  (long_identifier) @import.module) @import
+r#"(function_or_value_defn) @definition.function
+(type_definition) @definition.class
+(module_defn) @definition.module
+(import_decl) @import
 "#),
     ("gdscript",
 r#"[plugin]
@@ -1099,21 +1060,10 @@ logic_nodes = ["binary_expression"]
 logic_operators = ["&&", "||"]
 nesting_nodes = ["if_statement", "for_statement", "while_statement", "switch_statement"]
 "#,
-r#"; Groovy tags.scm
-
-(method_declaration
-  name: (identifier) @name) @definition.function
-
-(class_declaration
-  name: (identifier) @name) @definition.class
-
-(interface_declaration
-  name: (identifier) @name) @definition.interface
-
-; ---- Import appendix ----
-
-(import_declaration
-  (qualified_name) @import.module) @import
+r#"(function_definition) @definition.function
+(function_declaration) @definition.function
+(class_definition) @definition.class
+(groovy_import) @import
 "#),
     ("haskell",
 r#"[plugin]
@@ -1553,6 +1503,11 @@ source = "https://github.com/tree-sitter/tree-sitter-json"
 ref = "master"
 abi_version = 14
 
+[queries]
+capabilities = []
+
+[checksums]
+
 [semantics]
 is_executable = false
 "#,
@@ -1601,49 +1556,12 @@ logic_nodes = ["binary_expression"]
 logic_operators = ["&&", "||"]
 nesting_nodes = ["if_statement", "for_statement", "while_statement", "try_statement"]
 "#,
-r#"; Julia tags.scm
-
-(function_definition
-  name: (identifier) @name) @definition.function
-
-(short_function_definition
-  name: (identifier) @name) @definition.function
-
-(struct_definition
-  name: (identifier) @name) @definition.class
-
-(abstract_definition
-  name: (identifier) @name) @definition.class
-
-(module_definition
-  name: (identifier) @name) @definition.module
-
-(call_expression
-  (identifier) @name) @reference.call
-
-; ---- Import appendix ----
-; UNTESTED: @import.module captures are best-effort without grammar validation
-
-; import Foo / import Foo: bar — capture the module identifier
-; In tree-sitter-julia, import_statement contains (identifier) or (selected_import (identifier) ...)
-(import_statement
-  (identifier) @import.module) @import
-
-(import_statement
-  (selected_import
-    (identifier) @import.module)) @import
-
-; using Foo / using Foo: bar
-(using_statement
-  (identifier) @import.module) @import
-
-(using_statement
-  (selected_import
-    (identifier) @import.module)) @import
-
-; Fallback: whole statement
+r#"(function_definition) @definition.function
+(macro_definition) @definition.function
+(struct_definition) @definition.class
+(abstract_definition) @definition.class
+(module_definition) @definition.module
 (import_statement) @import
-
 (using_statement) @import
 "#),
     ("kotlin",
@@ -1696,14 +1614,6 @@ r#"; Kotlin tags.scm
 
 (object_declaration
   (type_identifier) @name) @definition.class
-
-(interface_declaration
-  (type_identifier) @name) @definition.interface
-
-(call_expression
-  (simple_identifier) @name) @reference.call
-
-; ---- Import appendix ----
 
 (import_header
   (identifier) @import.module) @import
@@ -1810,6 +1720,11 @@ source = "https://github.com/tree-sitter-grammars/tree-sitter-markdown"
 ref = "split_parser"
 abi_version = 14
 
+[queries]
+capabilities = []
+
+[checksums]
+
 [semantics]
 is_executable = false
 "#,
@@ -1853,43 +1768,14 @@ logic_nodes = ["infix_expression"]
 logic_operators = ["and", "or"]
 nesting_nodes = ["if_statement", "for_statement", "while_statement", "case_statement", "try_statement"]
 "#,
-r#"; Nim tags.scm
-
-(proc_declaration
-  name: (identifier) @name) @definition.function
-
-(func_declaration
-  name: (identifier) @name) @definition.function
-
-(method_declaration
-  name: (identifier) @name) @definition.function
-
-(type_section
-  (type_declaration
-    (type_symbol_declaration
-      name: (identifier) @name))) @definition.class
-
-; ---- Import appendix ----
-; UNTESTED: @import.module captures are best-effort without grammar validation
-
-; import strutils / import os, strutils — capture module identifiers
-; In tree-sitter-nim, import_statement has (expression_list (identifier) ...) or direct (identifier)
-(import_statement
-  (expression_list
-    (identifier) @import.module)) @import
-
-(import_statement
-  (identifier) @import.module) @import
-
-; from os import joinPath — capture the source module
-; from_statement has a module identifier followed by import list
-(from_statement
-  (identifier) @import.module) @import
-
-; Fallback: whole statement
-(import_statement) @import
-
-(from_statement) @import
+r#"(routine) @definition.function
+(typeDef) @definition.class
+(objectDecl) @definition.class
+(enumDecl) @definition.class
+(importStmt) @import
+(importExceptStmt) @import
+(fromStmt) @import
+(includeStmt) @import
 "#),
     ("nix",
 r#"[plugin]
@@ -1919,27 +1805,9 @@ is_executable = false
 hash_is_comment = true
 import_extractor = ""
 "#,
-r#"; Nix tags.scm
-
-(binding
-  attrpath: (attrpath
-    (identifier) @name)) @definition.function
-
-; ---- Import appendix ----
-; UNTESTED: @import.module captures are best-effort without grammar validation
-
-; import ./path.nix — parsed as (apply_expression function: (identifier) argument: (path_expression))
-; In tree-sitter-nix, `import <nixpkgs>` is also apply_expression
-(apply_expression
-  function: (identifier) @_fn
-  argument: (_) @import.module
-  (#eq? @_fn "import")) @import
-
-; with expression (brings names into scope)
+r#"(binding) @definition.function
+(inherit) @definition.function
 (with_expression) @import
-
-(inherit
-  (identifier) @name) @definition.constant
 "#),
     ("objective-c",
 r#"[plugin]
@@ -1958,6 +1826,7 @@ license = "MIT"
 source = "https://github.com/tree-sitter-grammars/tree-sitter-objc"
 ref = "master"
 abi_version = 14
+symbol_name = "objc"
 
 [queries]
 capabilities = ["functions", "classes", "imports"]
@@ -1972,9 +1841,6 @@ base_class_extractor = "generic"
 [semantics.project]
 source_dirs = ["src"]
 ignored_dirs = ["build", "DerivedData"]
-
-
-[semantics.project]
 implicit_module = true
 [semantics.complexity]
 branch_nodes = ["if_statement", "for_statement", "while_statement", "do_statement", "switch_statement", "catch_clause"]
@@ -1984,31 +1850,13 @@ nesting_nodes = ["if_statement", "for_statement", "while_statement", "do_stateme
 "#,
 r#"; Objective-C tags.scm
 
-(function_definition
-  declarator: (function_declarator
-    declarator: (identifier) @name)) @definition.function
+(function_definition) @definition.function
+(method_declaration) @definition.function
+(class_interface) @definition.class
+(protocol_declaration) @definition.interface
 
-(method_declaration
-  selector: (keyword_selector
-    (keyword_declarator
-      keyword: (identifier) @name))) @definition.function
-
-(class_interface
-  name: (identifier) @name) @definition.class
-
-(protocol_declaration
-  name: (identifier) @name) @definition.interface
-
-(category_interface
-  name: (identifier) @name) @definition.class
-
-; ---- Import appendix ----
-
-(preproc_import
-  path: (_) @import.module) @import
-
-(preproc_include
-  path: (_) @import.module) @import
+; #import and #include
+(preproc_include) @import
 "#),
     ("ocaml",
 r#"[plugin]
@@ -2060,7 +1908,7 @@ r#"; OCaml tags.scm
 
 (module_definition
   (module_binding
-    name: (module_name) @name)) @definition.module
+    (module_name) @name)) @definition.module
 
 ; ---- Import appendix ----
 
@@ -2110,13 +1958,16 @@ r#"; Perl tags.scm
 (subroutine_declaration_statement
   name: (bareword) @name) @definition.function
 
-(package_statement
-  (package_name) @name) @definition.class
+(method_declaration_statement
+  name: (bareword) @name) @definition.function
 
-; ---- Import appendix ----
+(package_statement
+  name: (package) @name) @definition.class
 
 (use_statement
-  (package_name) @import.module) @import
+  module: (package) @import.module) @import
+
+(require_expression) @import
 "#),
     ("php",
 r#"[plugin]
@@ -2266,16 +2117,9 @@ logic_nodes = ["binary_expression"]
 logic_operators = ["-and", "-or"]
 nesting_nodes = ["if_statement", "for_statement", "foreach_statement", "while_statement", "switch_statement"]
 "#,
-r#"; PowerShell tags.scm
-
-(function_statement
-  name: (command_name_expr) @name) @definition.function
-
-(class_statement
-  name: (identifier) @name) @definition.class
-
-(enum_statement
-  name: (identifier) @name) @definition.class
+r#"(function_statement) @definition.function
+(class_statement) @definition.class
+(enum_statement) @definition.class
 "#),
     ("protobuf",
 r#"[plugin]
@@ -2307,26 +2151,19 @@ import_extractor = ""
 r#"; Protocol Buffers tags.scm
 
 (message
-  (message_name) @name) @definition.class
+  (messageName) @name) @definition.class
 
 (enum
-  (enum_name) @name) @definition.class
+  (enumName) @name) @definition.class
 
 (service
-  (service_name) @name) @definition.class
+  (serviceName) @name) @definition.class
 
 (rpc
-  (rpc_name) @name) @definition.function
+  (rpcName) @name) @definition.function
 
-; ---- Import appendix ----
-; UNTESTED: @import.module captures are best-effort without grammar validation
-
-; import "other.proto" — the string literal is the module path
 (import
-  (string) @import.module) @import
-
-; Fallback
-(import) @import
+  (strLit) @import.module) @import
 "#),
     ("python",
 r#"[plugin]
@@ -2946,30 +2783,13 @@ logic_nodes = ["binary_expression"]
 logic_operators = ["&&", "||"]
 nesting_nodes = ["if_statement", "for_statement", "while_statement"]
 "#,
-r#"; Solidity tags.scm
-
-(function_definition
-  name: (identifier) @name) @definition.function
-
-(contract_declaration
-  name: (identifier) @name) @definition.class
-
-(interface_declaration
-  name: (identifier) @name) @definition.interface
-
-(library_declaration
-  name: (identifier) @name) @definition.module
-
-(struct_declaration
-  name: (identifier) @name) @definition.class
-
-(event_definition
-  name: (identifier) @name) @definition.function
-
-; ---- Import appendix ----
-
-(import_directive
-  (import_path) @import.module) @import
+r#"(function_definition) @definition.function
+(contract_declaration) @definition.class
+(interface_declaration) @definition.interface
+(library_declaration) @definition.module
+(struct_declaration) @definition.class
+(event_definition) @definition.function
+(import_directive) @import
 "#),
     ("sql",
 r#"[plugin]
@@ -2988,6 +2808,11 @@ license = "MIT"
 source = "https://github.com/DerekStride/tree-sitter-sql"
 ref = "main"
 abi_version = 14
+
+[queries]
+capabilities = []
+
+[checksums]
 
 [semantics]
 is_executable = false
@@ -3038,6 +2863,11 @@ r#"; Svelte tags.scm
 (element
   (start_tag
     (tag_name) @name)) @reference.call
+
+; ---- Import appendix ----
+; Svelte imports live inside <script> blocks parsed as raw_text.
+
+(script_element) @import
 "#),
     ("swift",
 r#"[plugin]
@@ -3134,6 +2964,11 @@ color_rgb = [130, 75, 50]
 source = "https://github.com/tree-sitter-grammars/tree-sitter-toml"
 ref = "master"
 abi_version = 14
+
+[queries]
+capabilities = []
+
+[checksums]
 
 [semantics]
 is_executable = false
@@ -3416,9 +3251,14 @@ r#"; Vue tags.scm
 
 (script_element) @definition.module
 
-(component
+(element
   (start_tag
     (tag_name) @name)) @reference.call
+
+; ---- Import appendix ----
+; Vue imports live inside <script> blocks parsed as raw_text.
+
+(script_element) @import
 "#),
     ("yaml",
 r#"[plugin]
@@ -3437,6 +3277,11 @@ license = "MIT"
 source = "https://github.com/tree-sitter-grammars/tree-sitter-yaml"
 ref = "master"
 abi_version = 14
+
+[queries]
+capabilities = []
+
+[checksums]
 
 [semantics]
 is_executable = false
