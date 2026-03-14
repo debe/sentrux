@@ -3549,7 +3549,6 @@ dependencies = [
  "notify-debouncer-mini",
  "oxc_resolver",
  "rayon",
- "regex",
  "rfd",
  "serde",
  "serde_json",
