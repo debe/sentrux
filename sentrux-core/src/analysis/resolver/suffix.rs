@@ -539,22 +539,84 @@ fn collect_manifest_path_aliases(
     aliases
 }
 
-/// Extract a name field from a manifest file (TOML or JSON).
+/// Extract a name field from a manifest file.
+/// Supports 4 universal data formats: JSON, TOML, XML, YAML.
+/// The format is auto-detected from the filename extension.
 fn extract_name_from_manifest(content: &str, field: &str, filename: &str) -> Option<String> {
-    if filename.ends_with(".toml") {
+    if filename.ends_with(".json") {
+        extract_json_field(content, field)
+    } else if filename.ends_with(".toml") {
         extract_toml_field(content, field)
-    } else if filename.ends_with(".json") {
-        let json: serde_json::Value = serde_json::from_str(content).ok()?;
-        navigate_json(&json, field)?.as_str().map(|s| s.to_string())
+    } else if filename.ends_with(".xml") || filename.ends_with(".csproj")
+        || filename.ends_with(".fsproj") || filename.ends_with(".vbproj")
+    {
+        extract_xml_field(content, field)
+    } else if filename.ends_with(".yaml") || filename.ends_with(".yml") {
+        extract_yaml_field(content, field)
     } else {
         None
     }
 }
 
-/// Extract a dotted field path from TOML content (e.g., "package.name").
+/// Extract a dot-separated field from JSON (e.g., "name" or "compilerOptions.paths").
+fn extract_json_field(content: &str, field: &str) -> Option<String> {
+    let json: serde_json::Value = serde_json::from_str(content).ok()?;
+    navigate_json(&json, field)?.as_str().map(|s| s.to_string())
+}
+
+/// Extract a dot-separated field from TOML (e.g., "package.name").
 fn extract_toml_field(content: &str, field: &str) -> Option<String> {
     let val: toml::Value = content.parse().ok()?;
     let mut current = &val;
+    for key in field.split('.') {
+        current = current.get(key)?;
+    }
+    current.as_str().map(|s| s.to_string())
+}
+
+/// Extract a dot-separated field from XML (e.g., "project.artifactId").
+/// Navigates nested elements: "project.artifactId" finds <project><artifactId>value</artifactId></project>.
+fn extract_xml_field(content: &str, field: &str) -> Option<String> {
+    use quick_xml::events::Event;
+    use quick_xml::Reader;
+
+    let path_parts: Vec<&str> = field.split('.').collect();
+    let mut reader = Reader::from_str(content);
+    let mut depth_matched = 0usize;
+    let mut capture_text = false;
+
+    loop {
+        match reader.read_event() {
+            Ok(Event::Start(e)) => {
+                let tag = String::from_utf8_lossy(e.name().as_ref()).to_string();
+                if depth_matched < path_parts.len() && tag == path_parts[depth_matched] {
+                    depth_matched += 1;
+                    if depth_matched == path_parts.len() {
+                        capture_text = true;
+                    }
+                }
+            }
+            Ok(Event::Text(e)) if capture_text => {
+                let text = e.unescape().ok()?.trim().to_string();
+                if !text.is_empty() {
+                    return Some(text);
+                }
+            }
+            Ok(Event::End(_)) if capture_text => {
+                return None; // Empty element
+            }
+            Ok(Event::Eof) => break,
+            Err(_) => break,
+            _ => {}
+        }
+    }
+    None
+}
+
+/// Extract a dot-separated field from YAML (e.g., "name" or "project.name").
+fn extract_yaml_field(content: &str, field: &str) -> Option<String> {
+    let yaml: serde_yaml::Value = serde_yaml::from_str(content).ok()?;
+    let mut current = &yaml;
     for key in field.split('.') {
         current = current.get(key)?;
     }

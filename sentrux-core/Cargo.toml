@@ -24,6 +24,8 @@ git2 = "0.20"
 tree-sitter = "0.25"
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
+quick-xml = "0.37"
+serde_yaml = "0.9"
 thiserror = "2"
 streaming-iterator = "0.1.9"
 libloading = "0.8"
