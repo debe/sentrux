@@ -507,4 +507,21 @@ class Bar:
         eprintln!("\n=== ALL LANGS VERIFIED: {passed} passed, {failed} failed ===");
         assert_eq!(failed, 0, "{failed} languages failed extraction verification");
     }
+
+    #[test]
+    fn gdscript_preload_imports() {
+        let code = br#"
+const Utils = preload("res://scripts/utils.gd")
+var scene = load("res://scenes/main.tscn")
+const PANELS = [
+    { name="Library", scene=preload("res://library.tscn") },
+]
+func hello():
+    pass
+"#;
+        let sa = parse_bytes(code, "gdscript").expect("gdscript parse failed");
+        let imp = sa.imp.as_ref().expect("no imports found");
+        eprintln!("[gdscript] imports: {:?}", imp);
+        assert!(imp.len() >= 2, "expected at least 2 imports from preload/load, got {:?}", imp);
+    }
 }
