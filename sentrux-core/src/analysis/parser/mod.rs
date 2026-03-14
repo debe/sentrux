@@ -19,7 +19,6 @@ mod ast_import_test;
 
 
 use super::lang_registry;
-use self::imports::extract_bash_imports;
 use self::captures::{
     classify_captures, process_func_def, process_class_def, process_import,
     ImportContext, MatchKind, ParseContext,
@@ -184,15 +183,9 @@ impl ExtractionState {
         }
     }
 
-    /// Apply language-specific post-processing for imports.
-    /// Most languages no longer need this — imports are captured directly by
-    /// tree-sitter queries with @import/@import.module captures.
-    /// Bash still needs text scanning because tree-sitter-bash doesn't
-    /// consistently capture quoted arguments to `source` commands.
-    fn post_process_imports(&mut self, content: &[u8], lang: &str) {
-        if lang == "bash" {
-            extract_bash_imports(content, &mut self.imports, &mut self.import_set);
-        }
+    /// Post-processing for imports. No longer needed — all languages use
+    /// @import/@import.module query captures or AST walker.
+    fn post_process_imports(&mut self, _content: &[u8], _lang: &str) {
     }
 
     /// Convert into a StructuralAnalysis, distributing calls to functions.

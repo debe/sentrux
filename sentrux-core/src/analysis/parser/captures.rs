@@ -8,7 +8,7 @@ use super::imports::{
     count_complexity, count_cognitive_complexity,
     count_complexity_ast, count_cognitive_complexity_ast,
     count_parameters, hash_body,
-    extract_base_classes, extract_import_modules,
+    extract_base_classes,
     lang_uses_dot_separator, normalize_module_path,
 };
 use crate::core::types::{ClassInfo, FuncInfo};
@@ -278,29 +278,19 @@ pub(super) fn process_class_def(
     }
 }
 
+/// Apply module name transform from plugin profile (e.g., Elixir PascalCase→snake_case).
+fn apply_module_transform(module: &str, transform: &str) -> String {
+    match transform {
+        "pascal_to_snake" => super::lang_extractors::pascal_to_snake_path(module),
+        _ => module.to_string(),
+    }
+}
+
 /// Insert a normalized module path into imports if non-empty and not seen.
 fn insert_normalized(raw: &str, dots_are_seps: bool, imports: &mut Vec<String>, import_set: &mut HashSet<String>) {
     let module = normalize_module_path(raw, dots_are_seps);
     if !module.is_empty() && import_set.insert(module.clone()) {
         imports.push(module);
-    }
-}
-
-/// Extract import modules from a tree-sitter node's text and insert them.
-fn extract_and_insert_imports(
-    node: tree_sitter::Node,
-    content: &[u8],
-    lang: &str,
-    imports: &mut Vec<String>,
-    import_set: &mut HashSet<String>,
-) {
-    if let Ok(text) = node.utf8_text(content) {
-        let modules = extract_import_modules(text, lang);
-        for module in modules {
-            if !module.is_empty() && import_set.insert(module.clone()) {
-                imports.push(module);
-            }
-        }
     }
 }
 
@@ -320,24 +310,27 @@ pub(super) fn process_import(
     imports: &mut Vec<String>,
     import_set: &mut HashSet<String>,
 ) {
+    let profile = crate::analysis::lang_registry::profile(lang);
     let dots_are_seps = lang_uses_dot_separator(lang);
+    let transform = &profile.semantics.import_ast.module_name_transform;
     if let Some(module) = &ictx.import_module_text {
-        insert_normalized(module, dots_are_seps, imports, import_set);
+        let module = apply_module_transform(module, transform);
+        insert_normalized(&module, dots_are_seps, imports, import_set);
     } else if let Some(module) = &ictx.name_text {
-        insert_normalized(module, dots_are_seps, imports, import_set);
+        let module = apply_module_transform(module, transform);
+        insert_normalized(&module, dots_are_seps, imports, import_set);
     } else if let Some(node) = ictx.import_node.or(ictx.match_node) {
-        let profile = crate::analysis::lang_registry::profile(lang);
         if profile.semantics.import_ast.is_configured() {
-            // AST-based: walk tree-sitter nodes directly (no text re-parsing)
+            // AST-based: walk tree-sitter nodes directly
             let paths = super::ast_import_walker::extract_imports_from_ast(
                 node, content, &profile.semantics.import_ast,
             );
             for raw in paths {
                 insert_normalized(&raw, dots_are_seps, imports, import_set);
             }
-        } else {
-            // Legacy fallback: text-based extraction
-            extract_and_insert_imports(node, content, lang, imports, import_set);
         }
+        // Languages without import_ast configured rely on @import.module
+        // captures (branch 1 above). If neither is configured, no imports
+        // are extracted — the plugin needs to be updated.
     }
 }

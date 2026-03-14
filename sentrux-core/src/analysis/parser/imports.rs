@@ -22,41 +22,6 @@ pub(crate) use super::strings::strip_strings_and_comments;
 /// no language syntax (no braces, no quotes, no keywords, no semicolons).
 /// The resolver is completely language-agnostic — all language knowledge lives here.
 ///
-/// Examples of normalized output:
-///   Python  `from os.path import join`                       → ["os/path"]
-///   Python  `import os, sys`                                 → ["os", "sys"]
-///   Python  `from .utils import foo`                         → [".utils"]
-///   Rust    `use crate::models::episode::{Episode, Inj}`    → ["crate/models/episode"]
-///   Rust    `use crate::models::{episode, primitive}`        → ["crate/models/episode", "crate/models/primitive"]
-///   Rust    `mod graph;`                                     → ["graph"]
-///   Go      `import ("fmt" "os")`                            → ["fmt", "os"]
-///   Java    `import com.example.UserService;`                → ["com/example/UserService"]
-///   C       `#include "mylib.h"`                             → ["mylib.h"]
-///   Ruby    `require 'json'`                                 → ["json"]
-///   HTML    `<script src="./app.js">`                        → ["./app.js"]
-pub(crate) fn extract_import_modules(text: &str, lang: &str) -> Vec<String> {
-    // All languages now use either:
-    // 1. @import.module query captures (branch 1 of process_import)
-    // 2. AST walker via [semantics.import_ast] (branch 3 of process_import)
-    // This text-based fallback handles edge cases where neither path works.
-    let raw_modules: Vec<String> = match lang {
-        "elixir" => lang_extractors::extract_elixir(text),
-        _ => lang_extractors::extract_fallback(text),
-    };
-
-    // Step 2: Language-aware normalization.
-    // Languages that use dots as module separators (Python, Java, Scala, etc.)
-    // always convert dots → slashes. File-path languages (C, HTML, CSS) never do.
-    // This replaces the fragile heuristic that guessed based on extension length,
-    // which incorrectly treated Python module names like "config", "utils" as file
-    // extensions and skipped dot conversion. [ref:daa66d13]
-    let dots_are_separators = lang_uses_dot_separator(lang);
-    raw_modules
-        .into_iter()
-        .map(|m| normalize_module_path(&m, dots_are_separators))
-        .filter(|m| !m.is_empty())
-        .collect()
-}
 
 /// Whether '.' is a module separator (not a file extension) for this language.
 /// Reads from the language profile (Layer 2). Falls back to false for unknown languages.
@@ -93,70 +58,6 @@ pub(crate) fn normalize_module_path(raw: &str, dots_are_separators: bool) -> Str
     }
 
     format!("{}{}", prefix, normalized)
-}
-
-// ── Bash & HTML import helpers ──────────────────────────────────────────
-
-/// Extract bash `source ./file.sh` and `. ./file.sh` as imports.
-/// Tree-sitter captures these as regular commands (no distinct import syntax),
-/// so we scan the source text after parsing. Comments are skipped via `#` prefix.
-/// Variable-containing paths ($DIR/lib.sh) are skipped — can't resolve at static time.
-/// Extract the source path from a single bash line, if it's a `source` or `. ` command.
-/// Returns None if the line is a comment or not a source command.
-fn extract_bash_source_path(trimmed: &str) -> Option<&str> {
-    if trimmed.starts_with('#') {
-        return None;
-    }
-    if let Some(rest) = trimmed.strip_prefix("source ") {
-        let no_comment = rest.split('#').next().unwrap_or(rest);
-        Some(no_comment.trim().trim_matches(|c: char| c == '"' || c == '\''))
-    } else if trimmed.starts_with(". ") && !trimmed.starts_with("..") {
-        let no_comment = trimmed[2..].split('#').next().unwrap_or(&trimmed[2..]);
-        Some(no_comment.trim().trim_matches(|c: char| c == '"' || c == '\''))
-    } else {
-        None
-    }
-}
-
-pub(crate) fn extract_bash_imports(content: &[u8], imports: &mut Vec<String>, import_set: &mut HashSet<String>) {
-    let text = match std::str::from_utf8(content) {
-        Ok(t) => t,
-        Err(_) => return,
-    };
-    for line in text.lines() {
-        let trimmed = line.trim();
-        if let Some(p) = extract_bash_source_path(trimmed) {
-            if !p.is_empty() && !p.contains('$') && import_set.insert(p.to_string()) {
-                imports.push(p.to_string());
-            }
-        }
-    }
-}
-
-/// HTML post-filter: the query captures ALL attributes as @import.module
-/// (since tree-sitter #eq? predicates aren't evaluated by QueryCursor).
-/// Keep only values that look like local file references.
-pub(crate) fn filter_html_imports(imports: &mut Vec<String>) {
-    let before = imports.len();
-    imports.retain(|imp| {
-        // Must have a file extension
-        if !imp.contains('.') { return false; }
-        // Skip external URLs
-        if imp.contains("://") { return false; }
-        // Skip data URIs, anchors, mailto, tel
-        if imp.starts_with("data:") || imp.starts_with('#')
-            || imp.starts_with("mailto:") || imp.starts_with("tel:")
-        { return false; }
-        // Skip common non-file attribute values
-        if imp == "stylesheet" || imp == "module" || imp == "text/javascript"
-            || imp == "text/css" || imp == "noopener"
-        { return false; }
-        true
-    });
-    let filtered = before - imports.len();
-    if filtered > 0 && before > 10 {
-        eprintln!("[html_imports] filtered {}/{} non-file attributes", filtered, before);
-    }
 }
 
 // ── Base class extraction ───────────────────────────────────────────────
