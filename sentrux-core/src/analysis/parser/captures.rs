@@ -258,8 +258,8 @@ pub(super) fn process_func_def(
         };
         let pc = count_parameters(node, pctx.content, pctx.lang);
         let bh = hash_body(body, pctx.lang);
-        // Detect visibility from function text — TOML-driven via public_keywords
-        let is_public = {
+        // Detect visibility — TOML-driven
+        let mut is_public = {
             let keywords = &profile.semantics.public_keywords;
             if keywords.is_empty() {
                 false
@@ -268,6 +268,38 @@ pub(super) fn process_func_def(
                 keywords.iter().any(|kw| text.starts_with(kw.as_str()))
             }
         };
+        // Trait/interface impl: walk parent nodes looking for trait_impl_parent_kinds.
+        // Functions inside trait impls are callable via dispatch → not dead code.
+        if !is_public && !profile.semantics.trait_impl_parent_kinds.is_empty() {
+            let mut ancestor = node.parent();
+            while let Some(parent) = ancestor {
+                if profile.semantics.trait_impl_parent_kinds.iter()
+                    .any(|k| k == parent.kind()) {
+                    is_public = true;
+                    break;
+                }
+                ancestor = parent.parent();
+            }
+        }
+        // Test decorator detection: check wider text (includes preceding attributes).
+        // Also check the previous sibling for attribute nodes (Rust #[test]).
+        let is_test = if !profile.semantics.test_decorators.is_empty() {
+            let text = body;
+            let mut found = profile.semantics.test_decorators.iter()
+                .any(|d| text.contains(d.as_str()));
+            // Check preceding sibling (attributes are siblings in most ASTs)
+            if !found {
+                if let Some(prev) = node.prev_sibling() {
+                    if let Ok(prev_text) = prev.utf8_text(pctx.content) {
+                        found = profile.semantics.test_decorators.iter()
+                            .any(|d| prev_text.contains(d.as_str()));
+                    }
+                }
+            }
+            found
+        } else {
+            false
+        };
         functions.push(FuncInfo {
             n: name, sl, el, ln,
             cc: Some(cc),
@@ -275,7 +307,7 @@ pub(super) fn process_func_def(
             pc: Some(pc),
             bh: if bh != 0 { Some(bh) } else { None },
             d: None, co: None,
-            is_public,
+            is_public: is_public || is_test, // test functions treated as "reachable"
         });
     }
 }

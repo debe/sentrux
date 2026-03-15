@@ -24,6 +24,8 @@ capabilities = ["functions", "classes", "imports"]
 dot_is_module_separator = true
 is_executable = true
 public_keywords = ["public"]
+test_decorators = ["@Test"]
+trait_impl_parent_kinds = []
 import_extractor = ""
 base_class_extractor = "generic"
 

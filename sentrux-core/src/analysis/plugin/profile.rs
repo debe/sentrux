@@ -105,6 +105,20 @@ pub struct LanguageSemantics {
     #[serde(default)]
     pub public_keywords: Vec<String>,
 
+    /// Text patterns in function source that indicate it's a test function.
+    /// More accurate than name prefixes — catches `#[test] fn it_works()` in Rust,
+    /// `@Test void method()` in Java, etc.
+    /// Checked via `contains()` against the full function text (includes attributes).
+    #[serde(default)]
+    pub test_decorators: Vec<String>,
+
+    /// Node kinds that indicate the function is a trait/interface implementation.
+    /// Functions inside these parent blocks are NOT dead code — they're called
+    /// via dynamic dispatch. Checked by walking up the AST from the function node.
+    /// Examples: Rust `["impl_item"]`, Java `["class_declaration"]` (with implements).
+    #[serde(default)]
+    pub trait_impl_parent_kinds: Vec<String>,
+
     // ── Entry point detection ──
 
     /// Whether this language can have executable entry points.
@@ -605,6 +619,8 @@ impl Default for LanguageSemantics {
             implicit_entry_points: Vec::new(),
             qualified_name_separator: String::new(),
             public_keywords: Vec::new(),
+            test_decorators: Vec::new(),
+            trait_impl_parent_kinds: Vec::new(),
             is_executable: false, // Must be explicitly set by plugins that can have entry points
             main_filenames: Vec::new(),
             entry_point_patterns: Vec::new(),
