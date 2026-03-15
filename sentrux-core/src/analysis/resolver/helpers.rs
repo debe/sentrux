@@ -140,6 +140,9 @@ fn try_suffix_resolve_inner(
 }
 
 /// Try to resolve a module name to a file, checking all extensions and package index files.
+///
+/// Handles TypeScript ESM pattern: `./fleet.js` → tries `fleet.js` (exact),
+/// then `fleet.ts`, `fleet.tsx` (extension substitution), then `fleet/index.ts`.
 pub(super) fn try_resolve_name(name: &str, base_dir: &Path, known_files: &HashSet<&str>, exts: &[&str]) -> Option<String> {
     let joined = base_dir.join(name);
 
@@ -149,16 +152,37 @@ pub(super) fn try_resolve_name(name: &str, base_dir: &Path, known_files: &HashSe
         return Some(exact);
     }
 
-    // B. Try every registered extension
-    let exact_str = &exact;
+    // B. Try appending extensions (extensionless imports: "./fleet" → "fleet.ts")
     for ext in exts {
-        let candidate = format!("{}.{}", exact_str, ext);
+        let candidate = format!("{}.{}", exact, ext);
         if known_files.contains(candidate.as_str()) {
             return Some(candidate);
         }
     }
 
-    // C. Package index files
+    // C. Extension substitution: "./fleet.js" → strip ".js" → try "fleet.ts"
+    // Handles TypeScript ESM where imports use .js but files are .ts
+    if let Some(dot_pos) = name.rfind('.') {
+        let name_without_ext = &name[..dot_pos];
+        let stem = base_dir.join(name_without_ext);
+        let stem_path = normalize_path(&stem);
+        // Try each extension as a replacement
+        for ext in exts {
+            let candidate = format!("{}.{}", stem_path, ext);
+            if known_files.contains(candidate.as_str()) {
+                return Some(candidate);
+            }
+        }
+        // Also try package index under the stem name
+        for index_file in PACKAGE_INDEX_SET.iter() {
+            let candidate = normalize_path(&stem.join(index_file));
+            if known_files.contains(candidate.as_str()) {
+                return Some(candidate);
+            }
+        }
+    }
+
+    // D. Package index files (directory import: "./utils" → "utils/index.ts")
     for index_file in PACKAGE_INDEX_SET.iter() {
         let candidate = normalize_path(&joined.join(index_file));
         if known_files.contains(candidate.as_str()) {
