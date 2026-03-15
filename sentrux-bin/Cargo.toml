@@ -1,6 +1,6 @@
 [package]
 name = "sentrux"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2021"
 description = "Live codebase visualization and structural quality gate for AI-agent-written code"
 license = "MIT"
