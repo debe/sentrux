@@ -119,7 +119,7 @@ brew install sentrux/tap/sentrux
 curl -fsSL https://raw.githubusercontent.com/sentrux/sentrux/main/install.sh | sh
 ```
 
-纯 Rust 实现。单一二进制文件。无运行时依赖。通过 tree-sitter 支持 50 种语言。
+纯 Rust 实现。单一二进制文件。无运行时依赖。通过 tree-sitter 支持 51 种语言。
 
 **第 2 步 — 运行**
 
@@ -230,9 +230,9 @@ sentrux check .
 
 ## 支持的语言
 
-50 种语言，通过 [tree-sitter](https://tree-sitter.github.io/) 插件支持：
+51 种语言，通过 [tree-sitter](https://tree-sitter.github.io/) 插件支持：
 
-Rust · Python · JavaScript · TypeScript · Go · C · C++ · Java · Ruby · C# · PHP · Bash · HTML · CSS · SCSS · Swift · Lua · Scala · Elixir · Haskell · Zig · R · GDScript
+Bash · C · C++ · C# · Clojure · COBOL · Crystal · CSS · Dart · Elixir · Erlang · F# · GDScript · GLSL · Go · Groovy · Haskell · HCL · HTML · Java · JavaScript · JSON · Julia · Kotlin · Lua · Markdown · Nim · Nix · Objective-C · OCaml · Perl · PHP · PowerShell · Protobuf · Python · R · Ruby · Rust · Scala · SCSS · Solidity · SQL · Svelte · Swift · TOML · TypeScript · Vue · YAML · Zig
 
 **插件系统** — 添加社区支持的任何语言，或创建自己的：
 

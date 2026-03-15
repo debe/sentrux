@@ -119,7 +119,7 @@ or
 curl -fsSL https://raw.githubusercontent.com/sentrux/sentrux/main/install.sh | sh
 ```
 
-Pure Rust. Single binary. No runtime dependencies. **50 languages** via tree-sitter plugins.
+Pure Rust. Single binary. No runtime dependencies. **51 languages** via tree-sitter plugins.
 
 **Step 2 — Run it**
 
@@ -230,27 +230,26 @@ sentrux check .
 
 ## Supported languages
 
-**50 languages** built-in via [tree-sitter](https://tree-sitter.github.io/) plugins — zero language knowledge in the binary:
+**51 languages** built-in via [tree-sitter](https://tree-sitter.github.io/) plugins — zero language knowledge in the binary:
 
 | | | | | |
 |---|---|---|---|---|
-| Bash | C | C++ | C# | Clojure |
-| Crystal | CSS | Dart | Elixir | Erlang |
-| F# | GDScript | GLSL | Go | Groovy |
-| Haskell | HCL | HTML | Java | JavaScript |
-| JSON | Julia | Kotlin | Lua | Markdown |
-| Nim | Nix | Objective-C | OCaml | Perl |
-| PHP | PowerShell | Protobuf | Python | R |
-| Ruby | Rust | Scala | SCSS | Solidity |
-| SQL | Svelte | Swift | TOML | TypeScript |
-| Vue | YAML | Zig | | |
+| Bash | C | C++ | C# | Clojure | COBOL |
+| Crystal | CSS | Dart | Elixir | Erlang | F# |
+| GDScript | GLSL | Go | Groovy | Haskell | HCL |
+| HTML | Java | JavaScript | JSON | Julia | Kotlin |
+| Lua | Markdown | Nim | Nix | Objective-C | OCaml |
+| Perl | PHP | PowerShell | Protobuf | Python | R |
+| Ruby | Rust | Scala | SCSS | Solidity | SQL |
+| Svelte | Swift | TOML | TypeScript | Vue | YAML |
+| Zig | | | | | |
 
 **Plugin system** — add any language, or create your own:
 
 ```bash
 sentrux plugin list              # see installed plugins
 sentrux plugin add <name>        # install from registry
-sentrux plugin add-standard      # install all 50 languages
+sentrux plugin add-standard      # install all 51 languages
 sentrux plugin init my-lang      # scaffold a new language plugin
 ```
 
