@@ -45,13 +45,15 @@ jobs:
         with:
           repository: sentrux/sentrux-pro
           token: ${{ secrets.PRO_REPO_TOKEN }}
-          path: ../sentrux-pro
+          path: sentrux-pro-checkout
 
       - name: Link Pro crate paths
         shell: bash
         run: |
-          # sentrux-pro references sentrux-core via path in its Cargo.toml.
-          # Create symlink so ../sentrux-fresh/sentrux-core resolves in CI.
+          # sentrux-bin references sentrux-pro at ../../sentrux-pro (relative to sentrux-bin/)
+          # sentrux-pro references sentrux-core at ../sentrux-fresh/sentrux-core
+          # Create symlinks so both resolve in CI:
+          ln -sf "$(pwd)/sentrux-pro-checkout" ../sentrux-pro
           ln -sf "$(pwd)" ../sentrux-fresh
 
       - name: Build release binary (with Pro)
