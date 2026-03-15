@@ -47,6 +47,11 @@ pub(super) struct ResolveEnv<'a> {
     pub suffix_index: &'a SuffixIndex<'a>,
     pub known_files: &'a HashSet<&'a str>,
     pub exts: &'a [&'a str],
+    /// Whether the importing language treats directories as packages.
+    /// When true, a single-segment import matching multiple files in the same
+    /// directory is CORRECT (they're all part of one package).
+    /// Driven by `directory_is_package` in plugin TOML.
+    pub directory_is_package: bool,
 }
 
 /// Strip a known module prefix from an import specifier.
@@ -119,6 +124,12 @@ fn try_suffix_resolve_inner(
         if let Some(candidates) = env.suffix_index.index.get(remainder) {
             if candidates.len() == 1 {
                 return Some(candidates[0].to_string());
+            }
+            // For directory_is_package languages (e.g., Go): a single-segment
+            // import matching multiple files is CORRECT — they're all part of
+            // the same package directory. Use pick_closest to select one.
+            if env.directory_is_package && !candidates.is_empty() {
+                return Some(pick_closest(candidates, file_dir_str).to_string());
             }
         }
         if let Some(found) = try_resolve_name(remainder, file_dir, env.known_files, env.exts) {

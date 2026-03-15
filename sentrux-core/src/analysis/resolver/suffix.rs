@@ -161,7 +161,6 @@ fn resolve_tier2_imports(
 ) -> Vec<ImportEdge> {
     let stats = ResolutionStats::new();
     let idx = ResolutionIndex { known_files, project_map, suffix_index };
-    let env = ResolveEnv { suffix_index, known_files, exts };
     let edges: Vec<ImportEdge> = files
         .par_iter()
         .filter(|f| !f.is_dir)
@@ -169,6 +168,12 @@ fn resolve_tier2_imports(
             let imports = match file.sa.as_ref().and_then(|sa| sa.imp.as_ref()) {
                 Some(imp) => imp,
                 None => return Vec::new(),
+            };
+            // Per-file env: directory_is_package comes from the file's language profile (TOML)
+            let profile = crate::analysis::lang_registry::profile(&file.lang);
+            let env = ResolveEnv {
+                suffix_index, known_files, exts,
+                directory_is_package: profile.semantics.project.directory_is_package,
             };
             let file_dir = Path::new(&file.path).parent().unwrap_or(Path::new(""));
             let src_project = project_map.get(&file.path).map(|s| s.as_str()).unwrap_or("");
