@@ -1,0 +1,33 @@
+[plugin]
+name = "cobol"
+display_name = "COBOL"
+version = "0.1.0"
+extensions = ["cbl", "cob", "cpy", "cobol"]
+min_sentrux_version = "0.4.0"
+color_rgb = [0, 90, 180]
+
+[plugin.metadata]
+author = "sentrux"
+license = "MIT"
+
+[grammar]
+source = "https://github.com/yutaro-sakamoto/tree-sitter-cobol"
+ref = "main"
+abi_version = 14
+symbol_name = "COBOL"
+
+[queries]
+capabilities = ["functions", "imports"]
+
+[checksums]
+
+[semantics]
+is_executable = true
+
+[semantics.project]
+source_dirs = ["src"]
+
+[semantics.complexity]
+branch_nodes = []
+logic_nodes = []
+nesting_nodes = []
