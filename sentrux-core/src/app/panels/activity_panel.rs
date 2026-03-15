@@ -19,59 +19,6 @@ pub(crate) fn draw_sep(ui: &mut egui::Ui, tc: &ThemeConfig, top: f32) {
     ui.add_space(3.0);
 }
 
-/// Draw the panel header — context-sensitive title, no close button (always visible).
-fn draw_panel_header(ui: &mut egui::Ui, state: &mut AppState, tc: &ThemeConfig) {
-    let title = if state.selected_path.is_some() {
-        "┌ FILE DETAIL"
-    } else {
-        "┌ ACTIVITY"
-    };
-    ui.horizontal(|ui| {
-        ui.spacing_mut().item_spacing.x = 4.0;
-        ui.label(
-            egui::RichText::new(title)
-                .monospace()
-                .size(10.0)
-                .color(tc.section_label),
-        );
-        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-            // Clear button for activity mode, deselect button for file detail mode
-            if state.selected_path.is_some() {
-                let deselect = ui.add(
-                    egui::Button::new(
-                        egui::RichText::new("×")
-                            .monospace()
-                            .size(11.0)
-                            .color(tc.text_secondary)
-                    )
-                    .fill(egui::Color32::TRANSPARENT)
-                    .stroke(egui::Stroke::NONE)
-                );
-                if deselect.clicked() {
-                    state.selected_path = None;
-                }
-                deselect.on_hover_cursor(CursorIcon::PointingHand)
-                    .on_hover_text("Deselect file");
-            } else if !state.recent_activity.is_empty() {
-                let clr = ui.add(
-                    egui::Button::new(
-                        egui::RichText::new("CLR")
-                            .monospace()
-                            .size(9.0)
-                            .color(tc.text_secondary)
-                    )
-                    .fill(egui::Color32::TRANSPARENT)
-                    .stroke(egui::Stroke::NONE)
-                );
-                if clr.clicked() {
-                    state.recent_activity.clear();
-                }
-                clr.on_hover_cursor(CursorIcon::PointingHand);
-            }
-        });
-    });
-    draw_sep(ui, tc, 2.0);
-}
 
 /// Draw the top connections section. Returns true if a file was clicked.
 fn draw_top_connections(
@@ -291,56 +238,68 @@ pub fn draw_activity_panel(ctx: &egui::Context, state: &mut AppState) -> bool {
             .inner_margin(egui::Margin::same(4))
             .stroke(egui::Stroke::new(1.0, tc.section_border)))
         .show(ctx, |ui| {
-            draw_panel_header(ui, state, &tc);
+            egui::ScrollArea::vertical()
+                .auto_shrink([false, false])
+                .show(ui, |ui| {
+                    // Section 1: Language summary (always visible)
+                    if let Some(snap) = &state.snapshot {
+                        super::language_summary::draw_language_summary(
+                            ui, snap, &state.lang_stats, &tc);
+                        draw_sep(ui, &tc, 4.0);
+                    }
 
-            // File detail section: shows metrics for the selected file
-            if state.selected_path.is_some() {
-                if let Some(snap) = &state.snapshot {
-                    let snap_clone = snap.clone();
-                    egui::ScrollArea::vertical()
-                        .auto_shrink([false, false])
-                        .show(ui, |ui| {
-                            super::file_detail::draw_file_detail(ui, state, &snap_clone, &tc);
+                    // Section 2: File detail (only when file selected)
+                    if state.selected_path.is_some() {
+                        ui.label(egui::RichText::new("┌ FILE DETAIL")
+                            .monospace().size(10.0).color(tc.section_label));
+                        ui.horizontal(|ui| {
+                            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                                let deselect = ui.add(
+                                    egui::Button::new(egui::RichText::new("×")
+                                        .monospace().size(11.0).color(tc.text_secondary))
+                                    .fill(egui::Color32::TRANSPARENT)
+                                    .stroke(egui::Stroke::NONE));
+                                if deselect.clicked() { state.selected_path = None; }
+                                deselect.on_hover_cursor(CursorIcon::PointingHand)
+                                    .on_hover_text("Deselect file");
+                            });
                         });
-                    // Skip the rest of the panel when file detail is shown
-                    return;
-                }
-            }
+                        draw_sep(ui, &tc, 2.0);
+                        if let Some(snap) = &state.snapshot {
+                            let snap_clone = snap.clone();
+                            super::file_detail::draw_file_detail(ui, state, &snap_clone, &tc);
+                        }
+                        draw_sep(ui, &tc, 4.0);
+                    }
 
-            // Rebuild cache if stale, then temporarily take the vec to avoid
-            // cloning every frame while still satisfying the borrow checker
-            // (draw_top_connections needs &mut AppState).
-            ensure_top_connections_cache(state);
-            let top_cache = state.top_connections_cache.take();
-            let top: &[(String, usize)] = match &top_cache {
-                Some((_, _, v)) => v.as_slice(),
-                None => &[],
-            };
-            if draw_top_connections(ui, top, state, &tc) {
-                clicked = true;
-            }
-            let top_is_empty = top.is_empty();
-            // Put the cache back (zero-cost move, no clone)
-            state.top_connections_cache = top_cache;
+                    // Section 3: Top connections
+                    ensure_top_connections_cache(state);
+                    let top_cache = state.top_connections_cache.take();
+                    let top: &[(String, usize)] = match &top_cache {
+                        Some((_, _, v)) => v.as_slice(),
+                        None => &[],
+                    };
+                    if draw_top_connections(ui, top, state, &tc) {
+                        clicked = true;
+                    }
+                    state.top_connections_cache = top_cache;
 
-            if state.recent_activity.is_empty() && top_is_empty {
-                ui.add_space(16.0);
-                ui.label(
-                    egui::RichText::new("  (no data)")
-                        .monospace()
-                        .size(10.0)
-                        .color(tc.text_secondary),
-                );
-                return;
-            }
-
-            if !state.recent_activity.is_empty() && draw_activity_scroll(ui, state, &tc) {
-                clicked = true;
-            }
+                    // Section 4: Recent activity
+                    if state.recent_activity.is_empty() {
+                        // no activity yet — that's fine
+                    } else {
+                        if draw_activity_scroll(ui, state, &tc) {
+                            clicked = true;
+                        }
+                    }
+                });
         });
 
+    // Remove the old "(no data)" display that had mismatched braces
+    // The panel always shows language stats at minimum
     clicked
 }
+
 
 /// Compute top N most-connected files from render_data edge paths.
 /// Respects the active edge_filter so counts match what's visible on canvas.

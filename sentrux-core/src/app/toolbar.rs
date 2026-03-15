@@ -337,7 +337,7 @@ fn draw_activity_toggle(ui: &mut egui::Ui, state: &mut AppState) {
 fn draw_toggle_buttons(ui: &mut egui::Ui, state: &mut AppState) {
     draw_edge_toggle(ui, state);
     draw_dsm_toggle(ui, state);
-    draw_activity_toggle(ui, state);
+    // Activity toggle removed — right panel is always visible
 
     // Export button — Free: grades only, Pro: full detail
     if state.health_report.is_some() {

@@ -64,11 +64,7 @@ fn draw_metrics_sections(ui: &mut egui::Ui, state: &mut AppState, tc: &ThemeConf
         draw_sep(ui, tc, 4.0);
     }
 
-    // Language summary last in the overview section
-    if let Some(snap) = &state.snapshot {
-        draw_language_summary(ui, snap, &state.lang_stats, tc);
-        draw_sep(ui, tc, 4.0);
-    }
+    // Language summary moved to right panel
 
     // Evolution: free shows grades only, pro shows full details (hotspots, coupling, bus factor)
     if let Some(evo) = &state.evolution_report {
