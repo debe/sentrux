@@ -32,7 +32,7 @@ fn draw_left_info(ui: &mut egui::Ui, state: &AppState) {
         if let Some(entry) = state.file_index.get(path) {
             ui.label(egui::RichText::new(abs(path)).strong().monospace());
             ui.label(egui::RichText::new(format!(
-                "{}  {}  {} ln  {} logic  {} fn",
+                "{}  {}  {} lines  {} logic  {} functions",
                 entry.lang, entry.gs, entry.lines, entry.logic, entry.funcs
             )).weak().monospace());
         } else {
@@ -83,7 +83,7 @@ fn draw_edge_file_counts(ui: &mut egui::Ui, state: &AppState) {
         if total_edges > 0 {
             // ASCII-only edge stats — avoids fallback font for unicode symbols
             ui.label(egui::RichText::new(format!(
-                "{}imp {}call {}inh",
+                "{} import  {} call  {} inherit",
                 n_imp, n_call, n_inh
             )).weak().monospace());
             ui.separator();

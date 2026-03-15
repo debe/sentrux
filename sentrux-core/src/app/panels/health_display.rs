@@ -55,7 +55,7 @@ fn build_health_metrics(report: &HealthReport) -> Vec<(&'static str, String, cha
     vec![
         ("cycles", format!("{}", report.circular_dep_count), d.cycles,
          "Martin 2003 ADP | 0=A | circular dependency count"),
-        ("complex fn", format!("{} ({:.0}%)", report.complex_functions.len(), report.complex_fn_ratio * 100.0), d.complex_fn,
+        ("complex functions", format!("{} ({:.0}%)", report.complex_functions.len(), report.complex_fn_ratio * 100.0), d.complex_fn,
          "McCabe 1976 | lower=better | functions with CC>15"),
         ("coupling", format!("{:.0}%", report.coupling_score * 100.0), d.coupling,
          "Constantine & Yourdon | lower=better | cross-module/total edges"),
@@ -72,7 +72,7 @@ fn build_health_metrics(report: &HealthReport) -> Vec<(&'static str, String, cha
          "Martin | lower=better | files with fan-out >15"),
         ("hotspots", format!("{} ({:.0}%)", report.hotspot_files.len(), report.hotspot_ratio * 100.0), d.hotspots,
          "Martin | lower=better | files with fan-in >20"),
-        ("long fn", format!("{} ({:.0}%)", report.long_functions.len(), report.long_fn_ratio * 100.0), d.long_fn,
+        ("long functions", format!("{} ({:.0}%)", report.long_functions.len(), report.long_fn_ratio * 100.0), d.long_fn,
          "Industry | lower=better | functions >50 lines"),
         ("comments", match report.comment_ratio {
             Some(r) => format!("{:.0}%", r * 100.0),
@@ -81,13 +81,13 @@ fn build_health_metrics(report: &HealthReport) -> Vec<(&'static str, String, cha
          "Language-aware | Rust/Go 5-10%, Java/C++ 15-25%"),
         ("large files", format!("{} ({:.0}%)", report.large_file_count, report.large_file_ratio * 100.0), d.file_size,
          "Industry | lower=better | files >500 lines"),
-        ("cog complex", format!("{} ({:.0}%)", report.cog_complex_functions.len(), report.cog_complex_ratio * 100.0), d.cog_complex,
+        ("cognitive complexity", format!("{} ({:.0}%)", report.cog_complex_functions.len(), report.cog_complex_ratio * 100.0), d.cog_complex,
          "SonarSource 2016 | lower=better | functions with cognitive complexity >15"),
-        ("duplication", format!("{} grp ({:.0}%)", report.duplicate_groups.len(), report.duplication_ratio * 100.0), d.duplication,
+        ("duplication", format!("{} groups ({:.0}%)", report.duplicate_groups.len(), report.duplication_ratio * 100.0), d.duplication,
          "SonarSource | lower=better | duplicate function bodies"),
         ("dead code", format!("{} ({:.0}%)", report.dead_functions.len(), report.dead_code_ratio * 100.0), d.dead_code,
          "Lower=better | unreferenced functions"),
-        ("high params", format!("{} ({:.0}%)", report.high_param_functions.len(), report.high_param_ratio * 100.0), d.high_params,
+        ("high parameters", format!("{} ({:.0}%)", report.high_param_functions.len(), report.high_param_ratio * 100.0), d.high_params,
          "Industry | lower=better | functions with >4 parameters"),
     ]
 }
@@ -127,7 +127,7 @@ fn draw_health_cross_mod_row(ui: &mut egui::Ui, report: &HealthReport, tc: &Them
     let (rect, _) = ui.allocate_exact_size(egui::vec2(ui.available_width(), row_h), egui::Sense::hover());
     ui.painter().text(
         egui::pos2(rect.left() + 4.0, rect.center().y), egui::Align2::LEFT_CENTER,
-        "cross-mod", font.clone(), tc.text_secondary,
+        "cross-module", font.clone(), tc.text_secondary,
     );
     ui.painter().text(
         egui::pos2(rect.right() - 4.0, rect.center().y), egui::Align2::RIGHT_CENTER,
