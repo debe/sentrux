@@ -22,6 +22,10 @@ jobs:
             platform: linux-x86_64
             ext: so
             cc_flags: ""
+          - os: windows-latest
+            platform: windows-x86_64
+            ext: dll
+            cc_flags: ""
 
     runs-on: ${{ matrix.os }}
 
@@ -162,6 +166,7 @@ jobs:
           files: |
             grammars-darwin-arm64/grammars-darwin-arm64.tar.gz
             grammars-linux-x86_64/grammars-linux-x86_64.tar.gz
+            grammars-windows-x86_64/grammars-windows-x86_64.tar.gz
           body: |
             Grammar bundles are automatically attached to this release.
             The sentrux binary downloads these on first launch.

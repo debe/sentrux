@@ -8,6 +8,17 @@ use std::path::{Path, PathBuf};
 
 pub(crate) const MAX_FILES: usize = 100_000;
 
+/// Normalize a path to forward slashes. Called at every entry point where
+/// OS paths become string keys. All downstream code uses `/` only.
+#[inline]
+pub(crate) fn normalize_path(path: std::borrow::Cow<'_, str>) -> String {
+    if cfg!(windows) {
+        path.replace('\\', "/")
+    } else {
+        path.into_owned()
+    }
+}
+
 /// Interface for scanning a directory into a structured snapshot.
 /// Enables alternative implementations for testing or cached scanning.
 pub trait DirectoryScanner {

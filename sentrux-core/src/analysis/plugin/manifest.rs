@@ -91,10 +91,13 @@ impl PluginManifest {
         { "darwin-x86_64.dylib" }
         #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
         { "linux-x86_64.so" }
+        #[cfg(all(target_os = "windows", target_arch = "x86_64"))]
+        { "windows-x86_64.dll" }
         #[cfg(not(any(
             all(target_os = "macos", target_arch = "aarch64"),
             all(target_os = "macos", target_arch = "x86_64"),
             all(target_os = "linux", target_arch = "x86_64"),
+            all(target_os = "windows", target_arch = "x86_64"),
         )))]
         { "unsupported" }
     }

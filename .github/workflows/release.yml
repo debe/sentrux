@@ -19,6 +19,9 @@ jobs:
           - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             artifact: sentrux-linux-x86_64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: sentrux-windows-x86_64.exe
 
     runs-on: ${{ matrix.os }}
 
@@ -41,9 +44,14 @@ jobs:
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Package binary
+        shell: bash
         run: |
-          cp target/${{ matrix.target }}/release/sentrux ${{ matrix.artifact }}
-          chmod +x ${{ matrix.artifact }}
+          if [[ "${{ matrix.os }}" == windows-* ]]; then
+            cp target/${{ matrix.target }}/release/sentrux.exe ${{ matrix.artifact }}
+          else
+            cp target/${{ matrix.target }}/release/sentrux ${{ matrix.artifact }}
+            chmod +x ${{ matrix.artifact }}
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -64,6 +72,7 @@ jobs:
           files: |
             sentrux-darwin-arm64/sentrux-darwin-arm64
             sentrux-linux-x86_64/sentrux-linux-x86_64
+            sentrux-windows-x86_64.exe/sentrux-windows-x86_64.exe
           generate_release_notes: true
 
       - name: Update Homebrew formula

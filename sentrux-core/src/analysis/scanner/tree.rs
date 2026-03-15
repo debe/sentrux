@@ -10,7 +10,7 @@ use std::path::Path;
 pub(crate) fn parent_dir_str(file_path: &str) -> String {
     Path::new(file_path)
         .parent()
-        .map(|p| p.to_string_lossy().to_string())
+        .map(|p| crate::analysis::scanner::common::normalize_path(p.to_string_lossy()))
         .unwrap_or_default()
 }
 
@@ -49,7 +49,7 @@ pub(crate) fn expand_ancestor_dirs(file_children: &HashMap<String, Vec<FileNode>
     for path in &file_paths {
         let mut p = Path::new(path.as_str());
         while let Some(parent) = p.parent() {
-            let s = parent.to_string_lossy().to_string();
+            let s = crate::analysis::scanner::common::normalize_path(parent.to_string_lossy());
             if s.is_empty() {
                 all_dirs_set.insert(s);
                 break;
@@ -74,7 +74,7 @@ pub(crate) fn build_dir_children_map(all_dirs_set: &HashSet<String>) -> HashMap<
         }
         let parent = Path::new(dir)
             .parent()
-            .map(|p| p.to_string_lossy().to_string())
+            .map(|p| crate::analysis::scanner::common::normalize_path(p.to_string_lossy()))
             .unwrap_or_default();
         dir_children.entry(parent).or_default().push(dir.clone());
     }

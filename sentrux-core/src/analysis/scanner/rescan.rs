@@ -115,7 +115,7 @@ fn validate_walk_entry(
     }
     path.strip_prefix(root)
         .ok()
-        .map(|rel| rel.to_string_lossy().to_string())
+        .map(|rel| super::common::normalize_path(rel.to_string_lossy()))
 }
 
 /// Walk a single directory and append discovered file rel-paths to `out`.

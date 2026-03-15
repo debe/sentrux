@@ -202,7 +202,9 @@ fn scan_and_parse_file(
     max_parse_size_kb: usize,
 ) -> FileNode {
     let rel = collected.path.strip_prefix(root).unwrap_or(&collected.path);
-    let rel_str = rel.to_string_lossy().to_string();
+    // Normalize to forward slashes — ONE place, ALL platforms.
+    // Every downstream consumer (resolver, graph builder, treemap) uses `/`.
+    let rel_str = common::normalize_path(rel.to_string_lossy());
     let name = collected.path.file_name().unwrap_or_default().to_string_lossy().to_string();
     let lang = detect_lang(&collected.path);
 
