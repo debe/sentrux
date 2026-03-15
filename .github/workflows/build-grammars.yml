@@ -76,6 +76,8 @@ jobs:
             fi
 
             cd "$GRAMMAR_DIR"
+            # Install npm deps if package.json exists (TypeScript, Svelte, Vue need this)
+            [ -f package.json ] && npm install --ignore-scripts 2>/dev/null || true
             tree-sitter generate || true
 
             # Find src directory
