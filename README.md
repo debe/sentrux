@@ -237,8 +237,8 @@ sentrux check .
 
 **51 languages** built-in via [tree-sitter](https://tree-sitter.github.io/) plugins — zero language knowledge in the binary:
 
-| | | | | |
-|---|---|---|---|---|
+| | | | | | |
+|---|---|---|---|---|---|
 | Bash | C | C++ | C# | Clojure | COBOL |
 | Crystal | CSS | Dart | Elixir | Erlang | F# |
 | GDScript | GLSL | Go | Groovy | Haskell | HCL |
