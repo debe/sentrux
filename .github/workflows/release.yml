@@ -46,18 +46,16 @@ jobs:
           repository: sentrux/sentrux-pro
           token: ${{ secrets.PRO_REPO_TOKEN }}
           path: ../sentrux-pro
-        continue-on-error: true
 
-      - name: Build release binary
-        run: |
-          if [ -d "../sentrux-pro" ]; then
-            echo "Building with Pro features"
-            cargo build --release --features pro --target ${{ matrix.target }}
-          else
-            echo "Building Free (sentrux-pro not available)"
-            cargo build --release --target ${{ matrix.target }}
-          fi
+      - name: Link Pro crate paths
         shell: bash
+        run: |
+          # sentrux-pro references sentrux-core via path in its Cargo.toml.
+          # Create symlink so ../sentrux-fresh/sentrux-core resolves in CI.
+          ln -sf "$(pwd)" ../sentrux-fresh
+
+      - name: Build release binary (with Pro)
+        run: cargo build --release --features pro --target ${{ matrix.target }}
 
       - name: Package binary
         shell: bash
