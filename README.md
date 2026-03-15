@@ -119,13 +119,10 @@ brew install sentrux/tap/sentrux
 curl -fsSL https://raw.githubusercontent.com/sentrux/sentrux/main/install.sh | sh
 ```
 
-**Windows**
-```powershell
-# Download from GitHub Releases
-Invoke-WebRequest -Uri "https://github.com/sentrux/sentrux/releases/latest/download/sentrux-windows-x86_64.exe" -OutFile sentrux.exe
+**Windows** — download from [Releases](https://github.com/sentrux/sentrux/releases), or:
 ```
-
-Or download directly from [Releases](https://github.com/sentrux/sentrux/releases).
+curl -L -o sentrux.exe https://github.com/sentrux/sentrux/releases/latest/download/sentrux-windows-x86_64.exe
+```
 
 Pure Rust. Single binary. No runtime dependencies. **51 languages** via tree-sitter plugins. Runs on **macOS**, **Linux**, and **Windows**.
 

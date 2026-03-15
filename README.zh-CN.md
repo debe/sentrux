@@ -120,9 +120,9 @@ curl -fsSL https://raw.githubusercontent.com/sentrux/sentrux/main/install.sh | s
 ```
 
 **Windows**
-```powershell
-# 从 GitHub Releases 下载
-Invoke-WebRequest -Uri "https://github.com/sentrux/sentrux/releases/latest/download/sentrux-windows-x86_64.exe" -OutFile sentrux.exe
+```
+# cmd.exe 和 PowerShell 均可
+curl -L -o sentrux.exe https://github.com/sentrux/sentrux/releases/latest/download/sentrux-windows-x86_64.exe
 ```
 
 或直接从 [Releases](https://github.com/sentrux/sentrux/releases) 下载。
