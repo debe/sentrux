@@ -27,6 +27,7 @@ base_class_extractor = "generic"
 base_class_node_kinds = ["superclass", "super_interfaces", "type_list", "extends_type_clause", "class_type", "delegation_specifiers"]
 abstract_keywords = ["abstract"]
 is_executable = true
+public_keywords = ["public"]
 test_suffixes = ["Test.java", "Tests.java"]
 test_dir_prefixes = ["test/", "tests/"]
 test_dir_infixes = ["/test/", "/tests/"]

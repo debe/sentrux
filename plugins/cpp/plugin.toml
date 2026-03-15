@@ -25,6 +25,7 @@ import_extractor = ""
 base_class_extractor = "generic"
 base_class_node_kinds = ["base_class_clause"]
 is_executable = true
+public_keywords = []
 test_suffixes = ["_test.cpp", "_tests.cpp", "_test.cc"]
 test_dir_prefixes = ["test/", "tests/"]
 test_dir_infixes = ["/test/", "/tests/"]

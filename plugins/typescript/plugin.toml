@@ -26,6 +26,7 @@ base_class_extractor = "generic"
 base_class_node_kinds = ["class_heritage", "extends_clause"]
 package_index_files = ["index.ts", "index.tsx", "index.mts", "index.cts"]
 is_executable = true
+public_keywords = ["export"]
 test_suffixes = [".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx"]
 test_dir_prefixes = ["__tests__/", "test/", "tests/"]
 test_dir_infixes = ["/__tests__/", "/test/", "/tests/"]

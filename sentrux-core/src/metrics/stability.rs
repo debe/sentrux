@@ -219,7 +219,7 @@ pub(crate) fn compute_shannon_entropy(edges: &[ImportEdge], stable_modules: &Has
 /// code never imports from test files. This is the same principle as excluding
 /// entry points from god-file detection: known one-way consumers should not
 /// penalize the metric they can't contribute to.
-pub(crate) fn compute_avg_cohesion(edges: &[ImportEdge], files: &[&crate::core::types::FileNode]) -> Option<f64> {
+pub(crate) fn compute_avg_cohesion(edges: &[ImportEdge], call_edges: &[crate::core::types::CallEdge], files: &[&crate::core::types::FileNode]) -> Option<f64> {
     // Group files by module (same boundary as coupling), excluding test files.
     // Test files are one-way consumers (import production code, never imported back).
     // Including them inflates n without proportional intra-module edges,
@@ -236,14 +236,29 @@ pub(crate) fn compute_avg_cohesion(edges: &[ImportEdge], files: &[&crate::core::
         mod_files.entry(m).or_default().push(f.path.as_str());
     }
 
-    // Count intra-module edges per module.
-    // is_same_module is strict equality of module_of(), so both endpoints
-    // always map to the same module key — attribute to that module.
+    // Count intra-module edges per module — BOTH import and call edges.
+    // Import edges show explicit module dependencies.
+    // Call edges show implicit dependencies (especially for implicit-module
+    // languages like Swift where files don't import each other).
+    // Using both gives accurate cohesion for ALL languages.
     let mut mod_edge_count: HashMap<&str, usize> = HashMap::new();
+    let mut seen_pairs: std::collections::HashSet<(&str, &str)> = std::collections::HashSet::new();
     for edge in edges {
         if is_same_module(&edge.from_file, &edge.to_file) {
-            let m = module_of(&edge.from_file);
-            *mod_edge_count.entry(m).or_default() += 1;
+            let pair = (edge.from_file.as_str(), edge.to_file.as_str());
+            if seen_pairs.insert(pair) {
+                let m = module_of(&edge.from_file);
+                *mod_edge_count.entry(m).or_default() += 1;
+            }
+        }
+    }
+    for edge in call_edges {
+        if is_same_module(&edge.from_file, &edge.to_file) {
+            let pair = (edge.from_file.as_str(), edge.to_file.as_str());
+            if seen_pairs.insert(pair) {
+                let m = module_of(&edge.from_file);
+                *mod_edge_count.entry(m).or_default() += 1;
+            }
         }
     }
 

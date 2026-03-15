@@ -258,6 +258,16 @@ pub(super) fn process_func_def(
         };
         let pc = count_parameters(node, pctx.content, pctx.lang);
         let bh = hash_body(body, pctx.lang);
+        // Detect visibility from function text — TOML-driven via public_keywords
+        let is_public = {
+            let keywords = &profile.semantics.public_keywords;
+            if keywords.is_empty() {
+                false
+            } else {
+                let text = body.trim_start();
+                keywords.iter().any(|kw| text.starts_with(kw.as_str()))
+            }
+        };
         functions.push(FuncInfo {
             n: name, sl, el, ln,
             cc: Some(cc),
@@ -265,6 +275,7 @@ pub(super) fn process_func_def(
             pc: Some(pc),
             bh: if bh != 0 { Some(bh) } else { None },
             d: None, co: None,
+            is_public,
         });
     }
 }

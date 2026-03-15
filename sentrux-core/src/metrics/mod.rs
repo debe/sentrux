@@ -441,6 +441,8 @@ fn collect_dead_functions(files: &[&FileNode]) -> Vec<FuncMetric> {
             None => continue,
         };
         for f in funcs {
+            // Public/exported functions are NOT dead code — they're API surface
+            if f.is_public { continue; }
             if is_excluded_function(&f.n, &implicit, &file.lang) { continue; }
             if !is_called(&f.n, &all_calls) {
                 result.push(FuncMetric {
@@ -516,10 +518,9 @@ fn compute_file_metrics(
 fn compute_module_metrics(
     files: &[&FileNode],
     import_edges: &[ImportEdge],
+    call_edges: &[crate::core::types::CallEdge],
     entry_points: &[EntryPoint],
 ) -> ModuleMetrics {
-    // Caller (`compute_health`) already filtered mod-declaration edges,
-    // so `import_edges` here are pure functional dependencies.
     let dep_edges = import_edges;
 
     let stable_modules = compute_stable_modules(dep_edges);
@@ -532,7 +533,7 @@ fn compute_module_metrics(
     let magnitude = (coupling_score / 0.35).min(1.0);
     let entropy = entropy_raw * magnitude;
 
-    let avg_cohesion = compute_avg_cohesion(dep_edges, files);
+    let avg_cohesion = compute_avg_cohesion(dep_edges, call_edges, files);
     let max_depth = compute_max_depth(dep_edges, entry_points);
     let circular_dep_files = detect_cycles(dep_edges);
     let circular_dep_count = circular_dep_files.len();
@@ -555,7 +556,7 @@ pub fn compute_health(snapshot: &Snapshot) -> HealthReport {
         .collect();
 
     let fm = compute_file_metrics(&files, &dep_edges, &snapshot.entry_points);
-    let mm = compute_module_metrics(&files, &dep_edges, &snapshot.entry_points);
+    let mm = compute_module_metrics(&files, &dep_edges, &snapshot.call_graph, &snapshot.entry_points);
 
     // Raw unfiltered data for rules engine (user thresholds may be stricter than hardcoded ones)
     let all_function_ccs = collect_all_function_ccs(&files);

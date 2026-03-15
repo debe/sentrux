@@ -26,6 +26,7 @@ base_class_extractor = "generic"
 base_class_node_kinds = ["class_heritage", "extends_clause"]
 package_index_files = ["index.js", "index.mjs", "index.cjs", "index.jsx"]
 is_executable = true
+public_keywords = ["export"]
 test_suffixes = [".test.js", ".test.jsx", ".spec.js", ".spec.jsx"]
 test_dir_prefixes = ["__tests__/", "test/", "tests/"]
 test_dir_infixes = ["/__tests__/", "/test/", "/tests/"]

@@ -28,6 +28,7 @@ base_class_extractor = "generic"
 base_class_node_kinds = ["superclass"]
 hash_is_comment = true
 is_executable = true
+public_keywords = []
 test_suffixes = ["_spec.rb", "_test.rb"]
 test_prefixes = ["test_"]
 test_dir_prefixes = ["spec/", "test/"]

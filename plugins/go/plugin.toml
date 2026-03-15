@@ -24,6 +24,7 @@ capabilities = ["functions", "imports"]
 import_extractor = ""
 base_class_extractor = "generic"
 is_executable = true
+public_keywords = []
 main_filenames = ["server.go", "app.go"]
 
 [semantics.project]

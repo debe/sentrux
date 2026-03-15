@@ -27,6 +27,7 @@ import_extractor = ""
 base_class_extractor = "generic"
 base_class_node_kinds = ["base_clause", "class_interface_clause"]
 is_executable = true
+public_keywords = ["public"]
 test_suffixes = ["Test.php"]
 test_dir_prefixes = ["tests/", "test/"]
 test_dir_infixes = ["/tests/", "/test/"]

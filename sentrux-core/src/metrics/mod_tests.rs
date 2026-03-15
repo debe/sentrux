@@ -285,7 +285,7 @@ mod tests {
                     pc: None,
                     bh: None,
                     d: None,
-                    co: None,
+                    co: None, is_public: false,
                 }]),
                 cls: None,
                 imp: None,

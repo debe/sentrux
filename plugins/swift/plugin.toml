@@ -24,6 +24,7 @@ capabilities = ["functions", "classes", "imports"]
 import_extractor = ""
 base_class_extractor = "generic"
 is_executable = true
+public_keywords = ["public", "open"]
 test_suffixes = ["Tests.swift", "Test.swift"]
 test_dir_prefixes = ["Tests/"]
 test_dir_infixes = ["/Tests/"]

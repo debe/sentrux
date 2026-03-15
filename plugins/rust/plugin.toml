@@ -33,6 +33,7 @@ test_attribute_kind = "attribute_item"
 test_attribute_patterns = ["cfg", "test"]
 entry_point_patterns = ["@main", "tokio::main", "actix_web::main", "#[main]"]
 test_function_prefixes = ["test_", "bench_"]
+public_keywords = ["pub"]
 implicit_entry_points = ["from", "into", "try_from", "try_into", "drop", "fmt", "clone", "eq", "hash", "cmp", "partial_cmp", "as_ref", "deref", "index"]
 qualified_name_separator = "::"
 

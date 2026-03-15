@@ -30,6 +30,7 @@ has_triple_quote_strings = true
 package_index_files = ["__init__.py"]
 abstract_base_classes = ["Protocol", "ABC", "ABCMeta"]
 is_executable = true
+public_keywords = []
 test_suffixes = ["_test.py"]
 test_prefixes = ["test_"]
 test_dir_prefixes = ["tests/", "test/"]

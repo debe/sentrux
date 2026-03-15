@@ -40,7 +40,7 @@ mod tests {
                     functions: Some(vec![crate::core::types::FuncInfo {
                         n: "main".to_string(),
                         sl: 1, el: 5, ln: 5, cc: None, cog: None, pc: None, bh: None, d: None,
-                        co: Some(vec!["helper".to_string()]),
+                        co: Some(vec!["helper".to_string()]), is_public: false,
                     }]),
                     cls: None,
                     imp: Some(vec![".utils".to_string()]),
@@ -55,7 +55,7 @@ mod tests {
                 Some(StructuralAnalysis {
                     functions: Some(vec![crate::core::types::FuncInfo {
                         n: "helper".to_string(),
-                        sl: 1, el: 3, ln: 3, cc: None, cog: None, pc: None, bh: None, d: None, co: None,
+                        sl: 1, el: 3, ln: 3, cc: None, cog: None, pc: None, bh: None, d: None, co: None, is_public: false,
                     }]),
                     cls: None, imp: None, co: None, tags: None, comment_lines: None,
                 }),
@@ -89,7 +89,7 @@ mod tests {
                 Some(StructuralAnalysis {
                     functions: Some(vec![crate::core::types::FuncInfo {
                         n: "sqrt".to_string(),
-                        sl: 1, el: 3, ln: 3, cc: None, cog: None, pc: None, bh: None, d: None, co: None,
+                        sl: 1, el: 3, ln: 3, cc: None, cog: None, pc: None, bh: None, d: None, co: None, is_public: false,
                     }]),
                     cls: None, imp: None, co: None, tags: None, comment_lines: None,
                 }),

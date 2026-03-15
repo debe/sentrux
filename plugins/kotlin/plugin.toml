@@ -23,6 +23,7 @@ capabilities = ["functions", "classes", "imports"]
 [semantics]
 dot_is_module_separator = true
 is_executable = true
+public_keywords = ["public"]
 import_extractor = ""
 base_class_extractor = "generic"
 

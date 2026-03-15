@@ -95,6 +95,16 @@ pub struct LanguageSemantics {
     #[serde(default)]
     pub qualified_name_separator: String,
 
+    // ── Visibility detection ──
+
+    /// Keywords that indicate a function is publicly visible.
+    /// Examples: Rust `["pub"]`, JS/TS `["export"]`, Java `["public"]`,
+    ///          Swift `["public", "open"]`, C# `["public"]`.
+    /// The parser checks if the function definition text starts with any of these.
+    /// Public functions are excluded from dead code detection.
+    #[serde(default)]
+    pub public_keywords: Vec<String>,
+
     // ── Entry point detection ──
 
     /// Whether this language can have executable entry points.
@@ -594,6 +604,7 @@ impl Default for LanguageSemantics {
             test_function_prefixes: Vec::new(),
             implicit_entry_points: Vec::new(),
             qualified_name_separator: String::new(),
+            public_keywords: Vec::new(),
             is_executable: false, // Must be explicitly set by plugins that can have entry points
             main_filenames: Vec::new(),
             entry_point_patterns: Vec::new(),
