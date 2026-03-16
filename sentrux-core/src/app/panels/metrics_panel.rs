@@ -98,39 +98,23 @@ fn draw_evolution_summary(ui: &mut egui::Ui, report: &crate::metrics::evo::Evolu
     let row_h = 13.0;
 
     ui.label(
-        egui::RichText::new("EVOLUTION")
+        egui::RichText::new("GIT STATS")
             .monospace()
             .size(9.0)
             .color(tc.section_label),
     );
     ui.add_space(2.0);
 
-    let sc = score_color(report.evolution_score);
-    let (grade_rect, _) = ui.allocate_exact_size(egui::vec2(ui.available_width(), 18.0), egui::Sense::hover());
-    ui.painter().text(
-        egui::pos2(grade_rect.left() + 4.0, grade_rect.center().y),
-        egui::Align2::LEFT_CENTER,
-        format!("Score: {}", (report.evolution_score * 10000.0).round() as u32),
-        egui::FontId::monospace(11.0),
-        sc,
-    );
-
-    let metrics: Vec<(&str, String, f64)> = vec![
-        ("churn", format!("{} files", report.churn.len()), report.churn_score),
-        ("bus factor", format!("{} solo", (report.single_author_ratio * 10000.0).round() as u32), report.bus_factor_score),
-        ("commits", format!("{}", report.commits_analyzed), -1.0),
+    let metrics: Vec<(&str, String)> = vec![
+        ("churn", format!("{} files", report.churn.len())),
+        ("bus factor", format!("{} solo", (report.single_author_ratio * report.churn.len() as f64).round() as u32)),
+        ("commits", format!("{}", report.commits_analyzed)),
     ];
-    for (label, value, score) in &metrics {
+    for (label, value) in &metrics {
         let (rect, _) = ui.allocate_exact_size(egui::vec2(ui.available_width(), row_h), egui::Sense::hover());
         let cy = rect.center().y;
         ui.painter().text(egui::pos2(rect.left() + 4.0, cy), egui::Align2::LEFT_CENTER, label, font.clone(), tc.text_secondary);
-        if *score >= 0.0 {
-            let c = score_color(*score);
-            ui.painter().text(egui::pos2(rect.right() - 4.0, cy), egui::Align2::RIGHT_CENTER, format!("{}", (score * 10000.0).round() as u32), font.clone(), c);
-            ui.painter().text(egui::pos2(rect.right() - 36.0, cy), egui::Align2::RIGHT_CENTER, value, font.clone(), tc.text_secondary);
-        } else {
-            ui.painter().text(egui::pos2(rect.right() - 4.0, cy), egui::Align2::RIGHT_CENTER, value, font.clone(), tc.text_secondary);
-        }
+        ui.painter().text(egui::pos2(rect.right() - 4.0, cy), egui::Align2::RIGHT_CENTER, value, font.clone(), tc.text_secondary);
     }
 
 }

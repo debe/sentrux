@@ -14,32 +14,20 @@ pub(crate) fn draw_evolution_section(ui: &mut egui::Ui, report: &EvolutionReport
 
     // Section header
     ui.label(
-        egui::RichText::new("EVOLUTION")
+        egui::RichText::new("GIT STATS")
             .monospace()
             .size(9.0)
             .color(tc.section_label),
     );
     ui.add_space(2.0);
 
-    // Overall score
-    let sc = score_color(report.evolution_score);
-    let (grade_rect, _) = ui.allocate_exact_size(egui::vec2(ui.available_width(), 18.0), egui::Sense::hover());
-    ui.painter().text(
-        egui::pos2(grade_rect.left() + 4.0, grade_rect.center().y),
-        egui::Align2::LEFT_CENTER,
-        format!("Score: {}", (report.evolution_score * 10000.0).round() as u32),
-        egui::FontId::monospace(11.0),
-        sc,
-    );
-    ui.add_space(2.0);
-
-    // Metrics rows: (label, value, score, tooltip)
+    // Raw data rows — no score, just facts from git history
     let commits_tooltip = format!("Total commits analyzed (last {} days)", report.lookback_days);
     let metrics: Vec<(&str, String, f64, &str)> = vec![
-        ("churn", format!("{} files", report.churn.len()), report.churn_score,
-         "Top-10% files' share of total churn | lower=better"),
-        ("bus factor", format!("{} solo", (report.single_author_ratio * 10000.0).round() as u32), report.bus_factor_score,
-         "Ricca 2011 | ratio of single-author files (0-10000) | lower=better"),
+        ("churn", format!("{} files", report.churn.len()), -1.0,
+         "Files with changes in lookback window"),
+        ("bus factor", format!("{} solo", (report.single_author_ratio * report.churn.len() as f64).round() as u32), -1.0,
+         "Files with only one author — bus factor risk"),
         ("commits", format!("{}", report.commits_analyzed), -1.0,
          commits_tooltip.as_str()),
     ];

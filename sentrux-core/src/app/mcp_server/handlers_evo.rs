@@ -56,13 +56,13 @@ fn collect_files(node: &FileNode, set: &mut HashSet<String>) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  EVOLUTION (free: summary scores only)
+//  GIT STATS (churn, hotspots, bus factor, change coupling)
 // ══════════════════════════════════════════════════════════════════
 
 pub fn evolution_def() -> ToolDef {
     ToolDef {
-        name: "evolution",
-        description: "Compute git evolution metrics: code churn, change coupling, temporal hotspots, code age, bus factor. Requires git history.",
+        name: "git_stats",
+        description: "Git history analysis: code churn, hotspots (churn x complexity), bus factor, change coupling. Raw data — not a score. Requires git history.",
         input_schema: json!({
             "type": "object",
             "properties": {
@@ -87,15 +87,13 @@ fn handle_evolution(args: &Value, tier: &Tier, state: &mut McpState) -> Result<V
         .map_err(|e| format!("Evolution analysis failed: {e}"))?;
 
     let mut result = json!({
-        "evolution_score": report.evolution_score,
-        "bus_factor_score": report.bus_factor_score,
-        "churn_score": report.churn_score,
         "lookback_days": report.lookback_days,
         "commits_analyzed": report.commits_analyzed,
         "files_with_churn": report.churn.len(),
-        "single_author_ratio": (report.single_author_ratio * 10000.0).round() as u32,
+        "single_author_ratio": report.single_author_ratio,
         "coupling_pairs_found": report.coupling_pairs.len(),
-        "hotspot_count": report.hotspots.len()
+        "hotspot_count": report.hotspots.len(),
+        "bus_factor_solo_files": (report.single_author_ratio * report.churn.len() as f64).round() as u32
     });
 
     // Pro: file-level hotspot details. Free: scores + counts only.
