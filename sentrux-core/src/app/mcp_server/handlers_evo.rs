@@ -56,7 +56,7 @@ fn collect_files(node: &FileNode, set: &mut HashSet<String>) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-//  EVOLUTION (free: summary grades only)
+//  EVOLUTION (free: summary scores only)
 // ══════════════════════════════════════════════════════════════════
 
 pub fn evolution_def() -> ToolDef {
@@ -98,7 +98,7 @@ fn handle_evolution(args: &Value, tier: &Tier, state: &mut McpState) -> Result<V
         "hotspot_count": report.hotspots.len()
     });
 
-    // Pro: file-level hotspot details. Free: grades + counts only.
+    // Pro: file-level hotspot details. Free: scores + counts only.
     if tier.is_pro() {
         result["top_hotspots"] = json!(report.hotspots.iter().take(10).map(|h| json!({
             "file": h.file,
@@ -211,7 +211,7 @@ fn handle_test_gaps(args: &Value, tier: &Tier, state: &mut McpState) -> Result<V
         "coverage_ratio": format!("{:.1}%", report.coverage_ratio * 100.0)
     });
 
-    // Pro: file-level gap details. Free: grade + counts only.
+    // Pro: file-level gap details. Free: scores + counts only.
     if tier.is_pro() {
         let limit = args.get("limit").and_then(|l| l.as_u64()).unwrap_or(20) as usize;
         result["riskiest_untested"] = json!(report.gaps.iter().take(limit).map(|g| json!({
