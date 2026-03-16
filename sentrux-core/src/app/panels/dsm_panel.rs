@@ -136,7 +136,7 @@ fn draw_stats(
     let mono = |s: &str| egui::RichText::new(s).monospace().size(9.0);
     draw_stats_file_counts(ui, stats, tc, total_files, dropped_level_range, &mono);
     draw_stats_direction_row(ui, stats, &mono);
-    ui.label(mono(&format!("Propagation: {:.1}%", stats.propagation_cost * 100.0)).color(tc.text_secondary));
+    ui.label(mono(&format!("Propagation: {}", (stats.propagation_cost * 10000.0).round() as u32)).color(tc.text_secondary));
     draw_stats_clusters(ui, stats, tc, &mono);
 }
 
@@ -163,7 +163,7 @@ fn draw_stats_file_counts(
     } else {
         ui.label(mono(&format!("Files: {}  Edges: {}", stats.size, stats.edge_count)).color(tc.text_primary));
     }
-    ui.label(mono(&format!("Density: {:.1}%", stats.density * 100.0)).color(tc.text_secondary));
+    ui.label(mono(&format!("Density: {}", (stats.density * 10000.0).round() as u32)).color(tc.text_secondary));
 }
 
 /// Below/above diagonal and same-level edge count row.

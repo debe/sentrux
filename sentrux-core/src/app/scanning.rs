@@ -147,7 +147,7 @@ impl SentruxApp {
         Self::log_arch_regressions(prev_arch, arch);
         if arch.arch_score < prev_arch.arch_score - 0.05 {
             self.state.record_activity(
-                format!("Architecture degraded: {:.0}% -> {:.0}%", prev_arch.arch_score * 100.0, arch.arch_score * 100.0),
+                format!("Architecture degraded: {} -> {}", (prev_arch.arch_score * 10000.0).round() as u32, (arch.arch_score * 10000.0).round() as u32),
                 "arch_degraded".to_string(),
             );
         }

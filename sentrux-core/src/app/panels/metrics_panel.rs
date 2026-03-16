@@ -110,14 +110,14 @@ fn draw_evolution_summary(ui: &mut egui::Ui, report: &crate::metrics::evo::Evolu
     ui.painter().text(
         egui::pos2(grade_rect.left() + 4.0, grade_rect.center().y),
         egui::Align2::LEFT_CENTER,
-        format!("Score: {:.0}%", report.evolution_score * 100.0),
+        format!("Score: {}", (report.evolution_score * 10000.0).round() as u32),
         egui::FontId::monospace(11.0),
         sc,
     );
 
     let metrics: Vec<(&str, String, f64)> = vec![
         ("churn", format!("{} files", report.churn.len()), report.churn_score),
-        ("bus factor", format!("{:.0}% solo", report.single_author_ratio * 100.0), report.bus_factor_score),
+        ("bus factor", format!("{} solo", (report.single_author_ratio * 10000.0).round() as u32), report.bus_factor_score),
         ("commits", format!("{}", report.commits_analyzed), -1.0),
     ];
     for (label, value, score) in &metrics {
@@ -126,7 +126,7 @@ fn draw_evolution_summary(ui: &mut egui::Ui, report: &crate::metrics::evo::Evolu
         ui.painter().text(egui::pos2(rect.left() + 4.0, cy), egui::Align2::LEFT_CENTER, label, font.clone(), tc.text_secondary);
         if *score >= 0.0 {
             let c = score_color(*score);
-            ui.painter().text(egui::pos2(rect.right() - 4.0, cy), egui::Align2::RIGHT_CENTER, format!("{:.0}%", score * 100.0), font.clone(), c);
+            ui.painter().text(egui::pos2(rect.right() - 4.0, cy), egui::Align2::RIGHT_CENTER, format!("{}", (score * 10000.0).round() as u32), font.clone(), c);
             ui.painter().text(egui::pos2(rect.right() - 36.0, cy), egui::Align2::RIGHT_CENTER, value, font.clone(), tc.text_secondary);
         } else {
             ui.painter().text(egui::pos2(rect.right() - 4.0, cy), egui::Align2::RIGHT_CENTER, value, font.clone(), tc.text_secondary);

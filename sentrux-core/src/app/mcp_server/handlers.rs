@@ -253,10 +253,10 @@ fn handle_architecture(_args: &Value, tier: &Tier, state: &mut McpState) -> Resu
         "avg_distance_from_main_seq": format!("{:.3}", a.avg_distance),
         "max_level": a.max_level,
         "upward_violations_count": a.upward_violations.len(),
-        "upward_ratio": format!("{:.2}%", a.upward_ratio * 100.0),
+        "upward_ratio": (a.upward_ratio * 10000.0).round() as u32,
         "max_blast_radius": a.max_blast_radius,
         "attack_surface_files": a.attack_surface_files,
-        "attack_surface_ratio": format!("{:.1}%", a.attack_surface_ratio * 100.0),
+        "attack_surface_ratio": (a.attack_surface_ratio * 10000.0).round() as u32,
         "total_graph_files": a.total_graph_files
     });
     // Pro: file-level details (violation files, distance per module, blast file name)

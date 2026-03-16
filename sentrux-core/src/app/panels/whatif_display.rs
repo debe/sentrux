@@ -81,7 +81,7 @@ fn draw_verdict_row(ui: &mut egui::Ui, r: &WhatIfResult, row_h: f32, font: &egui
 /// Draw before/after comparison rows for changed metrics.
 fn draw_comparison_rows(ui: &mut egui::Ui, r: &WhatIfResult, row_h: f32, tc: &ThemeConfig) {
     let comparisons: Vec<(&str, String, String)> = vec![
-        ("score", format!("{:.0}%", r.score_before * 100.0), format!("{:.0}%", r.score_after * 100.0)),
+        ("score", format!("{}", (r.score_before * 10000.0).round() as u32), format!("{}", (r.score_after * 10000.0).round() as u32)),
         ("violations", format!("{}", r.upward_violations_before), format!("{}", r.upward_violations_after)),
         ("max blast", format!("{}", r.max_blast_before), format!("{}", r.max_blast_after)),
         ("max level", format!("{}", r.max_level_before), format!("{}", r.max_level_after)),

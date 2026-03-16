@@ -41,7 +41,7 @@ fn draw_arch_header(ui: &mut egui::Ui, arch: &ArchReport, tc: &ThemeConfig) {
     ui.painter().text(
         egui::pos2(grade_rect.left() + 4.0, grade_rect.center().y),
         egui::Align2::LEFT_CENTER,
-        format!("Score: {:.0}%", arch.arch_score * 100.0),
+        format!("Score: {}", (arch.arch_score * 10000.0).round() as u32),
         egui::FontId::monospace(11.0), sc,
     );
     ui.add_space(2.0);
@@ -50,10 +50,10 @@ fn draw_arch_header(ui: &mut egui::Ui, arch: &ArchReport, tc: &ThemeConfig) {
 /// Draw the four architecture dimension rows with scores.
 fn draw_arch_dimension_rows(ui: &mut egui::Ui, arch: &ArchReport, tc: &ThemeConfig, row_h: f32, font: &egui::FontId) {
     let arch_metrics: Vec<(&str, String, f64)> = vec![
-        ("levelization", format!("{:.0}% upward", arch.upward_ratio * 100.0), arch.levelization_score),
+        ("levelization", format!("{} upward", (arch.upward_ratio * 10000.0).round() as u32), arch.levelization_score),
         ("distance", format!("{:.2} avg", arch.avg_distance), arch.distance_score),
         ("blast radius", format!("{} max", arch.max_blast_radius), arch.blast_score),
-        ("attack surface", format!("{:.0}%", arch.attack_surface_ratio * 100.0), arch.surface_score),
+        ("attack surface", format!("{}", (arch.attack_surface_ratio * 10000.0).round() as u32), arch.surface_score),
     ];
     for (label, value, score) in &arch_metrics {
         let (rect, _) = ui.allocate_exact_size(
@@ -67,7 +67,7 @@ fn draw_arch_dimension_rows(ui: &mut egui::Ui, arch: &ArchReport, tc: &ThemeConf
         let c = score_color(*score);
         ui.painter().text(
             egui::pos2(rect.right() - 4.0, cy), egui::Align2::RIGHT_CENTER,
-            format!("{:.0}%", score * 100.0), font.clone(), c,
+            format!("{}", (score * 10000.0).round() as u32), font.clone(), c,
         );
         ui.painter().text(
             egui::pos2(rect.right() - 36.0, cy), egui::Align2::RIGHT_CENTER,

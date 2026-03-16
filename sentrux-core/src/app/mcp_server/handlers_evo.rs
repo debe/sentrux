@@ -93,7 +93,7 @@ fn handle_evolution(args: &Value, tier: &Tier, state: &mut McpState) -> Result<V
         "lookback_days": report.lookback_days,
         "commits_analyzed": report.commits_analyzed,
         "files_with_churn": report.churn.len(),
-        "single_author_ratio": format!("{:.1}%", report.single_author_ratio * 100.0),
+        "single_author_ratio": (report.single_author_ratio * 10000.0).round() as u32,
         "coupling_pairs_found": report.coupling_pairs.len(),
         "hotspot_count": report.hotspots.len()
     });
@@ -141,11 +141,11 @@ fn handle_dsm(args: &Value, tier: &Tier, state: &mut McpState) -> Result<Value, 
     let mut result = json!({
         "size": stats.size,
         "edge_count": stats.edge_count,
-        "density": format!("{:.3}", stats.density),
+        "density": (stats.density * 10000.0).round() as u32,
         "above_diagonal": stats.above_diagonal,
         "below_diagonal": stats.below_diagonal,
         "same_level": stats.same_level,
-        "propagation_cost": format!("{:.2}", stats.propagation_cost),
+        "propagation_cost": (stats.propagation_cost * 10000.0).round() as u32,
         "level_breaks": dsm.level_breaks.len(),
         "interpretation": if stats.above_diagonal == 0 {
             "Clean layering: all dependencies flow downward"
@@ -208,7 +208,7 @@ fn handle_test_gaps(args: &Value, tier: &Tier, state: &mut McpState) -> Result<V
         "test_files": report.test_files,
         "tested": report.tested_source_files,
         "untested": report.untested_source_files,
-        "coverage_ratio": format!("{:.1}%", report.coverage_ratio * 100.0)
+        "coverage_ratio": (report.coverage_ratio * 10000.0).round() as u32
     });
 
     // Pro: file-level gap details. Free: scores + counts only.

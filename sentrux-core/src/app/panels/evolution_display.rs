@@ -27,7 +27,7 @@ pub(crate) fn draw_evolution_section(ui: &mut egui::Ui, report: &EvolutionReport
     ui.painter().text(
         egui::pos2(grade_rect.left() + 4.0, grade_rect.center().y),
         egui::Align2::LEFT_CENTER,
-        format!("Score: {:.0}%", report.evolution_score * 100.0),
+        format!("Score: {}", (report.evolution_score * 10000.0).round() as u32),
         egui::FontId::monospace(11.0),
         sc,
     );
@@ -38,8 +38,8 @@ pub(crate) fn draw_evolution_section(ui: &mut egui::Ui, report: &EvolutionReport
     let metrics: Vec<(&str, String, f64, &str)> = vec![
         ("churn", format!("{} files", report.churn.len()), report.churn_score,
          "Top-10% files' share of total churn | lower=better"),
-        ("bus factor", format!("{:.0}% solo", report.single_author_ratio * 100.0), report.bus_factor_score,
-         "Ricca 2011 | ratio of single-author files | lower=better"),
+        ("bus factor", format!("{} solo", (report.single_author_ratio * 10000.0).round() as u32), report.bus_factor_score,
+         "Ricca 2011 | ratio of single-author files (0-10000) | lower=better"),
         ("commits", format!("{}", report.commits_analyzed), -1.0,
          commits_tooltip.as_str()),
     ];
@@ -59,7 +59,7 @@ pub(crate) fn draw_evolution_section(ui: &mut egui::Ui, report: &EvolutionReport
             ui.painter().text(
                 egui::pos2(rect.right() - 4.0, cy),
                 egui::Align2::RIGHT_CENTER,
-                format!("{:.0}%", score * 100.0),
+                format!("{}", (score * 10000.0).round() as u32),
                 font.clone(),
                 c,
             );
@@ -129,7 +129,7 @@ fn draw_coupling(ui: &mut egui::Ui, report: &EvolutionReport, _tc: &ThemeConfig,
     for pair in report.coupling_pairs.iter().take(5) {
         let a = pair.file_a.rsplit('/').next().unwrap_or(&pair.file_a);
         let b = pair.file_b.rsplit('/').next().unwrap_or(&pair.file_b);
-        let text = format!("  {} <> {} ({} J:{:.0}%)", a, b, pair.co_change_count, pair.coupling_strength * 100.0);
+        let text = format!("  {} <> {} ({} J:{})", a, b, pair.co_change_count, (pair.coupling_strength * 10000.0).round() as u32);
         let (rect, resp) = ui.allocate_exact_size(egui::vec2(ui.available_width(), row_h), egui::Sense::hover());
         if resp.hovered() {
             resp.on_hover_text(

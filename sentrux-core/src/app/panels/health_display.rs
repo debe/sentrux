@@ -24,7 +24,7 @@ pub(crate) fn draw_health_section(ui: &mut egui::Ui, report: &HealthReport, tc: 
     draw_root_cause_row(ui, "acyclicity",  format!("{} cycles", raw.cycle_count),          scores.acyclicity,  tc, row_h, &font);
     draw_root_cause_row(ui, "depth",       format!("{} max", raw.max_depth),               scores.depth,       tc, row_h, &font);
     draw_root_cause_row(ui, "equality",    format!("G={:.2}", raw.complexity_gini),        scores.equality,    tc, row_h, &font);
-    draw_root_cause_row(ui, "redundancy",  format!("{:.0}%", raw.redundancy_ratio * 100.0), scores.redundancy, tc, row_h, &font);
+    draw_root_cause_row(ui, "redundancy",  format!("{}", (raw.redundancy_ratio * 10000.0).round() as u32), scores.redundancy, tc, row_h, &font);
 
     // ── Summary ──
     ui.add_space(2.0);

@@ -29,7 +29,7 @@ pub(crate) fn draw_testgap_section(ui: &mut egui::Ui, report: &TestGapReport, tc
     ui.painter().text(
         egui::pos2(grade_rect.left() + 4.0, grade_rect.center().y),
         egui::Align2::LEFT_CENTER,
-        format!("Coverage: {:.0}%", report.coverage_ratio * 100.0),
+        format!("Coverage: {}", (report.coverage_ratio * 10000.0).round() as u32),
         egui::FontId::monospace(11.0),
         sc,
     );
