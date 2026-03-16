@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sentrux Logo Prototypes — GitHub README Header</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0d1117; color: #c9d1d9; font-family: 'IBM Plex Mono', monospace; padding: 40px; }
+  h1 { font-size: 12px; color: #3fb950; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 8px; }
+  .subtitle { font-size: 10px; color: #484f58; margin-bottom: 40px; }
+  .proto { margin-bottom: 48px; border: 1px solid #1a2a1a; padding: 32px; background: #0d1117; }
+  .proto:hover { border-color: #3fb950; }
+  .proto-label { font-size: 9px; color: #484f58; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+  .proto-note { font-size: 9px; color: #30363d; margin-top: 12px; letter-spacing: 1px; }
+
+  /* Shared pixel rendering */
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+</style>
+</head>
+<body>
+
+<h1>Sentrux Logo / README Header Prototypes</h1>
+<div class="subtitle">for github readme first impression &#183; dark theme &#183; pixel brutalist</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROTOTYPE 1: Icon + Wordmark horizontal -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="proto">
+  <div class="proto-label">1. Icon + Wordmark (horizontal)</div>
+  <canvas id="c1" width="640" height="80"></canvas>
+  <div class="proto-note">classic layout: icon left, text right. clean for readme header.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROTOTYPE 2: Large treemap icon + stacked text -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="proto">
+  <div class="proto-label">2. Treemap Icon + Stacked Text</div>
+  <canvas id="c2" width="640" height="120"></canvas>
+  <div class="proto-note">bold treemap icon with name + tagline stacked.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROTOTYPE 3: ASCII art banner -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="proto">
+  <div class="proto-label">3. ASCII Block Banner</div>
+  <pre style="color:#3fb950;font-size:14px;line-height:1.2;font-family:'IBM Plex Mono',monospace;">
+  <span style="color:#238636">&#x2590;&#x2599;&#x2588;&#x2588;&#x2588;&#x259C;&#x2590;</span>   <span style="color:#c9d1d9;font-weight:bold">sentrux</span>
+  <span style="color:#238636">&#x259D;&#x259C;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x259B;&#x2598;</span>  <span style="color:#484f58">code quality signal for ai agents</span>
+    <span style="color:#238636">&#x2598;&#x2598; &#x259D;&#x259D;</span>    <span style="color:#3fb950">Quality 73%</span> <span style="color:#484f58">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;</span>
+  </pre>
+  <div class="proto-note">pure text/unicode — renders in any terminal or markdown.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROTOTYPE 4: Minimal pixel icon + bold name -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="proto">
+  <div class="proto-label">4. Minimal Icon + Bold Name</div>
+  <canvas id="c4" width="640" height="64"></canvas>
+  <div class="proto-note">smallest viable logo. works at any size.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROTOTYPE 5: Full README header with signal bar -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="proto">
+  <div class="proto-label">5. Full README Header with Signal</div>
+  <canvas id="c5" width="640" height="140"></canvas>
+  <div class="proto-note">complete header: logo + name + tagline + quality bar + 5 root causes.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROTOTYPE 6: Blocky "SENTRUX" wordmark only -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="proto">
+  <div class="proto-label">6. Pixel Wordmark Only</div>
+  <canvas id="c6" width="640" height="64"></canvas>
+  <div class="proto-note">no icon, just the name rendered in 5x7 pixel font. maximum brutalist.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROTOTYPE 7: Treemap morphing into "S" -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="proto">
+  <div class="proto-label">7. Treemap-S Fusion + Wordmark</div>
+  <canvas id="c7" width="640" height="100"></canvas>
+  <div class="proto-note">treemap blocks arranged to suggest the letter S. the product IS the logo.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROTOTYPE 8: Quality signal as the logo -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="proto">
+  <div class="proto-label">8. Signal-First Logo</div>
+  <canvas id="c8" width="640" height="80"></canvas>
+  <div class="proto-note">the quality signal IS the brand. number + bar + name.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROTOTYPE 9: Terminal prompt style -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="proto">
+  <div class="proto-label">9. Terminal Prompt Style</div>
+  <pre style="font-size:13px;line-height:1.6;font-family:'IBM Plex Mono',monospace;">
+<span style="color:#484f58">$</span> <span style="color:#c9d1d9;font-weight:bold">sentrux</span> <span style="color:#3fb950">scan</span> <span style="color:#484f58">./my-project</span>
+
+  <span style="color:#3fb950">Quality  73%</span>  <span style="color:#3fb950">&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2588;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;&#x2591;</span>
+
+  <span style="color:#484f58">modularity</span>   <span style="color:#3fb950">Q=0.45</span>    <span style="color:#7ee787">67%</span>
+  <span style="color:#484f58">acyclicity</span>   <span style="color:#3fb950">0 cycles</span>  <span style="color:#3fb950">100%</span>
+  <span style="color:#484f58">depth</span>        <span style="color:#d29922">4 max</span>     <span style="color:#d29922">67%</span>
+  <span style="color:#484f58">equality</span>     <span style="color:#7ee787">G=0.35</span>   <span style="color:#7ee787">65%</span>
+  <span style="color:#484f58">redundancy</span>   <span style="color:#3fb950">12%</span>       <span style="color:#3fb950">88%</span>
+  </pre>
+  <div class="proto-note">show the actual product output as the README hero. authenticity.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PROTOTYPE 10: Badge-style compact -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="proto">
+  <div class="proto-label">10. Badge Compact</div>
+  <canvas id="c10" width="320" height="40"></canvas>
+  <div class="proto-note">github badge size. for "powered by sentrux" in other READMEs.</div>
+</div>
+
+<script>
+const P = 4; // base pixel
+const C = {
+  bg:'#0d1117', bg2:'#161b22', bg3:'#21262d',
+  green:'#3fb950', greenD:'#238636', greenL:'#7ee787',
+  yellow:'#d29922', orange:'#db6d28', red:'#f85149',
+  white:'#c9d1d9', dim:'#484f58', dimmer:'#30363d',
+};
+
+// 5x7 pixel font glyphs
+const FONT = {
+  S:[[1,1,1,1,0],[1,0,0,0,0],[1,1,1,0,0],[0,0,0,1,0],[0,0,0,1,0],[1,0,0,1,0],[0,1,1,0,0]],
+  E:[[1,1,1,1],[1,0,0,0],[1,1,1,0],[1,0,0,0],[1,0,0,0],[1,0,0,0],[1,1,1,1]],
+  N:[[1,0,0,1],[1,1,0,1],[1,1,0,1],[1,0,1,1],[1,0,1,1],[1,0,0,1],[1,0,0,1]],
+  T:[[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]],
+  R:[[1,1,1,0],[1,0,0,1],[1,0,0,1],[1,1,1,0],[1,0,1,0],[1,0,0,1],[1,0,0,1]],
+  U:[[1,0,0,1],[1,0,0,1],[1,0,0,1],[1,0,0,1],[1,0,0,1],[1,0,0,1],[0,1,1,0]],
+  X:[[1,0,0,1],[1,0,0,1],[0,1,1,0],[0,1,1,0],[0,1,1,0],[1,0,0,1],[1,0,0,1]],
+};
+
+function drawChar(ctx, ch, ox, oy, color, scale=1) {
+  const g = FONT[ch]; if (!g) return 0;
+  ctx.fillStyle = color;
+  g.forEach((row, r) => row.forEach((v, c) => {
+    if (v) ctx.fillRect(ox + c * P * scale, oy + r * P * scale, P * scale, P * scale);
+  }));
+  return g[0].length * P * scale + P * scale;
+}
+
+function drawWord(ctx, word, ox, oy, color, scale=1) {
+  let x = ox;
+  for (const ch of word) x += drawChar(ctx, ch, x, oy, color, scale);
+  return x - ox;
+}
+
+function drawTreemapIcon(ctx, ox, oy, size) {
+  const s = size / 8;
+  const fill = (x,y,w,h,c) => { ctx.fillStyle=c; ctx.fillRect(ox+x*s,oy+y*s,w*s,h*s); };
+  const gap = (x,y,w,h) => { ctx.fillStyle=C.bg; ctx.fillRect(ox+x*s,oy+y*s,w*s,h*s); };
+
+  fill(0,0,5,4,C.green); fill(5,0,3,3,C.greenD);
+  fill(0,4,3,4,C.yellow); fill(3,4,3,2,C.greenL); fill(5,3,3,3,C.orange);
+  fill(3,6,5,2,C.greenD);
+
+  // grid gaps
+  for (let i = 0; i < 8; i++) {
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(ox + i * s, oy, 1, size);
+    ctx.fillRect(ox, oy + i * s, size, 1);
+  }
+}
+
+function drawBar(ctx, ox, oy, width, height, pct, color) {
+  const filled = Math.round(pct * width / (P));
+  const total = Math.round(width / P);
+  for (let i = 0; i < total; i++) {
+    ctx.fillStyle = i < filled ? color : C.dimmer;
+    ctx.fillRect(ox + i * P, oy, P - 1, height);
+  }
+}
+
+function clearCanvas(id) {
+  const cvs = document.getElementById(id);
+  const ctx = cvs.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, cvs.width, cvs.height);
+  return ctx;
+}
+
+// ── 1. Icon + Wordmark horizontal ──
+{
+  const ctx = clearCanvas('c1');
+  drawTreemapIcon(ctx, 16, 8, 64);
+  drawWord(ctx, 'SENTRUX', 96, 16, C.white, 2);
+  // tagline
+  ctx.fillStyle = C.dim;
+  ctx.font = '11px IBM Plex Mono, monospace';
+  ctx.fillText('code quality signal for ai agents', 96, 62);
+}
+
+// ── 2. Treemap Icon + Stacked Text ──
+{
+  const ctx = clearCanvas('c2');
+  drawTreemapIcon(ctx, 20, 12, 96);
+  drawWord(ctx, 'SENTRUX', 140, 16, C.white, 3);
+  ctx.fillStyle = C.dim;
+  ctx.font = '12px IBM Plex Mono, monospace';
+  ctx.fillText('5 root cause metrics', 140, 72);
+  ctx.fillText('1 quality signal', 140, 88);
+  drawBar(ctx, 140, 100, 200, 6, 0.73, C.green);
+}
+
+// ── 4. Minimal Icon + Bold Name ──
+{
+  const ctx = clearCanvas('c4');
+  drawTreemapIcon(ctx, 12, 8, 48);
+  drawWord(ctx, 'SENTRUX', 76, 12, C.green, 2);
+}
+
+// ── 5. Full README header ──
+{
+  const ctx = clearCanvas('c5');
+  drawTreemapIcon(ctx, 16, 8, 56);
+  drawWord(ctx, 'SENTRUX', 88, 8, C.white, 2);
+  ctx.fillStyle = C.dim;
+  ctx.font = '10px IBM Plex Mono, monospace';
+  ctx.fillText('code quality signal for ai agents', 88, 52);
+
+  // quality bar
+  ctx.fillStyle = C.green;
+  ctx.font = 'bold 13px IBM Plex Mono, monospace';
+  ctx.fillText('Quality  73%', 88, 78);
+  drawBar(ctx, 88, 86, 200, 5, 0.73, C.green);
+
+  // 5 root causes mini
+  const causes = ['modularity 67%','acyclicity 100%','depth 67%','equality 65%','redundancy 88%'];
+  const colors = [C.greenD, C.green, C.yellow, C.greenL, C.green];
+  causes.forEach((t, i) => {
+    ctx.fillStyle = colors[i];
+    ctx.font = '9px IBM Plex Mono, monospace';
+    ctx.fillText(t, 88 + i * 108, 112);
+  });
+}
+
+// ── 6. Pixel wordmark only ──
+{
+  const ctx = clearCanvas('c6');
+  drawWord(ctx, 'SENTRUX', 20, 10, C.green, 3);
+  // underline
+  ctx.fillStyle = C.greenD;
+  ctx.fillRect(20, 48, 340, P);
+}
+
+// ── 7. Treemap-S fusion ──
+{
+  const ctx = clearCanvas('c7');
+  // S made of treemap blocks
+  const blocks = [
+    {x:4,y:1,w:12,h:4,c:C.green},   {x:16,y:1,w:8,h:4,c:C.greenD},
+    {x:4,y:6,w:6,h:5,c:C.greenL},   {x:10,y:6,w:4,h:3,c:C.yellow},
+    {x:12,y:10,w:8,h:4,c:C.green},   {x:20,y:10,w:4,h:2,c:C.orange},
+    {x:18,y:15,w:6,h:5,c:C.greenD},  {x:20,y:18,w:4,h:3,c:C.yellow},
+    {x:4,y:20,w:8,h:4,c:C.greenD},   {x:12,y:20,w:8,h:4,c:C.green},
+  ];
+  blocks.forEach(b => {
+    ctx.fillStyle = b.c;
+    ctx.fillRect(b.x * P, b.y * P, b.w * P, b.h * P);
+    ctx.fillStyle = C.bg;
+    ctx.fillRect(b.x * P, b.y * P, b.w * P, 1);
+    ctx.fillRect(b.x * P, b.y * P, 1, b.h * P);
+  });
+
+  // Wordmark to the right
+  drawWord(ctx, 'SENTRUX', 120, 16, C.white, 2);
+  ctx.fillStyle = C.dim;
+  ctx.font = '11px IBM Plex Mono, monospace';
+  ctx.fillText('structural quality sensor', 120, 60);
+  drawBar(ctx, 120, 72, 160, 5, 0.73, C.green);
+}
+
+// ── 8. Signal-first ──
+{
+  const ctx = clearCanvas('c8');
+  // Big "73%"
+  ctx.fillStyle = C.green;
+  ctx.font = 'bold 40px IBM Plex Mono, monospace';
+  ctx.fillText('73%', 16, 52);
+  drawBar(ctx, 16, 60, 120, 8, 0.73, C.green);
+  // Name
+  drawWord(ctx, 'SENTRUX', 160, 12, C.white, 2);
+  ctx.fillStyle = C.dim;
+  ctx.font = '10px IBM Plex Mono, monospace';
+  ctx.fillText('quality signal', 160, 56);
+}
+
+// ── 10. Badge compact ──
+{
+  const ctx = clearCanvas('c10');
+  // Background badge shape
+  ctx.fillStyle = C.bg3;
+  ctx.fillRect(0, 0, 320, 40);
+  // Left section: icon
+  ctx.fillStyle = C.greenD;
+  ctx.fillRect(0, 0, 80, 40);
+  drawTreemapIcon(ctx, 8, 4, 32);
+  // Right section: text
+  ctx.fillStyle = C.white;
+  ctx.font = 'bold 12px IBM Plex Mono, monospace';
+  ctx.fillText('sentrux', 92, 17);
+  ctx.fillStyle = C.dim;
+  ctx.font = '10px IBM Plex Mono, monospace';
+  ctx.fillText('quality 73%', 92, 32);
+  drawBar(ctx, 180, 26, 100, 4, 0.73, C.green);
+}
+
+</script>
+</body>
+</html>

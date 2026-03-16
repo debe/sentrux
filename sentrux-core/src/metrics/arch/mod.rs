@@ -417,15 +417,24 @@ pub fn is_application(snapshot: &Snapshot) -> bool {
     snapshot.entry_points.iter().any(|ep| ep.func == "main")
 }
 
+/// Convert a letter grade to its numeric value (A=4, B=3, C=2, D=1, F=0).
+fn grade_val(g: char) -> u32 {
+    match g { 'A' => 4, 'B' => 3, 'C' => 2, 'D' => 1, _ => 0 }
+}
+
+/// Convert a numeric value back to a letter grade.
+fn val_grade(v: u32) -> char {
+    match v { 4 => 'A', 3 => 'B', 2 => 'C', 1 => 'D', _ => 'F' }
+}
+
 /// Composite architecture grade: floor_mean capped by worst + 1.
 /// Same aggregation as health grade for consistency.
 fn composite_grade(a: char, b: char, c: char, d: char) -> char {
     let grades = [a, b, c, d];
-    let sum: u32 = grades.iter().map(|&g| match g { 'A'=>4, 'B'=>3, 'C'=>2, 'D'=>1, _=>0 }).sum();
-    let floor_mean = match sum / 4 { 4=>'A', 3=>'B', 2=>'C', 1=>'D', _=>'F' };
+    let sum: u32 = grades.iter().map(|&g| grade_val(g)).sum();
+    let floor_mean = val_grade(sum / 4);
     let worst = *grades.iter().max().unwrap(); // 'F' > 'A' in ASCII
-    let worst_val = match worst { 'A'=>4u32, 'B'=>3, 'C'=>2, 'D'=>1, _=>0 };
-    let cap = match if worst_val < 4 { worst_val + 1 } else { 4 } { 4=>'A', 3=>'B', 2=>'C', 1=>'D', _=>'F' };
+    let cap = val_grade((grade_val(worst) + 1).min(4));
     if floor_mean > cap { floor_mean } else { cap }
 }
 

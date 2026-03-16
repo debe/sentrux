@@ -106,14 +106,27 @@ fn handle_health(_args: &Value, tier: &Tier, state: &mut McpState) -> Result<Val
     let h = state.cached_health.as_ref().ok_or("No scan data. Call 'scan' first.")?;
     let rc = &h.root_cause_scores;
     let raw = &h.root_cause_raw;
+    // Count how many root causes are at ceiling (>0.95)
+    let scores = [rc.modularity, rc.acyclicity, rc.depth, rc.equality, rc.redundancy];
+    let at_ceiling = scores.iter().filter(|&&s| s > 0.95).count();
+    let bottleneck = ["modularity","acyclicity","depth","equality","redundancy"]
+        .iter().zip(scores.iter())
+        .min_by(|a, b| a.1.partial_cmp(b.1).unwrap())
+        .map(|(name, _)| *name)
+        .unwrap_or("none");
+
     let mut result = json!({
         "quality_signal": h.quality_signal,
+        "at_ceiling": at_ceiling,
+        "total_dimensions": 5,
+        "bottleneck": bottleneck,
+        "converged": at_ceiling >= 4,
         "root_causes": {
-            "modularity":  {"score": rc.modularity,  "raw": raw.modularity_q},
-            "acyclicity":  {"score": rc.acyclicity,  "raw": raw.cycle_count},
-            "depth":       {"score": rc.depth,       "raw": raw.max_depth},
-            "equality":    {"score": rc.equality,    "raw": raw.complexity_gini},
-            "redundancy":  {"score": rc.redundancy,  "raw": raw.redundancy_ratio}
+            "modularity":  {"score": rc.modularity,  "raw": raw.modularity_q,       "at_ceiling": rc.modularity > 0.95},
+            "acyclicity":  {"score": rc.acyclicity,  "raw": raw.cycle_count,         "at_ceiling": rc.acyclicity > 0.95},
+            "depth":       {"score": rc.depth,       "raw": raw.max_depth,           "at_ceiling": rc.depth > 0.95},
+            "equality":    {"score": rc.equality,    "raw": raw.complexity_gini,     "at_ceiling": rc.equality > 0.95},
+            "redundancy":  {"score": rc.redundancy,  "raw": raw.redundancy_ratio,    "at_ceiling": rc.redundancy > 0.95}
         },
         "total_import_edges": h.total_import_edges,
         "cross_module_edges": h.cross_module_edges

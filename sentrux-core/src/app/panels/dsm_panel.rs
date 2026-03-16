@@ -279,30 +279,32 @@ fn detect_hover(
     (hover_row, hover_col)
 }
 
+/// Pick the direction color based on row/col levels.
+#[inline]
+fn direction_color(rl: u32, cl: u32, c: &DsmColors) -> egui::Color32 {
+    if rl > cl { c.below } else if rl < cl { c.above } else { c.same_level }
+}
+
 /// Compute the color for a single DSM cell.
 fn cell_color(
     row: usize, col: usize, row_levels: &[u32],
     matrix: &DesignStructureMatrix, dctx: &DsmDrawCtx<'_>,
 ) -> Option<egui::Color32> {
-    let rl = row_levels[row];
-    let cl = row_levels[col];
-    let c = &dctx.colors;
-    let is_selected_crosshair = dctx.selected_row.is_some_and(|sr| row == sr || col == sr);
-
     if row == col {
-        Some(c.diag)
-    } else if dctx.hover_row == Some(row) || dctx.hover_col == Some(col) {
-        if matrix.matrix[row][col] {
-            Some(if rl > cl { c.below } else if rl < cl { c.above } else { c.same_level })
-        } else {
-            Some(c.hover.linear_multiply(0.3))
-        }
-    } else if matrix.matrix[row][col] {
-        Some(if rl > cl { c.below } else if rl < cl { c.above } else { c.same_level })
-    } else if is_selected_crosshair {
+        return Some(dctx.colors.diag);
+    }
+
+    let has_edge = matrix.matrix[row][col];
+    let is_hovered = dctx.hover_row == Some(row) || dctx.hover_col == Some(col);
+
+    if has_edge {
+        Some(direction_color(row_levels[row], row_levels[col], &dctx.colors))
+    } else if is_hovered {
+        Some(dctx.colors.hover.linear_multiply(0.3))
+    } else if dctx.selected_row.is_some_and(|sr| row == sr || col == sr) {
         Some(egui::Color32::from_rgba_unmultiplied(100, 100, 180, 25))
     } else {
-        None // skip empty cells for performance
+        None
     }
 }
 

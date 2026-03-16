@@ -39,6 +39,18 @@ pub struct LangRegistry {
     filename_prefix_map: Vec<(String, String)>,
 }
 
+/// Parse a TOML inline array from a line like `field = ["a", "b"]`.
+fn parse_toml_inline_array(line: &str) -> Vec<&str> {
+    let trimmed = line.trim();
+    let Some(bracket_start) = trimmed.find('[') else { return vec![] };
+    let Some(bracket_end) = trimmed.find(']') else { return vec![] };
+    let inner = &trimmed[bracket_start + 1..bracket_end];
+    inner.split(',')
+        .map(|s| s.trim().trim_matches('"').trim())
+        .filter(|s| !s.is_empty())
+        .collect()
+}
+
 /// Global singleton — loads plugins from ~/.sentrux/plugins/ once at startup.
 static REGISTRY: std::sync::LazyLock<LangRegistry> =
     std::sync::LazyLock::new(LangRegistry::init);
@@ -74,40 +86,21 @@ impl LangRegistry {
     /// This covers languages that may not have grammars installed (json, yaml, etc.).
     fn load_display_index(&mut self) {
         for &(name, toml_content, _scm) in crate::analysis::plugin::embedded::EMBEDDED_PLUGINS {
-            // Parse extensions from TOML content
             for line in toml_content.lines() {
                 let trimmed = line.trim();
                 if trimmed.starts_with("extensions") {
-                    // Parse extensions = ["py", "pyw"]
-                    if let Some(bracket_start) = trimmed.find('[') {
-                        if let Some(bracket_end) = trimmed.find(']') {
-                            let inner = &trimmed[bracket_start + 1..bracket_end];
-                            for ext in inner.split(',') {
-                                let ext = ext.trim().trim_matches('"').trim();
-                                if !ext.is_empty() {
-                                    self.ext_display.entry(ext.to_string())
-                                        .or_insert_with(|| name.to_string());
-                                }
-                            }
-                        }
+                    for ext in parse_toml_inline_array(trimmed) {
+                        self.ext_display.entry(ext.to_string())
+                            .or_insert_with(|| name.to_string());
                     }
                 }
                 if trimmed.starts_with("filenames") {
-                    // Parse filenames = ["Dockerfile", "Dockerfile.*"]
-                    if let Some(bracket_start) = trimmed.find('[') {
-                        if let Some(bracket_end) = trimmed.find(']') {
-                            let inner = &trimmed[bracket_start + 1..bracket_end];
-                            for fname in inner.split(',') {
-                                let fname = fname.trim().trim_matches('"').trim();
-                                if fname.is_empty() { continue; }
-                                if fname.ends_with('*') {
-                                    // Prefix match: "Dockerfile.*" → prefix "Dockerfile."
-                                    let prefix = &fname[..fname.len() - 1];
-                                    self.filename_prefix_map.push((prefix.to_string(), name.to_string()));
-                                } else {
-                                    self.filename_map.insert(fname.to_string(), name.to_string());
-                                }
-                            }
+                    for fname in parse_toml_inline_array(trimmed) {
+                        if fname.ends_with('*') {
+                            let prefix = &fname[..fname.len() - 1];
+                            self.filename_prefix_map.push((prefix.to_string(), name.to_string()));
+                        } else {
+                            self.filename_map.insert(fname.to_string(), name.to_string());
                         }
                     }
                 }

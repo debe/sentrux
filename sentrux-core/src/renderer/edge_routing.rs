@@ -71,44 +71,56 @@ pub(crate) fn draw_dashed_polyline(
 
         if drawing {
             // Emit visible portion: clamp to [0, total_len].
-            // When a dash stride crosses one or more segment boundaries,
-            // emit one line segment per crossed polyline segment so the
-            // line follows the bend instead of cutting the corner.
             let vis_start = d.max(0.0);
             let vis_end = d_end;
             if vis_end > vis_start + 0.01 {
-                // Find which polyline segments are spanned by [vis_start, vis_end].
-                let seg_first = segment_at(seg_starts, vis_start);
-                let seg_last = segment_at(seg_starts, vis_end);
-
-                if seg_first == seg_last {
-                    // Common fast path: dash fits within one segment.
-                    let p0 = point_at_distance(pts, &seg_starts, vis_start);
-                    let p1 = point_at_distance(pts, &seg_starts, vis_end);
-                    painter.line_segment([p0, p1], stroke);
-                } else {
-                    // Dash crosses bend point(s) — emit sub-segments.
-                    let mut prev_pt = point_at_distance(pts, &seg_starts, vis_start);
-                    for seg in seg_first..seg_last {
-                        // End of this segment = start of the next one.
-                        let seg_end_d = if seg + 1 < seg_starts.len() {
-                            seg_starts[seg + 1]
-                        } else {
-                            total_len
-                        };
-                        let next_pt = point_at_distance(pts, &seg_starts, seg_end_d);
-                        painter.line_segment([prev_pt, next_pt], stroke);
-                        prev_pt = next_pt;
-                    }
-                    // Final sub-segment to the dash end.
-                    let end_pt = point_at_distance(pts, &seg_starts, vis_end);
-                    painter.line_segment([prev_pt, end_pt], stroke);
-                }
+                emit_dash_segments(painter, pts, seg_starts, total_len, vis_start, vis_end, stroke);
             }
         }
 
         d = d_end;
         drawing = !drawing;
+    }
+}
+
+/// Emit line segments for a dash that spans [vis_start, vis_end] along the polyline.
+/// When a dash stride crosses one or more segment boundaries, emits one line
+/// segment per crossed polyline segment so the line follows the bend.
+fn emit_dash_segments(
+    painter: &egui::Painter,
+    pts: &[Pos2],
+    seg_starts: &[f32],
+    total_len: f32,
+    vis_start: f32,
+    vis_end: f32,
+    stroke: Stroke,
+) {
+    // Find which polyline segments are spanned by [vis_start, vis_end].
+    let seg_first = segment_at(seg_starts, vis_start);
+    let seg_last = segment_at(seg_starts, vis_end);
+
+    if seg_first == seg_last {
+        // Common fast path: dash fits within one segment.
+        let p0 = point_at_distance(pts, seg_starts, vis_start);
+        let p1 = point_at_distance(pts, seg_starts, vis_end);
+        painter.line_segment([p0, p1], stroke);
+    } else {
+        // Dash crosses bend point(s) — emit sub-segments.
+        let mut prev_pt = point_at_distance(pts, seg_starts, vis_start);
+        for seg in seg_first..seg_last {
+            // End of this segment = start of the next one.
+            let seg_end_d = if seg + 1 < seg_starts.len() {
+                seg_starts[seg + 1]
+            } else {
+                total_len
+            };
+            let next_pt = point_at_distance(pts, seg_starts, seg_end_d);
+            painter.line_segment([prev_pt, next_pt], stroke);
+            prev_pt = next_pt;
+        }
+        // Final sub-segment to the dash end.
+        let end_pt = point_at_distance(pts, seg_starts, vis_end);
+        painter.line_segment([prev_pt, end_pt], stroke);
     }
 }
 

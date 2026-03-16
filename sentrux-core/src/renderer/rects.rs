@@ -26,12 +26,6 @@ fn luminance(r: u8, g: u8, b: u8) -> f32 {
     0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
 }
 
-/// WCAG contrast ratio between two luminance values.
-#[inline]
-fn contrast_ratio(l1: f32, l2: f32) -> f32 {
-    let (lighter, darker) = if l1 > l2 { (l1, l2) } else { (l2, l1) };
-    (lighter + 0.05) / (darker + 0.05)
-}
 
 /// Adaptive high-contrast text color for any background.
 ///

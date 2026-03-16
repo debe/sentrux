@@ -278,6 +278,80 @@ fn extract_scoped_path(
     }
 }
 
+/// Check whether the node kind matches one of the configured scoped_path_kinds.
+#[inline]
+fn is_scoped_kind(kind: &str, config: &ImportAstConfig) -> bool {
+    config.scoped_path_kinds.iter().any(|k| k == kind)
+}
+
+/// Check whether the node kind matches a leaf identifier kind.
+/// Falls back to "identifier" when leaf_identifier_kinds is empty.
+#[inline]
+fn is_leaf_kind(kind: &str, config: &ImportAstConfig) -> bool {
+    if config.leaf_identifier_kinds.is_empty() {
+        kind == "identifier"
+    } else {
+        config.leaf_identifier_kinds.iter().any(|k| k == kind)
+    }
+}
+
+/// Handle a scoped path node that has both "path" and "list" fields.
+/// Combines the prefix from "path" with each item in "list".
+fn expand_scoped_with_list(
+    node: tree_sitter::Node,
+    content: &[u8],
+    config: &ImportAstConfig,
+    depth: usize,
+) -> Option<Vec<String>> {
+    let list = node.child_by_field_name("list")?;
+
+    let prefix = node.child_by_field_name("path")
+        .and_then(|p| read_scoped_text(p, content))
+        .unwrap_or_default();
+
+    let mut results = Vec::new();
+    for i in 0..list.named_child_count() {
+        if let Some(child) = list.named_child(i) {
+            let child_paths = collect_scoped_paths(child, content, config, depth + 1);
+            for cp in child_paths {
+                if prefix.is_empty() {
+                    results.push(cp);
+                } else {
+                    results.push(format!("{}{}{}", prefix, config.path_separator, cp));
+                }
+            }
+        }
+    }
+    if results.is_empty() && !prefix.is_empty() {
+        results.push(prefix);
+    }
+    Some(results)
+}
+
+/// Handle a leaf identifier node: read its text and optionally skip type imports.
+fn read_leaf_identifier(
+    node: tree_sitter::Node,
+    content: &[u8],
+    config: &ImportAstConfig,
+) -> Option<Vec<String>> {
+    let text = node.utf8_text(content).ok()?;
+    let t = text.trim();
+    if t.is_empty() {
+        return None;
+    }
+    if config.skip_type_imports_in_use_list && !config.use_list_kind.is_empty() {
+        let first_char = t.chars().next().unwrap_or('a');
+        if first_char.is_uppercase() {
+            if let Some(parent) = node.parent() {
+                if parent.kind() == config.use_list_kind {
+                    return Some(vec![]);
+                }
+            }
+        }
+    }
+    Some(vec![t.to_string()])
+}
+
 /// Recursively collect paths from a scoped path node.
 /// At use_list nodes, branches into multiple paths (one per child).
 fn collect_scoped_paths(
@@ -292,7 +366,7 @@ fn collect_scoped_paths(
 
     let kind = node.kind();
 
-    // If this is a use_list, branch into each child
+    // Branch 1: use_list — fan out into each child
     if !config.use_list_kind.is_empty() && kind == config.use_list_kind {
         let mut results = Vec::new();
         for i in 0..node.named_child_count() {
@@ -303,76 +377,20 @@ fn collect_scoped_paths(
         return results;
     }
 
-    // If this is a scoped use list (path + list), combine prefix with each list item.
-    // Matches any scoped_path_kind that has both "path" and "list" fields.
-    if config.scoped_path_kinds.iter().any(|k| k == kind) && node.child_by_field_name("list").is_some() {
-        let prefix = node.child_by_field_name("path")
-            .and_then(|p| read_scoped_text(p, content))
-            .unwrap_or_default();
-
-        if let Some(list) = node.child_by_field_name("list") {
-            let mut results = Vec::new();
-            for i in 0..list.named_child_count() {
-                if let Some(child) = list.named_child(i) {
-                    let child_paths = collect_scoped_paths(child, content, config, depth + 1);
-                    for cp in child_paths {
-                        if prefix.is_empty() {
-                            results.push(cp);
-                        } else {
-                            results.push(format!("{}{}{}", prefix, config.path_separator, cp));
-                        }
-                    }
-                }
-            }
-            // If all children were types (returned empty), emit just the prefix
-            // as the module dependency (the crate/module is what matters, not types).
-            if results.is_empty() && !prefix.is_empty() {
-                results.push(prefix);
-            }
-            // Deduplicate: if some children resolved to prefix and others to prefix::submod,
-            // keep the submodule paths but ensure prefix itself is included if any types found.
-            return results;
+    // Branch 2: scoped path with list — expand prefix × list items
+    if is_scoped_kind(kind, config) {
+        if let Some(expanded) = expand_scoped_with_list(node, content, config, depth) {
+            return expanded;
         }
-
-        // No list child — just the path
-        if !prefix.is_empty() {
-            return vec![prefix];
-        }
-    }
-
-    // If this is a scoped identifier, read its full text
-    if config.scoped_path_kinds.iter().any(|k| k == kind) {
         if let Some(text) = read_scoped_text(node, content) {
             return vec![text];
         }
     }
 
-    // Leaf identifier — read text directly.
-    // Leaf kinds are configured via leaf_identifier_kinds in TOML.
-    // Fallback: "identifier" if leaf_identifier_kinds is empty.
-    let is_leaf = if config.leaf_identifier_kinds.is_empty() {
-        kind == "identifier"
-    } else {
-        config.leaf_identifier_kinds.iter().any(|k| k == kind)
-    };
-    if is_leaf {
-        if let Ok(text) = node.utf8_text(content) {
-            let t = text.trim();
-            if !t.is_empty() {
-                // If configured, skip uppercase identifiers in use_list
-                // (they're type imports — parent module is the real dependency).
-                if config.skip_type_imports_in_use_list {
-                    let first_char = t.chars().next().unwrap_or('a');
-                    if first_char.is_uppercase() && !config.use_list_kind.is_empty() {
-                        if let Some(parent) = node.parent() {
-                            if parent.kind() == config.use_list_kind {
-                                return vec![]; // Type import — skip
-                            }
-                        }
-                    }
-                }
-                return vec![t.to_string()];
-            }
+    // Branch 3: leaf identifier
+    if is_leaf_kind(kind, config) {
+        if let Some(paths) = read_leaf_identifier(node, content, config) {
+            return paths;
         }
     }
 

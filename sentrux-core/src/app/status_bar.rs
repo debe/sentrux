@@ -94,16 +94,6 @@ fn draw_edge_file_counts(ui: &mut egui::Ui, state: &AppState) {
     }
 }
 
-/// Map a letter grade to a color.
-fn grade_color(grade: char) -> egui::Color32 {
-    match grade {
-        'A' => egui::Color32::from_rgb(100, 200, 100),
-        'B' => egui::Color32::from_rgb(160, 200, 100),
-        'C' => egui::Color32::from_rgb(200, 180, 80),
-        'D' => egui::Color32::from_rgb(200, 120, 60),
-        _ => egui::Color32::from_rgb(200, 80, 80),
-    }
-}
 
 /// Count edges connected to a file from render_data (what's actually drawn).
 /// Respects the active edge_filter so counts match what's visible on canvas. [ref:4e8f1175]

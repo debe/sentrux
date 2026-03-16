@@ -14,6 +14,15 @@ use crate::core::snapshot::Snapshot;
 use crate::core::types::FileNode;
 use std::collections::HashMap;
 
+/// Rectangle for blueprint layout — bundles (x, y, w, h) to reduce parameter counts.
+#[derive(Clone, Copy)]
+struct BpRect {
+    x: f64,
+    y: f64,
+    w: f64,
+    h: f64,
+}
+
 /// Compute padding and header size for a blueprint section at a given depth.
 /// Deeper sections get progressively less chrome to avoid eating content area.
 fn bp_chrome_for_depth(w: f64, h: f64, depth: u32, s: &Settings) -> (f64, f64) {
@@ -77,10 +86,13 @@ pub fn layout_blueprint(
         anchors: &mut anchors,
         settings,
     };
-    layout_dir(
-        root, settings.blueprint_route_margin, settings.blueprint_route_margin,
-        cw, ch, 0, &mut lctx, dag_order.as_ref(),
-    );
+    let root_rect = BpRect {
+        x: settings.blueprint_route_margin,
+        y: settings.blueprint_route_margin,
+        w: cw,
+        h: ch,
+    };
+    layout_dir(root, root_rect, 0, &mut lctx, dag_order.as_ref());
 
     let (max_x, max_y) = compute_bounds(&rects);
     (rects, anchors, max_x + settings.blueprint_route_margin, max_y + settings.blueprint_route_margin)
@@ -221,14 +233,14 @@ fn sort_and_build_weighted<'a>(
 /// Emit a file rect and its anchor into the output vectors.
 fn emit_file_rect(
     child: &FileNode,
-    cx: f64, cy: f64, cw: f64, ch: f64,
+    r: BpRect,
     depth: u32,
     parent_path: &str,
     lctx: &mut LayoutCtx<'_>,
 ) {
     lctx.rects.push(LayoutRectSlim {
         path: child.path.clone(),
-        x: cx, y: cy, w: cw, h: ch,
+        x: r.x, y: r.y, w: r.w, h: r.h,
         depth,
         kind: RectKind::File,
         section_id: parent_path.to_string(),
@@ -240,10 +252,10 @@ fn emit_file_rect(
             child.path.clone(),
             Anchor {
                 file_path: child.path.clone(),
-                cx: cx + cw / 2.0,
-                cy: cy + ch / 2.0,
+                cx: r.x + r.w / 2.0,
+                cy: r.y + r.h / 2.0,
                 section_id: parent_path.to_string(),
-                bx: cx, by: cy, bw: cw, bh: ch,
+                bx: r.x, by: r.y, bw: r.w, bh: r.h,
             },
         );
     }
@@ -251,7 +263,7 @@ fn emit_file_rect(
 
 fn layout_dir(
     node: &FileNode,
-    x: f64, y: f64, w: f64, h: f64,
+    r: BpRect,
     depth: u32,
     lctx: &mut LayoutCtx<'_>,
     dag_order: Option<&HashMap<String, usize>>,
@@ -260,7 +272,7 @@ fn layout_dir(
         return;
     }
     let settings = lctx.settings;
-    if w < settings.blueprint_min_rect || h < settings.blueprint_min_rect {
+    if r.w < settings.blueprint_min_rect || r.h < settings.blueprint_min_rect {
         return;
     }
     let children = match &node.children {
@@ -268,9 +280,14 @@ fn layout_dir(
         _ => return,
     };
 
-    let (pad, header) = bp_chrome_for_depth(w, h, depth, settings);
-    let (ix, iy, iw, ih) = (x + pad, y + header + pad, w - pad * 2.0, h - header - pad * 2.0);
-    if iw < settings.blueprint_min_rect || ih < settings.blueprint_min_rect {
+    let (pad, header) = bp_chrome_for_depth(r.w, r.h, depth, settings);
+    let inner = BpRect {
+        x: r.x + pad,
+        y: r.y + header + pad,
+        w: r.w - pad * 2.0,
+        h: r.h - header - pad * 2.0,
+    };
+    if inner.w < settings.blueprint_min_rect || inner.h < settings.blueprint_min_rect {
         return;
     }
 
@@ -279,19 +296,19 @@ fn layout_dir(
         return;
     }
 
-    emit_section_rect(node, x, y, w, h, depth, header, lctx.rects);
+    emit_section_rect(node, r, depth, header, lctx.rects);
     let wchildren = sort_and_build_weighted(&mut dirs, &mut files, lctx.weights, dag_order, depth);
-    place_children(&wchildren, ix, iy, iw, ih, depth, &node.path, lctx, dag_order);
+    place_children(&wchildren, inner, depth, &node.path, lctx, dag_order);
 }
 
 /// Emit a section (directory) rect into the output.
 fn emit_section_rect(
-    node: &FileNode, x: f64, y: f64, w: f64, h: f64, depth: u32, header: f64,
+    node: &FileNode, r: BpRect, depth: u32, header: f64,
     rects: &mut Vec<LayoutRectSlim>,
 ) {
     rects.push(LayoutRectSlim {
         path: node.path.clone(),
-        x, y, w, h, depth,
+        x: r.x, y: r.y, w: r.w, h: r.h, depth,
         kind: RectKind::Section,
         section_id: node.path.clone(),
         grid_coord: None,
@@ -302,7 +319,7 @@ fn emit_section_rect(
 /// Squarify children and recursively lay out each placed child.
 fn place_children(
     wchildren: &[(&FileNode, f64)],
-    ix: f64, iy: f64, iw: f64, ih: f64,
+    inner: BpRect,
     depth: u32, parent_path: &str,
     lctx: &mut LayoutCtx<'_>,
     dag_order: Option<&HashMap<String, usize>>,
@@ -315,7 +332,7 @@ fn place_children(
     let gutter = gutter_for_depth(depth, lctx.settings);
     let mut placed: Vec<(usize, f64, f64, f64, f64)> = Vec::new();
     let sc = SquarifyConfig {
-        x: ix, y: iy, w: iw, h: ih,
+        x: inner.x, y: inner.y, w: inner.w, h: inner.h,
         gutter,
         min_rect: lctx.settings.squarify_min_rect,
     };
@@ -325,10 +342,11 @@ fn place_children(
 
     for (idx, cx, cy, cw, ch) in placed {
         let (child_node, _) = wchildren[idx];
+        let cr = BpRect { x: cx, y: cy, w: cw, h: ch };
         if child_node.is_dir {
-            layout_dir(child_node, cx, cy, cw, ch, depth + 1, lctx, dag_order);
+            layout_dir(child_node, cr, depth + 1, lctx, dag_order);
         } else {
-            emit_file_rect(child_node, cx, cy, cw, ch, depth + 1, parent_path, lctx);
+            emit_file_rect(child_node, cr, depth + 1, parent_path, lctx);
         }
     }
 }

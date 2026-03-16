@@ -58,133 +58,145 @@ pub(crate) fn draw_file_detail(
 
     ui.add_space(6.0);
 
-    // Pro gate: detailed metrics, imports, functions require Pro tier
     let is_pro = crate::license::current_tier().is_pro();
-
     if !is_pro {
-        return; // Free: show basic info only, no upsell text
+        return;
     }
 
-    // ── PRO ONLY: detailed metrics ──
-    if let Some(_entry) = state.file_index.get(selected.as_str()) {
-        draw_section_header(ui, "METRICS", tc);
+    draw_metrics_section(ui, state, snap, selected, tc, row_h, &font);
 
-        let fan_out = snap.import_graph.iter()
-            .filter(|e| e.from_file == *selected).count();
-        let fan_in = snap.import_graph.iter()
-            .filter(|e| e.to_file == *selected).count();
-
-        draw_metric_row(ui, "fan-out", &format!("{} imports", fan_out), tc, row_h, &font);
-        draw_metric_row(ui, "fan-in", &format!("{} importers", fan_in), tc, row_h, &font);
-
-        // Blast radius
-        if let Some(arch) = &state.arch_report {
-            if let Some(&blast) = arch.blast_radius.get(selected.as_str()) {
-                draw_metric_row(ui, "blast radius", &format!("{} files", blast), tc, row_h, &font);
-            }
-        }
-
-        ui.add_space(6.0);
-    }
-
-    // Imports (outgoing edges)
     let imports: Vec<&str> = snap.import_graph.iter()
         .filter(|e| e.from_file == *selected)
         .map(|e| e.to_file.as_str())
         .collect();
-    if !imports.is_empty() {
-        draw_section_header(ui, &format!("IMPORTS ({})", imports.len()), tc);
-        for imp in imports.iter().take(20) {
-            let short = imp.rsplit('/').next().unwrap_or(imp);
-            let (rect, response) = ui.allocate_exact_size(
-                egui::vec2(ui.available_width(), row_h), egui::Sense::click(),
-            );
-            if response.hovered() {
-                ui.painter().rect_filled(rect, 2.0, tc.section_border);
-            }
-            ui.painter().text(
-                egui::pos2(rect.left() + 4.0, rect.center().y),
-                egui::Align2::LEFT_CENTER,
-                format!("\u{2192} {}", short),
-                font_small.clone(), tc.text_secondary,
-            );
-            if response.clicked() {
-                // Navigate to the imported file
-            }
-            if response.hovered() {
-                response.on_hover_text(*imp);
-            }
-        }
-        if imports.len() > 20 {
-            ui.label(egui::RichText::new(format!("  +{} more", imports.len() - 20))
-                .monospace().size(8.0).color(tc.text_secondary));
-        }
-        ui.add_space(6.0);
-    }
+    draw_edge_list(ui, &imports, "IMPORTS", "\u{2192}", tc, row_h, &font_small);
 
-    // Imported by (incoming edges)
     let importers: Vec<&str> = snap.import_graph.iter()
         .filter(|e| e.to_file == *selected)
         .map(|e| e.from_file.as_str())
         .collect();
-    if !importers.is_empty() {
-        draw_section_header(ui, &format!("IMPORTED BY ({})", importers.len()), tc);
-        for imp in importers.iter().take(20) {
-            let short = imp.rsplit('/').next().unwrap_or(imp);
-            let (rect, response) = ui.allocate_exact_size(
-                egui::vec2(ui.available_width(), row_h), egui::Sense::click(),
-            );
-            if response.hovered() {
-                ui.painter().rect_filled(rect, 2.0, tc.section_border);
-            }
-            ui.painter().text(
-                egui::pos2(rect.left() + 4.0, rect.center().y),
-                egui::Align2::LEFT_CENTER,
-                format!("\u{2190} {}", short),
-                font_small.clone(), tc.text_secondary,
-            );
+    draw_edge_list(ui, &importers, "IMPORTED BY", "\u{2190}", tc, row_h, &font_small);
+
+    draw_functions_section(ui, state, snap, selected, tc, row_h, &font_small);
+}
+
+fn draw_metrics_section(
+    ui: &mut egui::Ui,
+    state: &AppState,
+    snap: &Arc<Snapshot>,
+    selected: &str,
+    tc: &ThemeConfig,
+    row_h: f32,
+    font: &egui::FontId,
+) {
+    if state.file_index.get(selected).is_none() {
+        return;
+    }
+    draw_section_header(ui, "METRICS", tc);
+
+    let fan_out = snap.import_graph.iter()
+        .filter(|e| e.from_file == selected).count();
+    let fan_in = snap.import_graph.iter()
+        .filter(|e| e.to_file == selected).count();
+
+    draw_metric_row(ui, "fan-out", &format!("{} imports", fan_out), tc, row_h, font);
+    draw_metric_row(ui, "fan-in", &format!("{} importers", fan_in), tc, row_h, font);
+
+    if let Some(arch) = &state.arch_report {
+        if let Some(&blast) = arch.blast_radius.get(selected) {
+            draw_metric_row(ui, "blast radius", &format!("{} files", blast), tc, row_h, font);
         }
-        ui.add_space(6.0);
+    }
+    ui.add_space(6.0);
+}
+
+fn draw_edge_list(
+    ui: &mut egui::Ui,
+    edges: &[&str],
+    title: &str,
+    arrow: &str,
+    tc: &ThemeConfig,
+    row_h: f32,
+    font_small: &egui::FontId,
+) {
+    if edges.is_empty() {
+        return;
+    }
+    draw_section_header(ui, &format!("{} ({})", title, edges.len()), tc);
+    for edge in edges.iter().take(20) {
+        let short = edge.rsplit('/').next().unwrap_or(edge);
+        let (rect, response) = ui.allocate_exact_size(
+            egui::vec2(ui.available_width(), row_h), egui::Sense::click(),
+        );
+        if response.hovered() {
+            ui.painter().rect_filled(rect, 2.0, tc.section_border);
+        }
+        ui.painter().text(
+            egui::pos2(rect.left() + 4.0, rect.center().y),
+            egui::Align2::LEFT_CENTER,
+            format!("{} {}", arrow, short),
+            font_small.clone(), tc.text_secondary,
+        );
+        if response.hovered() {
+            response.on_hover_text(*edge);
+        }
+    }
+    if edges.len() > 20 {
+        ui.label(egui::RichText::new(format!("  +{} more", edges.len() - 20))
+            .monospace().size(8.0).color(tc.text_secondary));
+    }
+    ui.add_space(6.0);
+}
+
+fn draw_functions_section(
+    ui: &mut egui::Ui,
+    state: &AppState,
+    snap: &Arc<Snapshot>,
+    selected: &str,
+    tc: &ThemeConfig,
+    row_h: f32,
+    font_small: &egui::FontId,
+) {
+    if state.file_index.get(selected).is_none() {
+        return;
+    }
+    let files = crate::core::snapshot::flatten_files_ref(&snap.root);
+    let file_node = match files.iter().find(|f| f.path == selected) {
+        Some(f) => f,
+        None => return,
+    };
+    let funcs = match file_node.sa.as_ref().and_then(|sa| sa.functions.as_ref()) {
+        Some(f) => f,
+        None => return,
+    };
+    let mut sorted_funcs: Vec<_> = funcs.iter().collect();
+    sorted_funcs.sort_by(|a, b| b.cc.unwrap_or(0).cmp(&a.cc.unwrap_or(0)));
+    if sorted_funcs.is_empty() {
+        return;
     }
 
-    // Functions (sorted by CC)
-    if let Some(entry) = state.file_index.get(selected.as_str()) {
-        // Get functions from the snapshot's structural analysis
-        let files = crate::core::snapshot::flatten_files_ref(&snap.root);
-        if let Some(file_node) = files.iter().find(|f| f.path == *selected) {
-            if let Some(sa) = &file_node.sa {
-                if let Some(funcs) = &sa.functions {
-                    let mut sorted_funcs: Vec<_> = funcs.iter().collect();
-                    sorted_funcs.sort_by(|a, b| b.cc.unwrap_or(0).cmp(&a.cc.unwrap_or(0)));
-
-                    if !sorted_funcs.is_empty() {
-                        draw_section_header(ui, &format!("FUNCTIONS ({})", sorted_funcs.len()), tc);
-                        for f in sorted_funcs.iter().take(15) {
-                            let cc = f.cc.unwrap_or(0);
-                            let cc_color = if cc > 15 {
-                                egui::Color32::from_rgb(203, 75, 22) // orange-red
-                            } else {
-                                tc.text_secondary
-                            };
-                            let (rect, _) = ui.allocate_exact_size(
-                                egui::vec2(ui.available_width(), row_h), egui::Sense::hover(),
-                            );
-                            let cy = rect.center().y;
-                            ui.painter().text(
-                                egui::pos2(rect.left() + 4.0, cy),
-                                egui::Align2::LEFT_CENTER,
-                                &f.n, font_small.clone(), tc.text_secondary,
-                            );
-                            ui.painter().text(
-                                egui::pos2(rect.right() - 4.0, cy),
-                                egui::Align2::RIGHT_CENTER,
-                                format!("CC={}", cc), font_small.clone(), cc_color,
-                            );
-                        }
-                    }
-                }
-            }
-        }
+    draw_section_header(ui, &format!("FUNCTIONS ({})", sorted_funcs.len()), tc);
+    for f in sorted_funcs.iter().take(15) {
+        let cc = f.cc.unwrap_or(0);
+        let cc_color = if cc > 15 {
+            egui::Color32::from_rgb(203, 75, 22)
+        } else {
+            tc.text_secondary
+        };
+        let (rect, _) = ui.allocate_exact_size(
+            egui::vec2(ui.available_width(), row_h), egui::Sense::hover(),
+        );
+        let cy = rect.center().y;
+        ui.painter().text(
+            egui::pos2(rect.left() + 4.0, cy),
+            egui::Align2::LEFT_CENTER,
+            &f.n, font_small.clone(), tc.text_secondary,
+        );
+        ui.painter().text(
+            egui::pos2(rect.right() - 4.0, cy),
+            egui::Align2::RIGHT_CENTER,
+            format!("CC={}", cc), font_small.clone(), cc_color,
+        );
     }
 }
 
