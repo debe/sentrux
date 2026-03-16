@@ -22,19 +22,25 @@ fn draw_ripple(painter: &egui::Painter, screen_rect: egui::Rect, progress: f64) 
 /// Draw heat glow overlay for a single file rect (semi-transparent warm tint).
 fn draw_heat_glow(painter: &egui::Painter, screen_rect: egui::Rect, heat_value: f64) {
     if heat_value <= 0.05 { return; }
-    // Scale for full 0-5 range: 5.0 -> alpha 80. [ref:4f5a9de5]
-    let alpha = (heat_value * 16.0).min(80.0) as u8;
-    let glow = Color32::from_rgba_unmultiplied(255, 160, 40, alpha);
+    // Solid dim orange proportional to heat — no transparency. [ref:4f5a9de5]
+    let t = (heat_value * 16.0).min(80.0) / 80.0;
+    let r = (80.0 * t) as u8;
+    let g = (50.0 * t) as u8;
+    let b = (15.0 * t) as u8;
+    let glow = Color32::from_rgb(r.max(10), g.max(5), b.max(2));
     painter.rect_filled(screen_rect, CornerRadius::ZERO, glow);
 }
 
 /// Draw a single activity trail dot for a file.
 fn draw_trail_dot(painter: &egui::Painter, screen_rect: egui::Rect, heat_value: f64, dot_radius: f32) {
-    let alpha = (heat_value * 16.0).min(80.0) as u8;
-    if alpha <= 10 { return; }
+    let t = (heat_value * 16.0).min(80.0) / 80.0;
+    if t < 0.13 { return; }
     let dot_pos = egui::pos2(screen_rect.left() + 2.0, screen_rect.top() + 2.0);
     let dot_rect = egui::Rect::from_min_size(dot_pos, egui::vec2(dot_radius * 2.0, dot_radius * 2.0));
-    painter.rect_filled(dot_rect, CornerRadius::ZERO, Color32::from_rgba_unmultiplied(255, 120, 30, alpha));
+    let r = (60.0 * t) as u8;
+    let g = (30.0 * t) as u8;
+    let b = (10.0 * t) as u8;
+    painter.rect_filled(dot_rect, CornerRadius::ZERO, Color32::from_rgb(r.max(8), g.max(4), b.max(2)));
 }
 
 /// Draw activity trail: fading glow markers for recent changes.

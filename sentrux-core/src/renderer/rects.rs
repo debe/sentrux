@@ -359,7 +359,7 @@ fn draw_file_borders(
     if ctx.selected_path == Some(r.path.as_str()) {
         dctx.painter.rect_stroke(
             screen_rect, CornerRadius::ZERO,
-            Stroke::new(2.0, dctx.tc.selected_stroke),
+            Stroke::new(1.0, dctx.tc.selected_stroke),
             StrokeKind::Outside,
         );
     }

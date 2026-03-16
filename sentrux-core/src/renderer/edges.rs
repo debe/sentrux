@@ -132,10 +132,9 @@ pub fn draw_edges(
         if !passes_spotlight(ep, ctx) { continue; }
 
         let draw_alpha = ep.alpha.clamp(0.0, 1.0);
-        let a = (draw_alpha * 255.0) as u8;
-        // Use from_rgba_unmultiplied and let egui handle premultiplication
-        // to avoid integer truncation bias. [M11 fix]
-        let color = Color32::from_rgba_unmultiplied(ep.r, ep.g, ep.b, a);
+        // Binary edge visibility: fully visible or fully hidden — no blending.
+        if draw_alpha < 0.5 { continue; }
+        let color = Color32::from_rgb(ep.r, ep.g, ep.b);
         let stroke = Stroke::new(ep.line_w as f32, color);
 
         let screen_pts: Vec<egui::Pos2> = ep.pts.iter()

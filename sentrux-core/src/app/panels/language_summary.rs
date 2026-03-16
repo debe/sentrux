@@ -158,9 +158,10 @@ pub(crate) fn draw_language_summary(
         );
         let cy = rect.center().y;
 
-        // Color dot
-        ui.painter().circle_filled(
-            egui::pos2(rect.left() + 7.0, cy), 3.0, color,
+        // Color square
+        ui.painter().rect_filled(
+            egui::Rect::from_center_size(egui::pos2(rect.left() + 7.0, cy), egui::vec2(5.0, 5.0)),
+            0.0, color,
         );
 
         // Language name
@@ -188,7 +189,7 @@ pub(crate) fn draw_language_summary(
         ui.painter().text(
             egui::pos2(rect.left() + 14.0, cy), egui::Align2::LEFT_CENTER,
             detail, font_small.clone(),
-            tc.text_secondary.linear_multiply(0.7),
+            egui::Color32::from_rgb(90, 90, 100),
         );
     }
 

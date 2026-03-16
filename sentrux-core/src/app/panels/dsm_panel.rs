@@ -295,12 +295,12 @@ fn cell_color(
         if matrix.matrix[row][col] {
             Some(if rl > cl { c.below } else if rl < cl { c.above } else { c.same_level })
         } else {
-            Some(c.hover.linear_multiply(0.3))
+            Some(egui::Color32::from_rgb(50, 50, 70))
         }
     } else if matrix.matrix[row][col] {
         Some(if rl > cl { c.below } else if rl < cl { c.above } else { c.same_level })
     } else if is_selected_crosshair {
-        Some(egui::Color32::from_rgba_unmultiplied(100, 100, 180, 25))
+        Some(egui::Color32::from_rgb(30, 30, 50))
     } else {
         None // skip empty cells for performance
     }
@@ -338,14 +338,14 @@ fn draw_matrix_chrome(
             let y_end = origin.y + cell_size + (display_size as f32 * cell_size);
             painter.line_segment(
                 [egui::pos2(x, y_start), egui::pos2(x, y_end)],
-                egui::Stroke::new(0.5, dctx.colors.level_break),
+                egui::Stroke::new(1.0, dctx.colors.level_break),
             );
             let x_start = origin.x + label_width;
             let x_end = origin.x + label_width + (display_size as f32 * cell_size);
             let y = origin.y + cell_size + (brk as f32 * cell_size);
             painter.line_segment(
                 [egui::pos2(x_start, y), egui::pos2(x_end, y)],
-                egui::Stroke::new(0.5, dctx.colors.level_break),
+                egui::Stroke::new(1.0, dctx.colors.level_break),
             );
         }
     }

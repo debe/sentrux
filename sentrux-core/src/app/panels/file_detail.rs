@@ -51,7 +51,7 @@ pub(crate) fn draw_file_detail(
         );
         ui.horizontal(|ui| {
             let (dot_rect, _) = ui.allocate_exact_size(egui::vec2(8.0, 10.0), egui::Sense::hover());
-            ui.painter().circle_filled(dot_rect.center(), 3.0, color);
+            ui.painter().rect_filled(egui::Rect::from_center_size(dot_rect.center(), egui::vec2(5.0, 5.0)), 0.0, color);
             ui.label(egui::RichText::new(lang_text).monospace().size(8.0).color(tc.text_secondary));
         });
     }
@@ -100,7 +100,7 @@ pub(crate) fn draw_file_detail(
                 egui::vec2(ui.available_width(), row_h), egui::Sense::click(),
             );
             if response.hovered() {
-                ui.painter().rect_filled(rect, 2.0, tc.section_border);
+                ui.painter().rect_filled(rect, 0.0, tc.section_border);
             }
             ui.painter().text(
                 egui::pos2(rect.left() + 4.0, rect.center().y),
@@ -135,7 +135,7 @@ pub(crate) fn draw_file_detail(
                 egui::vec2(ui.available_width(), row_h), egui::Sense::click(),
             );
             if response.hovered() {
-                ui.painter().rect_filled(rect, 2.0, tc.section_border);
+                ui.painter().rect_filled(rect, 0.0, tc.section_border);
             }
             ui.painter().text(
                 egui::pos2(rect.left() + 4.0, rect.center().y),

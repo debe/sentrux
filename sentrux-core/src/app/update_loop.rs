@@ -254,7 +254,7 @@ impl SentruxApp {
             ui.centered_and_justified(|ui| {
                 ui.label(
                     egui::RichText::new(format!("'{}' is empty — no source files found", folder_name))
-                        .size(18.0)
+                        .size(11.0)
                         .color(self.state.theme_config.text_secondary),
                 );
             });
@@ -262,7 +262,7 @@ impl SentruxApp {
             ui.centered_and_justified(|ui| {
                 ui.label(
                     egui::RichText::new("Click 'Open Folder' to scan a project")
-                        .size(18.0)
+                        .size(11.0)
                         .color(self.state.theme_config.text_secondary),
                 );
             });
@@ -347,7 +347,7 @@ fn setup_style(ctx: &egui::Context) {
     style.text_styles.insert(egui::TextStyle::Body, egui::FontId::new(12.0, egui::FontFamily::Monospace));
     style.text_styles.insert(egui::TextStyle::Button, egui::FontId::new(11.0, egui::FontFamily::Monospace));
     style.text_styles.insert(egui::TextStyle::Small, egui::FontId::new(10.0, egui::FontFamily::Monospace));
-    style.text_styles.insert(egui::TextStyle::Heading, egui::FontId::new(14.0, egui::FontFamily::Monospace));
+    style.text_styles.insert(egui::TextStyle::Heading, egui::FontId::new(11.0, egui::FontFamily::Monospace));
     style.visuals.window_corner_radius = egui::CornerRadius::ZERO;
     style.visuals.menu_corner_radius = egui::CornerRadius::ZERO;
     style.visuals.widgets.noninteractive.corner_radius = egui::CornerRadius::ZERO;
