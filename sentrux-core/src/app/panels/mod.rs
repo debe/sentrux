@@ -11,7 +11,6 @@ pub(crate) use crate::core::snapshot::Snapshot;
 pub(crate) use crate::app::state::AppState;
 
 pub(crate) mod activity_panel;
-pub(crate) mod arch_display;
 pub(crate) mod dsm_panel;
 pub(crate) mod evolution_display;
 pub(crate) mod file_detail;
@@ -19,6 +18,5 @@ pub(crate) mod health_display;
 pub(crate) mod language_summary;
 pub(crate) mod metrics_panel;
 pub(crate) mod rules_display;
-pub(crate) mod testgap_display;
 pub(crate) mod ui_helpers;
 pub(crate) mod whatif_display;
