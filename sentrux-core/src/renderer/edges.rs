@@ -3,10 +3,7 @@
 //! Supports viewport culling, edge-type filtering, spotlight mode (show only
 //! edges for hovered/selected file), and animated dash offset for selected edges.
 
-use crate::layout::types::{EdgePath, RenderData};
-use crate::layout::viewport::ViewportTransform;
-use crate::core::settings::Settings;
-use super::RenderContext;
+use super::{EdgePath, RenderData, ViewportTransform, Settings, RenderContext};
 use super::edge_routing::draw_dashed_polyline;
 use egui::{Color32, Stroke};
 

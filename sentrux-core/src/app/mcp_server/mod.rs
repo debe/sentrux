@@ -13,7 +13,6 @@
 pub mod handlers;
 pub mod handlers_evo;
 pub mod registry;
-pub mod tools;
 
 use crate::license::{self, Tier};
 use crate::metrics::arch;
@@ -49,7 +48,7 @@ pub fn run_mcp_server(register_extra: Option<&dyn Fn(&mut registry::ToolRegistry
     let tier = license::current_tier();
 
     // Build tool registry once (all schemas + handlers + tier requirements)
-    let mut registry = tools::build_registry();
+    let mut registry = build_registry();
     if let Some(register) = register_extra {
         register(&mut registry);
     }
@@ -211,4 +210,40 @@ fn format_tool_result(id: &Value, result: Result<Value, String>) -> Value {
             }
         }),
     }
+}
+
+/// Build the core tool registry with free tools registered.
+/// Called once at MCP server startup. Returns a mutable registry
+/// so callers (e.g., sentrux-bin with pro feature) can register additional tools.
+pub fn build_registry() -> registry::ToolRegistry {
+    let mut reg = registry::ToolRegistry::new();
+
+    // Core scan/session tools
+    reg.register(handlers::scan_def());
+    reg.register(handlers::rescan_def());
+    reg.register(handlers::session_start_def());
+    reg.register(handlers::session_end_def());
+
+    // Health & structure diagnostics
+    reg.register(handlers::health_def());
+    reg.register(handlers::coupling_def());
+    reg.register(handlers::cycles_def());
+
+    // Architecture diagnostics
+    reg.register(handlers::architecture_def());
+    reg.register(handlers::blast_radius_def());
+    reg.register(handlers::hottest_def());
+    reg.register(handlers::level_def());
+
+    // Rules
+    reg.register(handlers::check_rules_def());
+
+    // Evolution (git history analysis)
+    reg.register(handlers_evo::evolution_def());
+
+    // DSM & Test Gaps
+    reg.register(handlers_evo::dsm_def());
+    reg.register(handlers_evo::test_gaps_def());
+
+    reg
 }

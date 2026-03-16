@@ -231,6 +231,71 @@ pub(super) struct ParseContext<'a> {
     pub lang: &'a str,
 }
 
+/// Compute cyclomatic + cognitive complexity for a function node.
+fn compute_complexity(
+    node: tree_sitter::Node,
+    content: &[u8],
+    profile: &crate::analysis::plugin::profile::LanguageProfile,
+) -> (u32, u32) {
+    if profile.semantics.complexity.is_configured() {
+        let cc = count_complexity_ast(node, content, profile);
+        let cog = count_cognitive_complexity_ast(node, content, profile);
+        (cc, cog)
+    } else {
+        (1u32, 0u32)
+    }
+}
+
+/// Detect whether a function is public via keyword prefix or method-parent-kind ancestry.
+fn detect_visibility(
+    node: tree_sitter::Node,
+    body: &str,
+    profile: &crate::analysis::plugin::profile::LanguageProfile,
+) -> bool {
+    let keywords = &profile.semantics.public_keywords;
+    let mut is_public = if keywords.is_empty() {
+        false
+    } else {
+        let text = body.trim_start();
+        keywords.iter().any(|kw: &String| text.starts_with(kw.as_str()))
+    };
+    if !is_public && !profile.semantics.method_parent_kinds.is_empty() {
+        let mut ancestor = node.parent();
+        while let Some(parent) = ancestor {
+            if profile.semantics.method_parent_kinds.iter()
+                .any(|k| k == parent.kind()) {
+                is_public = true;
+                break;
+            }
+            ancestor = parent.parent();
+        }
+    }
+    is_public
+}
+
+/// Detect whether a function has test decorators (body text or preceding sibling).
+fn detect_is_test(
+    node: tree_sitter::Node,
+    body: &str,
+    content: &[u8],
+    profile: &crate::analysis::plugin::profile::LanguageProfile,
+) -> bool {
+    if profile.semantics.test_decorators.is_empty() {
+        return false;
+    }
+    let mut found = profile.semantics.test_decorators.iter()
+        .any(|d: &String| body.contains(d.as_str()));
+    if !found {
+        if let Some(prev) = node.prev_sibling() {
+            if let Ok(prev_text) = prev.utf8_text(content) {
+                found = profile.semantics.test_decorators.iter()
+                    .any(|d: &String| prev_text.contains(d.as_str()));
+            }
+        }
+    }
+    found
+}
+
 pub(super) fn process_func_def(
     name: String,
     match_node: Option<tree_sitter::Node>,
@@ -246,60 +311,11 @@ pub(super) fn process_func_def(
         let ln = el - sl + 1;
         let body = node.utf8_text(pctx.content).unwrap_or("");
         let profile = crate::analysis::lang_registry::profile(pctx.lang);
-        let (cc, cog) = if profile.semantics.complexity.is_configured() {
-            // AST-based: walk tree-sitter nodes directly
-            let cc = count_complexity_ast(node, pctx.content, profile);
-            let cog = count_cognitive_complexity_ast(node, pctx.content, profile);
-            (cc, cog)
-        } else {
-            // No complexity config → CC=1 (base path), COG=0
-            // Languages must declare branch_nodes in plugin.toml to get complexity analysis.
-            (1u32, 0u32)
-        };
+        let (cc, cog) = compute_complexity(node, pctx.content, profile);
         let pc = count_parameters(node, pctx.content, pctx.lang);
         let bh = hash_body(body, pctx.lang);
-        // Detect visibility — TOML-driven
-        let mut is_public = {
-            let keywords = &profile.semantics.public_keywords;
-            if keywords.is_empty() {
-                false
-            } else {
-                let text = body.trim_start();
-                keywords.iter().any(|kw| text.starts_with(kw.as_str()))
-            }
-        };
-        // Method/trait impl detection: walk parent nodes looking for method_parent_kinds.
-        // Functions inside class bodies, impl blocks, extensions are methods —
-        // called via object dispatch which static analysis can't trace.
-        if !is_public && !profile.semantics.method_parent_kinds.is_empty() {
-            let mut ancestor = node.parent();
-            while let Some(parent) = ancestor {
-                if profile.semantics.method_parent_kinds.iter()
-                    .any(|k| k == parent.kind()) {
-                    is_public = true;
-                    break;
-                }
-                ancestor = parent.parent();
-            }
-        }
-        // Test decorator detection: check wider text (includes preceding attributes).
-        let is_test = if !profile.semantics.test_decorators.is_empty() {
-            let text = body;
-            let mut found = profile.semantics.test_decorators.iter()
-                .any(|d| text.contains(d.as_str()));
-            // Check preceding sibling (attributes are siblings in most ASTs)
-            if !found {
-                if let Some(prev) = node.prev_sibling() {
-                    if let Ok(prev_text) = prev.utf8_text(pctx.content) {
-                        found = profile.semantics.test_decorators.iter()
-                            .any(|d| prev_text.contains(d.as_str()));
-                    }
-                }
-            }
-            found
-        } else {
-            false
-        };
+        let is_public = detect_visibility(node, body, profile);
+        let is_test = detect_is_test(node, body, pctx.content, profile);
         functions.push(FuncInfo {
             n: name, sl, el, ln,
             cc: Some(cc),
@@ -308,7 +324,7 @@ pub(super) fn process_func_def(
             bh: if bh != 0 { Some(bh) } else { None },
             d: None, co: None,
             is_public: is_public || is_test,
-            is_method: false, // Deprecated — method detection via method_parent_kinds
+            is_method: false,
         });
     }
 }
@@ -357,6 +373,39 @@ pub(super) struct ImportContext<'a> {
     pub match_node: Option<tree_sitter::Node<'a>>,
 }
 
+/// Try brace expansion and AST-based extraction from an import node.
+fn resolve_import_from_node(
+    node: tree_sitter::Node,
+    content: &[u8],
+    profile: &crate::analysis::plugin::profile::LanguageProfile,
+    transform: &str,
+    dots_are_seps: bool,
+    imports: &mut Vec<String>,
+    import_set: &mut HashSet<String>,
+) {
+    let strategy = &profile.semantics.import_ast.strategy;
+    if strategy != "scoped_path" {
+        if let Ok(text) = node.utf8_text(content) {
+            let expanded = super::imports::expand_braces(text);
+            if !expanded.is_empty() {
+                for raw in &expanded {
+                    let module = apply_module_transform(raw, transform);
+                    insert_normalized(&module, dots_are_seps, imports, import_set);
+                }
+                return;
+            }
+        }
+    }
+    if profile.semantics.import_ast.is_configured() {
+        let paths = super::ast_import_walker::extract_imports_from_ast(
+            node, content, &profile.semantics.import_ast,
+        );
+        for raw in paths {
+            insert_normalized(&raw, dots_are_seps, imports, import_set);
+        }
+    }
+}
+
 pub(super) fn process_import(
     ictx: &ImportContext<'_>,
     lang: &str,
@@ -374,30 +423,6 @@ pub(super) fn process_import(
         let module = apply_module_transform(module, transform);
         insert_normalized(&module, dots_are_seps, imports, import_set);
     } else if let Some(node) = ictx.import_node.or(ictx.match_node) {
-        // Generic brace expansion: Prefix.{A, B} → Prefix.A, Prefix.B
-        // Only for non-scoped_path languages — scoped_path (Rust, Java) has its
-        // own use_list handling that's AST-aware (type vs module filtering).
-        let strategy = &profile.semantics.import_ast.strategy;
-        if strategy != "scoped_path" {
-            if let Ok(text) = node.utf8_text(content) {
-                let expanded = super::imports::expand_braces(text);
-                if !expanded.is_empty() {
-                    for raw in &expanded {
-                        let module = apply_module_transform(raw, transform);
-                        insert_normalized(&module, dots_are_seps, imports, import_set);
-                    }
-                    return;
-                }
-            }
-        }
-        // AST-based: walk tree-sitter nodes directly
-        if profile.semantics.import_ast.is_configured() {
-            let paths = super::ast_import_walker::extract_imports_from_ast(
-                node, content, &profile.semantics.import_ast,
-            );
-            for raw in paths {
-                insert_normalized(&raw, dots_are_seps, imports, import_set);
-            }
-        }
+        resolve_import_from_node(node, content, profile, transform, dots_are_seps, imports, import_set);
     }
 }

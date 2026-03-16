@@ -4,12 +4,10 @@
 //! hover/selection highlighting, header strips for directory sections, and
 //! zoom-proportional text labels with monospace font.
 
-use crate::layout::types::{ColorMode, LayoutRectSlim, RectKind, RenderData};
-use crate::layout::viewport::ViewportTransform;
-use super::colors;
-use crate::core::heat;
-use super::RenderContext;
-use crate::layout::types::EdgeFilter;
+use super::{
+    ColorMode, EdgeFilter, LayoutRectSlim, RectKind, RenderData,
+    ViewportTransform, heat, colors, RenderContext,
+};
 use egui::{Color32, CornerRadius, Stroke, StrokeKind};
 use std::collections::HashSet;
 

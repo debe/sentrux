@@ -187,6 +187,26 @@ fn nesting_depth(
     depth
 }
 
+/// Walk every node in the subtree rooted at `func_node`, calling `visitor` on each.
+fn walk_subtree(
+    func_node: tree_sitter::Node,
+    mut visitor: impl FnMut(tree_sitter::Node),
+) {
+    let mut cursor = func_node.walk();
+    let mut visited_root = false;
+    loop {
+        if !visited_root { visited_root = true; }
+        visitor(cursor.node());
+        if cursor.goto_first_child() { continue; }
+        if cursor.goto_next_sibling() { continue; }
+        loop {
+            if !cursor.goto_parent() { return; }
+            if cursor.node().id() == func_node.id() { return; }
+            if cursor.goto_next_sibling() { break; }
+        }
+    }
+}
+
 /// Walk the AST subtree of a function node and compute cyclomatic complexity.
 /// CC = 1 + (number of branch_nodes) + (number of logic_nodes with matching operator).
 pub(crate) fn count_complexity_ast(
@@ -197,48 +217,15 @@ pub(crate) fn count_complexity_ast(
     let cx = &profile.semantics.complexity;
     let branch_set: CxHashSet<&str> = cx.branch_nodes.iter().map(|s| s.as_str()).collect();
     let logic_set: CxHashSet<&str> = cx.logic_nodes.iter().map(|s| s.as_str()).collect();
-
-    let mut cc = 1u32; // Base path
-    let mut cursor = func_node.walk();
-
-    // DFS walk of the subtree
-    let mut visited_root = false;
-    loop {
-        if !visited_root {
-            visited_root = true;
-        }
-        let node = cursor.node();
-
+    let mut cc = 1u32;
+    walk_subtree(func_node, |node| {
         if branch_set.contains(node.kind()) {
             cc += 1;
-        } else if logic_set.contains(node.kind()) {
-            if is_logic_operator(node, content, &cx.logic_operators) {
-                cc += 1;
-            }
+        } else if logic_set.contains(node.kind()) && is_logic_operator(node, content, &cx.logic_operators) {
+            cc += 1;
         }
-
-        // Descend into children
-        if cursor.goto_first_child() {
-            continue;
-        }
-        // Move to next sibling
-        if cursor.goto_next_sibling() {
-            continue;
-        }
-        // Go up and try next sibling
-        loop {
-            if !cursor.goto_parent() {
-                // Back at root — done
-                return cc;
-            }
-            if cursor.node().id() == func_node.id() {
-                return cc;
-            }
-            if cursor.goto_next_sibling() {
-                break;
-            }
-        }
-    }
+    });
+    cc
 }
 
 /// Walk the AST subtree of a function node and compute cognitive complexity.
@@ -252,44 +239,15 @@ pub(crate) fn count_cognitive_complexity_ast(
     let branch_set: CxHashSet<&str> = cx.branch_nodes.iter().map(|s| s.as_str()).collect();
     let logic_set: CxHashSet<&str> = cx.logic_nodes.iter().map(|s| s.as_str()).collect();
     let nesting_set: CxHashSet<&str> = cx.nesting_nodes.iter().map(|s| s.as_str()).collect();
-
     let mut cog = 0u32;
-    let mut cursor = func_node.walk();
-
-    let mut visited_root = false;
-    loop {
-        if !visited_root {
-            visited_root = true;
-        }
-        let node = cursor.node();
-
+    walk_subtree(func_node, |node| {
         if branch_set.contains(node.kind()) {
-            let depth = nesting_depth(node, func_node, &nesting_set);
-            cog += 1 + depth;
-        } else if logic_set.contains(node.kind()) {
-            if is_logic_operator(node, content, &cx.logic_operators) {
-                cog += 1;
-            }
+            cog += 1 + nesting_depth(node, func_node, &nesting_set);
+        } else if logic_set.contains(node.kind()) && is_logic_operator(node, content, &cx.logic_operators) {
+            cog += 1;
         }
-
-        if cursor.goto_first_child() {
-            continue;
-        }
-        if cursor.goto_next_sibling() {
-            continue;
-        }
-        loop {
-            if !cursor.goto_parent() {
-                return cog;
-            }
-            if cursor.node().id() == func_node.id() {
-                return cog;
-            }
-            if cursor.goto_next_sibling() {
-                break;
-            }
-        }
-    }
+    });
+    cog
 }
 
 /// Default parameter list node kinds (used when plugin TOML doesn't specify).

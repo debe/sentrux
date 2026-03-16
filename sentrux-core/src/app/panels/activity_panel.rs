@@ -140,6 +140,61 @@ fn draw_activity_scroll(ui: &mut egui::Ui, state: &mut AppState, tc: &ThemeConfi
     clicked
 }
 
+/// Format age in seconds to a human-readable short string.
+fn format_age(age_secs: u64) -> String {
+    if age_secs < 2 { "now".into() }
+    else if age_secs < 60 { format!("{}s", age_secs) }
+    else if age_secs < 3600 { format!("{}m", age_secs / 60) }
+    else { format!("{}h", age_secs / 3600) }
+}
+
+/// Map activity kind string to its display character and color.
+fn kind_indicator(kind: &str, fallback: egui::Color32) -> (&'static str, egui::Color32) {
+    match kind {
+        "create" => ("+", egui::Color32::from_rgb(115, 201, 145)),
+        "remove" => ("-", egui::Color32::from_rgb(224, 108, 117)),
+        "modify" => ("~", egui::Color32::from_rgb(103, 150, 230)),
+        _ => ("?", fallback),
+    }
+}
+
+const DELTA_GREEN: egui::Color32 = egui::Color32::from_rgb(115, 201, 145);
+const DELTA_RED: egui::Color32 = egui::Color32::from_rgb(224, 108, 117);
+
+/// Build delta display parts (lines changed, functions changed).
+fn build_delta_parts(lines_delta: i32, funcs_delta: i32) -> Vec<(String, egui::Color32)> {
+    let mut parts = Vec::new();
+    if lines_delta > 0 {
+        parts.push((format!("+{}", lines_delta), DELTA_GREEN));
+    } else if lines_delta < 0 {
+        parts.push((format!("{}", lines_delta), DELTA_RED));
+    }
+    if funcs_delta > 0 {
+        parts.push((format!("+{} functions", funcs_delta), DELTA_GREEN));
+    } else if funcs_delta < 0 {
+        parts.push((format!("{}  functions", funcs_delta), DELTA_RED));
+    }
+    parts
+}
+
+/// Draw delta labels right-aligned before the age string.
+fn draw_delta_labels(
+    ui: &mut egui::Ui,
+    parts: &[(String, egui::Color32)],
+    right_edge: f32,
+    cy: f32,
+    age_width: f32,
+    font: &egui::FontId,
+) {
+    let mut dx = right_edge - 4.0 - age_width;
+    for (text, color) in parts.iter().rev() {
+        let galley = ui.painter().layout_no_wrap(text.clone(), font.clone(), *color);
+        let w = galley.size().x + 4.0;
+        dx -= w;
+        ui.painter().galley(egui::pos2(dx, cy - galley.size().y / 2.0), galley, *color);
+    }
+}
+
 /// Render a single activity row. Returns clicked path if this row was clicked.
 fn draw_activity_row(
     ui: &mut egui::Ui,
@@ -149,17 +204,8 @@ fn draw_activity_row(
     adctx: &ActivityDrawCtx,
 ) -> Option<String> {
     let entry = &state.recent_activity[idx];
-    let age = adctx.now.duration_since(entry.time).as_secs();
-    let age_str = if age < 2 { "now".into() }
-        else if age < 60 { format!("{}s", age) }
-        else if age < 3600 { format!("{}m", age / 60) }
-        else { format!("{}h", age / 3600) };
-    let (kind_char, kind_color) = match entry.kind.as_str() {
-        "create" => ("+", egui::Color32::from_rgb(115, 201, 145)), // muted green
-        "remove" => ("-", egui::Color32::from_rgb(224, 108, 117)), // muted red
-        "modify" => ("~", egui::Color32::from_rgb(103, 150, 230)), // muted blue
-        _ => ("?", tc.text_secondary),
-    };
+    let age_str = format_age(adctx.now.duration_since(entry.time).as_secs());
+    let (kind_char, kind_color) = kind_indicator(&entry.kind, tc.text_secondary);
     let filename = entry.path.rsplit('/').next().unwrap_or(&entry.path);
     let is_selected = state.selected_path.as_deref() == Some(&entry.path);
     let rh = 16.0;
@@ -181,28 +227,8 @@ fn draw_activity_row(
     let nc = if is_selected { tc.selected_stroke } else { tc.file_label };
     ui.painter().text(egui::pos2(left + 14.0, cy), egui::Align2::LEFT_CENTER, filename, adctx.font10.clone(), nc);
 
-    // Delta info: +12 -3  or  +2fn
-    let mut delta_parts: Vec<(String, egui::Color32)> = Vec::new();
-    if entry.lines_delta > 0 {
-        delta_parts.push((format!("+{}", entry.lines_delta), egui::Color32::from_rgb(115, 201, 145)));
-    } else if entry.lines_delta < 0 {
-        delta_parts.push((format!("{}", entry.lines_delta), egui::Color32::from_rgb(224, 108, 117)));
-    }
-    if entry.funcs_delta > 0 {
-        delta_parts.push((format!("+{} functions", entry.funcs_delta), egui::Color32::from_rgb(115, 201, 145)));
-    } else if entry.funcs_delta < 0 {
-        delta_parts.push((format!("{}  functions", entry.funcs_delta), egui::Color32::from_rgb(224, 108, 117)));
-    }
-
-    // Draw delta info before age
-    let age_width = 24.0;
-    let mut dx = rr.right() - 4.0 - age_width;
-    for (text, color) in delta_parts.iter().rev() {
-        let galley = ui.painter().layout_no_wrap(text.clone(), adctx.font9.clone(), *color);
-        let w = galley.size().x + 4.0;
-        dx -= w;
-        ui.painter().galley(egui::pos2(dx, cy - galley.size().y / 2.0), galley, *color);
-    }
+    let delta_parts = build_delta_parts(entry.lines_delta, entry.funcs_delta);
+    draw_delta_labels(ui, &delta_parts, rr.right(), cy, 24.0, &adctx.font9);
 
     ui.painter().text(egui::pos2(rr.right() - 4.0, cy), egui::Align2::RIGHT_CENTER, &age_str, adctx.font9.clone(), tc.text_secondary);
     result

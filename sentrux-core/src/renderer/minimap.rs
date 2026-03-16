@@ -4,10 +4,7 @@
 //! blocks and a viewport indicator rectangle. Clicking the minimap pans the
 //! main canvas. Always uses language colors regardless of the main color mode.
 
-use crate::layout::types::{RectKind, RenderData};
-use super::colors;
-use crate::core::settings::Settings;
-use super::RenderContext;
+use super::{RectKind, RenderData, Settings, RenderContext, colors};
 use egui::{CornerRadius, Rect, Stroke, StrokeKind};
 
 /// Bundles the uniform scale and centering offsets for content → minimap mapping.

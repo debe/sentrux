@@ -4,8 +4,7 @@
 //! High-confidence entry points get the theme's badge_high color; low-confidence
 //! get badge_low. Only visible when the file block is large enough on screen.
 
-use crate::layout::types::{RectKind, RenderData};
-use super::RenderContext;
+use super::{RectKind, RenderData, RenderContext};
 use egui::{CornerRadius, Stroke, StrokeKind};
 
 /// Draw entry-point badges at the top-right corner of file rects.

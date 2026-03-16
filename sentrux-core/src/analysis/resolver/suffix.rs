@@ -437,6 +437,29 @@ fn collect_module_prefixes(project_map: &HashMap<String, String>, scan_root: &Pa
 /// Add exact package name → entry file to the manifest_name_aliases map.
 /// For exact imports: `use sentrux_core` → `src/lib.rs`, `import '@company/shared'` → `src/index.ts`.
 /// Uses alias_entry_point from plugin profile to find entry files, then reads manifest for name.
+/// Try to read a manifest and extract the transformed package name for an entry-point file.
+fn extract_manifest_alias(
+    file_path: &str,
+    resolver: &crate::analysis::plugin::profile::ResolverConfig,
+    scan_root: &Path,
+) -> Option<String> {
+    let project_dir = file_path
+        .strip_suffix(&resolver.alias_entry_point)
+        .unwrap_or("")
+        .trim_end_matches('/');
+    let manifest_path = if project_dir.is_empty() {
+        scan_root.join(&resolver.alias_file)
+    } else {
+        scan_root.join(project_dir).join(&resolver.alias_file)
+    };
+    let content = std::fs::read_to_string(&manifest_path).ok()?;
+    let manifest_name = manifest_path.file_name()
+        .and_then(|n| n.to_str()).unwrap_or(&resolver.alias_file);
+    let name = extract_name_from_manifest(&content, &resolver.alias_field, manifest_name)?;
+    let transformed = apply_alias_transform(&name, &resolver.alias_transform);
+    if transformed.is_empty() { None } else { Some(transformed) }
+}
+
 fn inject_manifest_name_aliases<'a>(
     index: &mut HashMap<String, Vec<&'a str>>,
     known_files: &HashSet<&'a str>,
@@ -455,38 +478,11 @@ fn inject_manifest_name_aliases<'a>(
 
         for &file_path in known_files {
             let filename = file_path.rsplit('/').next().unwrap_or(file_path);
-            if filename != entry_filename {
+            if filename != entry_filename || !file_path.ends_with(&resolver.alias_entry_point) {
                 continue;
             }
-            if !file_path.ends_with(&resolver.alias_entry_point) {
-                continue;
-            }
-
-            let project_dir = file_path
-                .strip_suffix(&resolver.alias_entry_point)
-                .unwrap_or("")
-                .trim_end_matches('/');
-
-            let manifest_path = if project_dir.is_empty() {
-                scan_root.join(&resolver.alias_file)
-            } else {
-                scan_root.join(project_dir).join(&resolver.alias_file)
-            };
-
-            if let Ok(content) = std::fs::read_to_string(&manifest_path) {
-                let manifest_name = manifest_path.file_name()
-                    .and_then(|n| n.to_str()).unwrap_or(&resolver.alias_file);
-                if let Some(name) = extract_name_from_manifest(
-                    &content, &resolver.alias_field, manifest_name,
-                ) {
-                    let transformed = match resolver.alias_transform.as_str() {
-                        "hyphen_to_underscore" => name.replace('-', "_"),
-                        _ => name,
-                    };
-                    if !transformed.is_empty() {
-                        index.entry(transformed).or_default().push(file_path);
-                    }
-                }
+            if let Some(transformed) = extract_manifest_alias(file_path, resolver, scan_root) {
+                index.entry(transformed).or_default().push(file_path);
             }
         }
     }
@@ -502,14 +498,53 @@ fn inject_manifest_name_aliases<'a>(
 /// Normal resolution (package_index_files, extension probing) handles the rest.
 ///
 /// Data-driven from plugin.toml [semantics.resolver] alias_file + alias_field.
+/// Try to resolve a single project directory into a PathAlias from its manifest.
+fn resolve_project_alias(
+    project_dir: &str,
+    scan_root: &Path,
+    resolver: &crate::analysis::plugin::profile::ResolverConfig,
+) -> Option<PathAlias> {
+    let manifest_dir = if project_dir.is_empty() {
+        scan_root.to_path_buf()
+    } else {
+        scan_root.join(project_dir)
+    };
+    let manifest_path = resolve_manifest_path(&manifest_dir, &resolver.alias_file)?;
+    let content = std::fs::read_to_string(&manifest_path).ok()?;
+    let name = extract_name_from_manifest(&content, &resolver.alias_field, &resolver.alias_file)
+        .filter(|n| !n.is_empty())?;
+    let transformed = apply_alias_transform(&name, &resolver.alias_transform);
+    let dir_replacement = build_dir_replacement(project_dir, &resolver.source_root);
+    Some(PathAlias {
+        prefix: format!("{}/", transformed),
+        replacements: vec![dir_replacement],
+    })
+}
+
+/// Apply alias_transform (e.g., hyphen_to_underscore) to a manifest name.
+fn apply_alias_transform(name: &str, transform: &str) -> String {
+    match transform {
+        "hyphen_to_underscore" => name.replace('-', "_"),
+        _ => name.to_string(),
+    }
+}
+
+/// Build the directory replacement path from project_dir and source_root.
+fn build_dir_replacement(project_dir: &str, source_root: &str) -> String {
+    let base = if project_dir.is_empty() {
+        String::new()
+    } else {
+        format!("{}/", project_dir)
+    };
+    if source_root.is_empty() { base } else { format!("{}{}/", base, source_root) }
+}
+
 fn collect_manifest_path_aliases(
     project_map: &HashMap<String, String>,
     scan_root: &Path,
 ) -> Vec<PathAlias> {
     let mut aliases = Vec::new();
     let mut seen_dirs: HashSet<String> = HashSet::new();
-
-    // Find all unique project directories (each has a manifest)
     let unique_roots: HashSet<&str> = project_map.values().map(|s| s.as_str()).collect();
 
     for profile in crate::analysis::lang_registry::all_profiles() {
@@ -517,59 +552,14 @@ fn collect_manifest_path_aliases(
         if resolver.alias_file.is_empty() || resolver.alias_field.is_empty() {
             continue;
         }
-
         for &project_dir in &unique_roots {
             if seen_dirs.contains(project_dir) {
                 continue;
             }
-
-            let manifest_dir = if project_dir.is_empty() {
-                scan_root.to_path_buf()
-            } else {
-                scan_root.join(project_dir)
-            };
-            let manifest_path = match resolve_manifest_path(&manifest_dir, &resolver.alias_file) {
-                Some(p) => p,
-                None => continue,
-            };
-
-            let content = match std::fs::read_to_string(&manifest_path) {
-                Ok(c) => c,
-                Err(_) => continue,
-            };
-
-            let name = match extract_name_from_manifest(
-                &content, &resolver.alias_field, &resolver.alias_file,
-            ) {
-                Some(n) if !n.is_empty() => n,
-                _ => continue,
-            };
-
-            let transformed = match resolver.alias_transform.as_str() {
-                "hyphen_to_underscore" => name.replace('-', "_"),
-                _ => name,
-            };
-
-            // Map: package_name/ → project_dir/source_root/
-            // @company/shared/ → packages/shared/src/  (with source_root = "src")
-            // sentrux_core/ → sentrux-core/src/         (with source_root = "src")
-            let base = if project_dir.is_empty() {
-                String::new()
-            } else {
-                format!("{}/", project_dir)
-            };
-            let dir_replacement = if resolver.source_root.is_empty() {
-                base
-            } else {
-                format!("{}{}/", base, resolver.source_root)
-            };
-
-            aliases.push(PathAlias {
-                prefix: format!("{}/", transformed),
-                replacements: vec![dir_replacement],
-            });
-
-            seen_dirs.insert(project_dir.to_string());
+            if let Some(alias) = resolve_project_alias(project_dir, scan_root, resolver) {
+                aliases.push(alias);
+                seen_dirs.insert(project_dir.to_string());
+            }
         }
     }
 
@@ -828,6 +818,21 @@ fn apply_path_alias(specifier: &str, aliases: &[PathAlias]) -> Option<String> {
 }
 
 /// Load path aliases + workspace package aliases from plugin-declared config files.
+/// Try loading path aliases for a single project directory from a resolver config.
+fn try_load_project_aliases(
+    project_dir: &str,
+    scan_root: &Path,
+    resolver: &crate::analysis::plugin::profile::ResolverConfig,
+) -> Option<Vec<PathAlias>> {
+    let config_path = if project_dir.is_empty() {
+        scan_root.join(&resolver.path_alias_file)
+    } else {
+        scan_root.join(project_dir).join(&resolver.path_alias_file)
+    };
+    if !config_path.exists() { return None; }
+    parse_path_alias_config(&config_path, &resolver.path_alias_field, &resolver.path_alias_base_url)
+}
+
 fn load_path_aliases(
     project_map: &HashMap<String, String>,
     scan_root: &Path,
@@ -837,25 +842,15 @@ fn load_path_aliases(
 
     for profile in crate::analysis::lang_registry::all_profiles() {
         let resolver = &profile.semantics.resolver;
-
-        // Path aliases (tsconfig.json paths, etc.)
-        if !resolver.path_alias_file.is_empty() && !resolver.path_alias_field.is_empty() {
-            for &project_dir in &unique_roots {
-                if result.contains_key(project_dir) { continue; }
-                let config_path = if project_dir.is_empty() {
-                    scan_root.join(&resolver.path_alias_file)
-                } else {
-                    scan_root.join(project_dir).join(&resolver.path_alias_file)
-                };
-                if !config_path.exists() { continue; }
-                if let Some(aliases) = parse_path_alias_config(
-                    &config_path, &resolver.path_alias_field, &resolver.path_alias_base_url,
-                ) {
-                    result.entry(project_dir.to_string()).or_default().extend(aliases);
-                }
+        if resolver.path_alias_file.is_empty() || resolver.path_alias_field.is_empty() {
+            continue;
+        }
+        for &project_dir in &unique_roots {
+            if result.contains_key(project_dir) { continue; }
+            if let Some(aliases) = try_load_project_aliases(project_dir, scan_root, resolver) {
+                result.entry(project_dir.to_string()).or_default().extend(aliases);
             }
         }
-
     }
     result
 }

@@ -34,48 +34,61 @@ pub(super) fn extract_imports_from_ast(
 
 /// Read module paths from a named field or child nodes of the import AST node.
 /// Handles: Python (module_name), Go (path), JS (source), C (path), Ruby (arguments).
+/// Try extracting a module path from the named field of an import node.
+fn try_named_field(
+    import_node: tree_sitter::Node,
+    content: &[u8],
+    config: &ImportAstConfig,
+) -> Option<Vec<String>> {
+    if config.module_path_field.is_empty() {
+        return None;
+    }
+    let field_node = import_node.child_by_field_name(&config.module_path_field)?;
+    if config.filter_system_includes && field_node.kind() == config.system_include_kind {
+        return Some(vec![]);
+    }
+    read_path_from_node(field_node, content, config)
+        .map(|path| vec![apply_transform(&path, config)])
+}
+
+/// Collect paths from direct named children matching module_path_node_kinds.
+fn collect_from_direct_children(
+    import_node: tree_sitter::Node,
+    content: &[u8],
+    config: &ImportAstConfig,
+) -> Vec<String> {
+    let mut results = Vec::new();
+    for i in 0..import_node.named_child_count() {
+        if let Some(child) = import_node.named_child(i) {
+            if config.module_path_node_kinds.iter().any(|k| k == child.kind()) {
+                if config.filter_system_includes && child.kind() == config.system_include_kind {
+                    continue;
+                }
+                if let Some(path) = read_path_from_node(child, content, config) {
+                    results.push(apply_transform(&path, config));
+                }
+            }
+        }
+    }
+    results
+}
+
 fn extract_field_read(
     import_node: tree_sitter::Node,
     content: &[u8],
     config: &ImportAstConfig,
 ) -> Vec<String> {
-    // If this is a container node (Go import_declaration), iterate child import specs
     if !config.child_import_kind.is_empty() {
         return extract_from_container(import_node, content, config);
     }
-
-    // Try named field first
-    if !config.module_path_field.is_empty() {
-        if let Some(field_node) = import_node.child_by_field_name(&config.module_path_field) {
-            // Filter system includes (C: <stdio.h>)
-            if config.filter_system_includes && field_node.kind() == config.system_include_kind {
-                return vec![];
-            }
-            if let Some(path) = read_path_from_node(field_node, content, config) {
-                return vec![apply_transform(&path, config)];
-            }
-        }
+    if let Some(result) = try_named_field(import_node, content, config) {
+        return result;
     }
-
-    // Fall back: iterate children matching module_path_node_kinds
     let mut results = Vec::new();
     if config.recursive_search {
-        // Recursive: search ALL descendants (for deeply nested imports like Elixir multi-alias)
         collect_matching_descendants(import_node, content, config, &mut results);
     } else {
-        // Direct children only (default — faster, no false matches)
-        for i in 0..import_node.named_child_count() {
-            if let Some(child) = import_node.named_child(i) {
-                if config.module_path_node_kinds.iter().any(|k| k == child.kind()) {
-                    if config.filter_system_includes && child.kind() == config.system_include_kind {
-                        continue;
-                    }
-                    if let Some(path) = read_path_from_node(child, content, config) {
-                        results.push(apply_transform(&path, config));
-                    }
-                }
-            }
-        }
+        results = collect_from_direct_children(import_node, content, config);
     }
     results
 }

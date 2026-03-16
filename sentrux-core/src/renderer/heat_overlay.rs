@@ -4,9 +4,7 @@
 //! is a semi-transparent warm tint proportional to the file's decayed heat value.
 //! Also renders the activity trail: fading highlights on recently changed files.
 
-use crate::layout::types::{ColorMode, RectKind, RenderData};
-use crate::core::heat;
-use super::RenderContext;
+use super::{ColorMode, RectKind, RenderData, heat, RenderContext};
 use egui::{Color32, CornerRadius, Stroke, StrokeKind};
 use std::collections::HashSet;
 

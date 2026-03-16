@@ -12,15 +12,16 @@ pub mod heat_overlay;
 pub mod minimap;
 pub mod rects;
 
-use crate::core::snapshot::Snapshot;
-use crate::core::types::FileIndexEntry;
-use crate::layout::types::{EdgeFilter, RectKind, RenderData};
-use crate::metrics::arch::ArchReport;
-use crate::layout::types::ColorMode;
-use crate::core::heat::HeatTracker;
-use crate::core::settings::ThemeConfig;
-use crate::layout::viewport::ViewportTransform;
-use crate::core::settings::Settings;
+// Re-exports for sub-modules — import from super:: instead of cross-module
+pub(crate) use crate::core::snapshot::Snapshot;
+pub(crate) use crate::core::types::FileIndexEntry;
+pub(crate) use crate::layout::types::{
+    ColorMode, EdgeFilter, EdgePath, LayoutRectSlim, RectKind, RenderData,
+};
+pub(crate) use crate::metrics::arch::ArchReport;
+pub(crate) use crate::core::heat::{self, HeatTracker};
+pub(crate) use crate::core::settings::{Settings, ThemeConfig};
+pub(crate) use crate::layout::viewport::ViewportTransform;
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;

@@ -86,22 +86,35 @@ impl LangRegistry {
     /// This covers languages that may not have grammars installed (json, yaml, etc.).
     fn load_display_index(&mut self) {
         for &(name, toml_content, _scm) in crate::analysis::plugin::embedded::EMBEDDED_PLUGINS {
-            for line in toml_content.lines() {
-                let trimmed = line.trim();
-                if trimmed.starts_with("extensions") {
-                    for ext in parse_toml_inline_array(trimmed) {
-                        self.ext_display.entry(ext.to_string())
-                            .or_insert_with(|| name.to_string());
-                    }
+            self.index_extensions(name, toml_content);
+            self.index_filenames(name, toml_content);
+        }
+    }
+
+    /// Index file extensions from a plugin TOML for display language detection.
+    fn index_extensions(&mut self, name: &str, toml_content: &str) {
+        for line in toml_content.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with("extensions") {
+                for ext in parse_toml_inline_array(trimmed) {
+                    self.ext_display.entry(ext.to_string())
+                        .or_insert_with(|| name.to_string());
                 }
-                if trimmed.starts_with("filenames") {
-                    for fname in parse_toml_inline_array(trimmed) {
-                        if fname.ends_with('*') {
-                            let prefix = &fname[..fname.len() - 1];
-                            self.filename_prefix_map.push((prefix.to_string(), name.to_string()));
-                        } else {
-                            self.filename_map.insert(fname.to_string(), name.to_string());
-                        }
+            }
+        }
+    }
+
+    /// Index filename patterns from a plugin TOML for display language detection.
+    fn index_filenames(&mut self, name: &str, toml_content: &str) {
+        for line in toml_content.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with("filenames") {
+                for fname in parse_toml_inline_array(trimmed) {
+                    if fname.ends_with('*') {
+                        let prefix = &fname[..fname.len() - 1];
+                        self.filename_prefix_map.push((prefix.to_string(), name.to_string()));
+                    } else {
+                        self.filename_map.insert(fname.to_string(), name.to_string());
                     }
                 }
             }
