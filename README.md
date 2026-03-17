@@ -8,7 +8,7 @@
 
 <br><br>
 
-**Your AI agent writes the code.<br>sentrux shows you the architecture and scores the quality — live.**
+**Sentrux is a sensor that helps AI agents close the feedback loop, enabling recursive self-improvement of code quality.**
 
 <br>
 
