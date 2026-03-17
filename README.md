@@ -45,13 +45,7 @@
 ## How it works
 
 ```
-You code with AI  →  sentrux watches the structure  →  scores quality in real-time
-                                    ↓
-              Agent sees the score + bottleneck  →  fixes the weakest root cause
-                                    ↓
-                        Rescan  →  score improves  →  repeat
-                                    ↓
-                    Each iteration better than the last = recursive self-improvement
+sentrux scans code → scores quality → agent sees the score and improves the code → score increases → repeat
 ```
 
 
