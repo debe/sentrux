@@ -43,9 +43,19 @@
 ## How it works
 
 ```
-sentrux scans code → scores quality
-  → agent sees the score and improves the code
-    → score increases → repeat
+        sentrux scans code
+               ↓
+        quality score: 6772
+               ↓
+     AI agent reads the score
+               ↓
+      "modularity is lowest"
+               ↓
+    agent refactors the code
+               ↓
+        quality score: 7891  ← better
+               ↓
+           repeat ──→ each iteration improves
 ```
 
 
