@@ -3,7 +3,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg?v=2">
   <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg?v=2">
-  <img alt="sentrux" src="assets/logo-dark.svg?v=2" width="380">
+  <img alt="sentrux" src="assets/logo-dark.svg?v=2" width="500">
 </picture>
 
 <br>
