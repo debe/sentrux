@@ -61,7 +61,8 @@ fn draw_right_stats(ui: &mut egui::Ui, state: &AppState) {
 
     // Unified quality signal display — continuous score, no grade letter
     if let Some(report) = &state.health_report {
-        let c = crate::app::panels::ui_helpers::score_color(report.quality_signal);
+        let tc = crate::core::settings::ThemeConfig::from_theme(state.theme);
+        let c = crate::app::panels::ui_helpers::score_color_for_theme(report.quality_signal, &tc);
         ui.label(egui::RichText::new(format!("Q:{}", (report.quality_signal * 10000.0).round() as u32)).monospace().color(c));
     }
 

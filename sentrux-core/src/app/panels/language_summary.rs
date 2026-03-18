@@ -96,9 +96,7 @@ fn draw_lang_row(
     tc: &ThemeConfig,
 ) {
     let profile = lang_registry::profile(lang);
-    let color = egui::Color32::from_rgb(
-        profile.color_rgb[0], profile.color_rgb[1], profile.color_rgb[2],
-    );
+    let color = super::ui_helpers::lang_profile_color(&profile);
     let (rect, _) = ui.allocate_exact_size(
         egui::vec2(ui.available_width(), 14.0), egui::Sense::hover(),
     );
@@ -155,7 +153,7 @@ pub(crate) fn draw_language_summary(
         ui.painter().text(
             egui::pos2(4.0, ui.cursor().top()), egui::Align2::LEFT_TOP,
             format!("{} plugin(s) failed", failed.len()),
-            font_small, egui::Color32::from_rgb(180, 80, 60),
+            font_small, tc.accent_plugin_error,
         );
     }
 }

@@ -44,9 +44,7 @@ pub(crate) fn draw_file_detail(
         let lang_text = format!("{} \u{00b7} {} lines \u{00b7} {} functions",
             entry.lang, entry.lines, entry.funcs);
         let profile = crate::analysis::lang_registry::profile(&entry.lang);
-        let color = egui::Color32::from_rgb(
-            profile.color_rgb[0], profile.color_rgb[1], profile.color_rgb[2],
-        );
+        let color = super::ui_helpers::lang_profile_color(&profile);
         ui.horizontal(|ui| {
             let (dot_rect, _) = ui.allocate_exact_size(egui::vec2(8.0, 10.0), egui::Sense::hover());
             ui.painter().circle_filled(dot_rect.center(), 3.0, color);
@@ -177,7 +175,7 @@ fn draw_functions_section(
     for f in sorted_funcs.iter().take(15) {
         let cc = f.cc.unwrap_or(0);
         let cc_color = if cc > 15 {
-            egui::Color32::from_rgb(203, 75, 22)
+            tc.accent_high_complexity
         } else {
             tc.text_secondary
         };

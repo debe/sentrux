@@ -7,6 +7,7 @@
 pub mod breadcrumb;
 pub mod canvas;
 pub mod channels;
+pub mod color_utils;
 pub mod draw_panels;
 pub mod mcp_server;
 pub mod panels;

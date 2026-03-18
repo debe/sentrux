@@ -135,7 +135,7 @@ fn draw_stats(
 ) {
     let mono = |s: &str| egui::RichText::new(s).monospace().size(9.0);
     draw_stats_file_counts(ui, stats, tc, total_files, dropped_level_range, &mono);
-    draw_stats_direction_row(ui, stats, &mono);
+    draw_stats_direction_row(ui, stats, tc, &mono);
     ui.label(mono(&format!("Propagation: {}", (stats.propagation_cost * 10000.0).round() as u32)).color(tc.text_secondary));
     draw_stats_clusters(ui, stats, tc, &mono);
 }
@@ -152,13 +152,13 @@ fn draw_stats_file_counts(
     if total_files > stats.size {
         ui.label(mono(&format!("Files: {} of {}  Edges: {}", stats.size, total_files, stats.edge_count)).color(tc.text_primary));
         ui.label(mono(&format!("(sampled {} of {} — metrics approximate)", stats.size, total_files))
-            .color(egui::Color32::from_rgb(220, 170, 80)));
+            .color(tc.status_warning));
         if let Some((lo, hi)) = dropped_level_range {
             ui.label(mono(&format!("(levels L{}–L{} omitted)", lo, hi))
-                .color(egui::Color32::from_rgb(180, 150, 80)));
+                .color(tc.status_warning));
         } else {
             ui.label(mono("(middle-level files omitted)")
-                .color(egui::Color32::from_rgb(180, 150, 80)));
+                .color(tc.status_warning));
         }
     } else {
         ui.label(mono(&format!("Files: {}  Edges: {}", stats.size, stats.edge_count)).color(tc.text_primary));
@@ -170,29 +170,30 @@ fn draw_stats_file_counts(
 fn draw_stats_direction_row(
     ui: &mut egui::Ui,
     stats: &DsmStats,
+    tc: &crate::core::settings::ThemeConfig,
     mono: &dyn Fn(&str) -> egui::RichText,
 ) {
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = 8.0;
         ui.label(
             mono(&format!("▼ {}", stats.below_diagonal))
-                .color(egui::Color32::from_rgb(100, 200, 100)),
+                .color(tc.status_success),
         );
         if stats.above_diagonal > 0 {
             ui.label(
                 mono(&format!("▲ {}", stats.above_diagonal))
-                    .color(egui::Color32::from_rgb(220, 100, 100)),
+                    .color(tc.status_error),
             );
         } else {
             ui.label(
                 mono("▲ 0")
-                    .color(egui::Color32::from_rgb(100, 200, 100)),
+                    .color(tc.status_success),
             );
         }
         if stats.same_level > 0 {
             ui.label(
                 mono(&format!("↔ {}", stats.same_level))
-                    .color(egui::Color32::from_rgb(100, 160, 160)),
+                    .color(tc.accent_coupling),
             );
         }
     });
@@ -242,14 +243,14 @@ struct DsmColors {
 }
 
 impl DsmColors {
-    fn new() -> Self {
+    fn from_theme(tc: &crate::core::settings::ThemeConfig) -> Self {
         Self {
-            diag: egui::Color32::from_rgb(80, 80, 100),
-            below: egui::Color32::from_rgb(50, 140, 80),
-            above: egui::Color32::from_rgb(180, 60, 60),
-            same_level: egui::Color32::from_rgb(80, 120, 120),
-            hover: egui::Color32::from_rgb(100, 100, 140),
-            level_break: egui::Color32::from_rgb(60, 60, 80),
+            diag: tc.section_border,
+            below: tc.status_success,
+            above: tc.status_error,
+            same_level: tc.accent_coupling,
+            hover: tc.section_border,
+            level_break: tc.section_border,
         }
     }
 }
@@ -302,7 +303,7 @@ fn cell_color(
     } else if is_hovered {
         Some(dctx.colors.hover.linear_multiply(0.3))
     } else if dctx.selected_row.is_some_and(|sr| row == sr || col == sr) {
-        Some(egui::Color32::from_rgba_unmultiplied(100, 100, 180, 25))
+        Some(dctx.tc.selected_stroke.linear_multiply(0.1))
     } else {
         None
     }
@@ -439,7 +440,7 @@ fn draw_matrix(
         label_width,
         cell_size,
         display_size,
-        colors: DsmColors::new(),
+        colors: DsmColors::from_theme(tc),
         hover_row,
         hover_col,
         selected_row,

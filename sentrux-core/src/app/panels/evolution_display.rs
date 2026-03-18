@@ -5,7 +5,7 @@
 
 use crate::metrics::evo::EvolutionReport;
 use super::ThemeConfig;
-use super::ui_helpers::score_color;
+use super::ui_helpers::score_color_for_theme;
 
 /// Draw the evolution section in the metrics panel.
 pub(crate) fn draw_evolution_section(ui: &mut egui::Ui, report: &EvolutionReport, tc: &ThemeConfig) {
@@ -43,7 +43,7 @@ pub(crate) fn draw_evolution_section(ui: &mut egui::Ui, report: &EvolutionReport
             tc.text_secondary,
         );
         if *score >= 0.0 {
-            let c = score_color(*score);
+            let c = score_color_for_theme(*score, tc);
             ui.painter().text(
                 egui::pos2(rect.right() - 4.0, cy),
                 egui::Align2::RIGHT_CENTER,
@@ -82,9 +82,9 @@ pub(crate) fn draw_evolution_section(ui: &mut egui::Ui, report: &EvolutionReport
     draw_bus_factor(ui, report, tc, row_h);
 }
 
-fn draw_hotspots(ui: &mut egui::Ui, report: &EvolutionReport, _tc: &ThemeConfig, row_h: f32) {
+fn draw_hotspots(ui: &mut egui::Ui, report: &EvolutionReport, tc: &ThemeConfig, row_h: f32) {
     if report.hotspots.is_empty() { return; }
-    let color = egui::Color32::from_rgb(200, 140, 80);
+    let color = tc.accent_hotspot;
     ui.add_space(3.0);
     ui.label(egui::RichText::new("HOTSPOTS (churn x complexity)").monospace().size(8.0).color(color));
     for hs in report.hotspots.iter().take(5) {
@@ -105,13 +105,13 @@ fn draw_hotspots(ui: &mut egui::Ui, report: &EvolutionReport, _tc: &ThemeConfig,
             egui::pos2(rect.left() + 4.0, rect.center().y),
             egui::Align2::LEFT_CENTER,
             format!("  +{} more", report.hotspots.len() - 5),
-            egui::FontId::monospace(8.0), egui::Color32::from_rgb(140, 140, 140));
+            egui::FontId::monospace(8.0), tc.text_muted);
     }
 }
 
-fn draw_coupling(ui: &mut egui::Ui, report: &EvolutionReport, _tc: &ThemeConfig, row_h: f32) {
+fn draw_coupling(ui: &mut egui::Ui, report: &EvolutionReport, tc: &ThemeConfig, row_h: f32) {
     if report.coupling_pairs.is_empty() { return; }
-    let color = egui::Color32::from_rgb(140, 180, 200);
+    let color = tc.accent_coupling;
     ui.add_space(3.0);
     ui.label(egui::RichText::new("CHANGE COUPLING (co-change)").monospace().size(8.0).color(color));
     for pair in report.coupling_pairs.iter().take(5) {
@@ -135,11 +135,11 @@ fn draw_coupling(ui: &mut egui::Ui, report: &EvolutionReport, _tc: &ThemeConfig,
             egui::pos2(rect.left() + 4.0, rect.center().y),
             egui::Align2::LEFT_CENTER,
             format!("  +{} more pairs", report.coupling_pairs.len() - 5),
-            egui::FontId::monospace(8.0), egui::Color32::from_rgb(140, 140, 140));
+            egui::FontId::monospace(8.0), tc.text_muted);
     }
 }
 
-fn draw_bus_factor(ui: &mut egui::Ui, report: &EvolutionReport, _tc: &ThemeConfig, row_h: f32) {
+fn draw_bus_factor(ui: &mut egui::Ui, report: &EvolutionReport, tc: &ThemeConfig, row_h: f32) {
     let mut single_author_files: Vec<(&str, &str)> = report.authors.iter()
         .filter(|(_, info)| info.author_count == 1)
         .map(|(path, info)| (path.as_str(), info.primary_author.as_str()))
@@ -149,7 +149,7 @@ fn draw_bus_factor(ui: &mut egui::Ui, report: &EvolutionReport, _tc: &ThemeConfi
 
     if single_author_files.is_empty() { return; }
 
-    let color = egui::Color32::from_rgb(200, 160, 200);
+    let color = tc.accent_bus_factor;
     ui.add_space(3.0);
     ui.label(egui::RichText::new("BUS FACTOR RISK (single author)").monospace().size(8.0).color(color));
     for (path, author) in single_author_files.iter().take(5) {

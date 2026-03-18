@@ -148,30 +148,27 @@ fn format_age(age_secs: u64) -> String {
 }
 
 /// Map activity kind string to its display character and color.
-fn kind_indicator(kind: &str, fallback: egui::Color32) -> (&'static str, egui::Color32) {
+fn kind_indicator(kind: &str, tc: &ThemeConfig, fallback: egui::Color32) -> (&'static str, egui::Color32) {
     match kind {
-        "create" => ("+", egui::Color32::from_rgb(115, 201, 145)),
-        "remove" => ("-", egui::Color32::from_rgb(224, 108, 117)),
-        "modify" => ("~", egui::Color32::from_rgb(103, 150, 230)),
+        "create" => ("+", tc.diff_added),
+        "remove" => ("-", tc.diff_removed),
+        "modify" => ("~", tc.diff_modified),
         _ => ("?", fallback),
     }
 }
 
-const DELTA_GREEN: egui::Color32 = egui::Color32::from_rgb(115, 201, 145);
-const DELTA_RED: egui::Color32 = egui::Color32::from_rgb(224, 108, 117);
-
 /// Build delta display parts (lines changed, functions changed).
-fn build_delta_parts(lines_delta: i32, funcs_delta: i32) -> Vec<(String, egui::Color32)> {
+fn build_delta_parts(lines_delta: i32, funcs_delta: i32, tc: &ThemeConfig) -> Vec<(String, egui::Color32)> {
     let mut parts = Vec::new();
     if lines_delta > 0 {
-        parts.push((format!("+{}", lines_delta), DELTA_GREEN));
+        parts.push((format!("+{}", lines_delta), tc.diff_added));
     } else if lines_delta < 0 {
-        parts.push((format!("{}", lines_delta), DELTA_RED));
+        parts.push((format!("{}", lines_delta), tc.diff_removed));
     }
     if funcs_delta > 0 {
-        parts.push((format!("+{} functions", funcs_delta), DELTA_GREEN));
+        parts.push((format!("+{} functions", funcs_delta), tc.diff_added));
     } else if funcs_delta < 0 {
-        parts.push((format!("{}  functions", funcs_delta), DELTA_RED));
+        parts.push((format!("{}  functions", funcs_delta), tc.diff_removed));
     }
     parts
 }
@@ -204,7 +201,7 @@ fn draw_activity_row(
 ) -> Option<String> {
     let entry = &state.recent_activity[idx];
     let age_str = format_age(adctx.now.duration_since(entry.time).as_secs());
-    let (kind_char, kind_color) = kind_indicator(&entry.kind, tc.text_secondary);
+    let (kind_char, kind_color) = kind_indicator(&entry.kind, tc, tc.text_secondary);
     let filename = entry.path.rsplit('/').next().unwrap_or(&entry.path);
     let is_selected = state.selected_path.as_deref() == Some(&entry.path);
     let rh = 16.0;
@@ -226,7 +223,7 @@ fn draw_activity_row(
     let nc = if is_selected { tc.selected_stroke } else { tc.file_label };
     ui.painter().text(egui::pos2(left + 14.0, cy), egui::Align2::LEFT_CENTER, filename, adctx.font10.clone(), nc);
 
-    let delta_parts = build_delta_parts(entry.lines_delta, entry.funcs_delta);
+    let delta_parts = build_delta_parts(entry.lines_delta, entry.funcs_delta, tc);
     draw_delta_labels(ui, &delta_parts, rr.right(), cy, 24.0, &adctx.font9);
 
     ui.painter().text(egui::pos2(rr.right() - 4.0, cy), egui::Align2::RIGHT_CENTER, &age_str, adctx.font9.clone(), tc.text_secondary);
@@ -257,7 +254,7 @@ fn draw_update_indicator(ui: &mut egui::Ui, tc: &ThemeConfig) {
             ui.label(
                 egui::RichText::new(format!("  v{} available", latest))
                     .monospace().size(9.0)
-                    .color(egui::Color32::from_rgb(115, 201, 145)),
+                    .color(tc.diff_added),
             ).on_hover_text("brew upgrade sentrux");
         });
         draw_sep(ui, tc, 2.0);

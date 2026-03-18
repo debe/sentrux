@@ -24,9 +24,9 @@ pub(crate) fn draw_rules_section(ui: &mut egui::Ui, result: &RuleCheckResult, tc
 
     // Pass/fail status
     let (status_text, status_color) = if result.passed {
-        ("PASS", egui::Color32::from_rgb(100, 200, 100))
+        ("PASS", tc.status_success)
     } else {
-        ("FAIL", egui::Color32::from_rgb(200, 80, 80))
+        ("FAIL", tc.status_error)
     };
 
     let (rect, _) = ui.allocate_exact_size(egui::vec2(ui.available_width(), 18.0), egui::Sense::hover());
@@ -54,10 +54,10 @@ pub(crate) fn draw_rules_section(ui: &mut egui::Ui, result: &RuleCheckResult, tc
         tc.text_secondary,
     );
 
-    let error_color = egui::Color32::from_rgb(200, 80, 80);
-    let warn_color = egui::Color32::from_rgb(200, 170, 80);
+    let error_color = tc.status_error;
+    let warn_color = tc.status_warning;
 
-    draw_violation_rows(ui, result, row_h, error_color, warn_color);
+    draw_violation_rows(ui, result, row_h, error_color, warn_color, tc);
 }
 
 /// Draw up to 8 violation rows, with overflow indicator.
@@ -67,6 +67,7 @@ fn draw_violation_rows(
     row_h: f32,
     error_color: egui::Color32,
     warn_color: egui::Color32,
+    tc: &ThemeConfig,
 ) {
     for violation in result.violations.iter().take(8) {
         let (color, prefix) = match violation.severity {
@@ -91,7 +92,7 @@ fn draw_violation_rows(
             egui::pos2(rect.left() + 4.0, rect.center().y),
             egui::Align2::LEFT_CENTER,
             format!("  +{} more violations", result.violations.len() - 8),
-            egui::FontId::monospace(8.0), egui::Color32::from_rgb(140, 140, 140));
+            egui::FontId::monospace(8.0), tc.text_muted);
     }
 }
 

@@ -42,8 +42,9 @@ pub fn draw_breadcrumb(ui: &mut egui::Ui, state: &mut AppState) -> bool {
             let name = root.rsplit('/').next().unwrap_or(root);
             ui.horizontal(|ui| {
                 ui.label(egui::RichText::new(name).monospace().size(10.0).weak());
+                let tc = crate::core::settings::ThemeConfig::from_theme(state.theme);
                 ui.label(egui::RichText::new("(double-click a directory to drill in)").monospace().size(8.0).color(
-                    egui::Color32::from_rgb(100, 100, 110)
+                    tc.text_muted
                 ));
             });
         }

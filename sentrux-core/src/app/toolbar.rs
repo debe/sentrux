@@ -300,14 +300,15 @@ fn draw_edge_filter_combo(ui: &mut egui::Ui, state: &mut AppState, visual_change
 }
 
 /// Color for an active/inactive toggle state.
-fn toggle_color(active: bool, active_color: egui::Color32) -> egui::Color32 {
-    if active { active_color } else { egui::Color32::from_rgb(120, 120, 120) }
+fn toggle_color(active: bool, active_color: egui::Color32, inactive_color: egui::Color32) -> egui::Color32 {
+    if active { active_color } else { inactive_color }
 }
 
 /// Draw the show-all-edges toggle button.
 fn draw_edge_toggle(ui: &mut egui::Ui, state: &mut AppState) {
+    let tc = crate::core::settings::ThemeConfig::from_theme(state.theme);
     let edge_icon = if state.show_all_edges { "\u{26A1}" } else { "\u{25C7}" };
-    let color = toggle_color(state.show_all_edges, egui::Color32::from_rgb(220, 180, 80));
+    let color = toggle_color(state.show_all_edges, tc.toggle_edge, tc.toggle_inactive);
     let edge_btn = ui.add(
         egui::Button::new(egui::RichText::new(edge_icon).monospace().color(color))
             .fill(egui::Color32::TRANSPARENT),
@@ -320,7 +321,8 @@ fn draw_edge_toggle(ui: &mut egui::Ui, state: &mut AppState) {
 
 /// Draw the DSM panel toggle button.
 fn draw_dsm_toggle(ui: &mut egui::Ui, state: &mut AppState) {
-    let color = toggle_color(state.dsm_panel_open, egui::Color32::from_rgb(100, 200, 180));
+    let tc = crate::core::settings::ThemeConfig::from_theme(state.theme);
+    let color = toggle_color(state.dsm_panel_open, tc.toggle_dsm, tc.toggle_inactive);
     let dsm_btn = ui.add(egui::Button::new(egui::RichText::new("DSM").monospace().size(9.0).color(color)));
     if dsm_btn.on_hover_text("Design Structure Matrix").clicked() { state.dsm_panel_open = !state.dsm_panel_open; }
 }

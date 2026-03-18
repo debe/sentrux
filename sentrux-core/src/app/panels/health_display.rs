@@ -6,7 +6,7 @@
 
 use crate::metrics::HealthReport;
 use super::ThemeConfig;
-use super::ui_helpers::score_color;
+use super::ui_helpers::score_color_for_theme;
 
 pub(crate) fn draw_health_section(ui: &mut egui::Ui, report: &HealthReport, tc: &ThemeConfig) {
     let row_h = 13.0;
@@ -38,8 +38,8 @@ pub(crate) fn draw_health_section(ui: &mut egui::Ui, report: &HealthReport, tc: 
 
     // ── Flagged items ──
     draw_cycles(ui, report, tc, row_h);
-    draw_flagged_files(ui, report, row_h);
-    draw_unstable(ui, report, row_h);
+    draw_flagged_files(ui, report, tc, row_h);
+    draw_unstable(ui, report, tc, row_h);
 }
 
 /// Draw the quality signal bar at the top.
@@ -51,7 +51,7 @@ fn draw_quality_signal(ui: &mut egui::Ui, report: &HealthReport, tc: &ThemeConfi
     ui.add_space(2.0);
 
     let signal = report.quality_signal;
-    let color = score_color(signal);
+    let color = score_color_for_theme(signal, tc);
 
     let (grade_rect, _) = ui.allocate_exact_size(egui::vec2(ui.available_width(), 18.0), egui::Sense::hover());
     ui.painter().text(
@@ -94,7 +94,7 @@ fn draw_root_cause_row(
     );
 
     // Score as integer 0-10000 — every point is one point
-    let color = score_color(score);
+    let color = score_color_for_theme(score, tc);
     ui.painter().text(
         egui::pos2(rect.right() - 4.0, cy), egui::Align2::RIGHT_CENTER,
         format!("{}", (score * 10000.0).round() as u32), font.clone(), color,
@@ -112,7 +112,7 @@ fn draw_root_cause_row(
 fn draw_cycles(ui: &mut egui::Ui, report: &HealthReport, tc: &ThemeConfig, row_h: f32) {
     if report.circular_dep_files.is_empty() { return; }
     ui.add_space(3.0);
-    let warn_color = egui::Color32::from_rgb(200, 80, 80);
+    let warn_color = tc.status_error;
     ui.label(egui::RichText::new("CYCLES").monospace().size(8.0).color(warn_color));
     for (i, cycle) in report.circular_dep_files.iter().take(2).enumerate() {
         let files_str: Vec<&str> = cycle.iter().take(3).map(|s| {
@@ -136,8 +136,8 @@ fn draw_cycles(ui: &mut egui::Ui, report: &HealthReport, tc: &ThemeConfig, row_h
     }
 }
 
-fn draw_flagged_files(ui: &mut egui::Ui, report: &HealthReport, row_h: f32) {
-    let warn_color = egui::Color32::from_rgb(200, 170, 80);
+fn draw_flagged_files(ui: &mut egui::Ui, report: &HealthReport, tc: &ThemeConfig, row_h: f32) {
+    let warn_color = tc.status_warning;
     draw_flagged_list(ui, "GOD FILES (fan-out)", &report.god_files, warn_color, row_h);
     draw_flagged_list(ui, "HOTSPOTS (fan-in)", &report.hotspot_files, warn_color, row_h);
 }
@@ -161,11 +161,11 @@ fn draw_flagged_list(ui: &mut egui::Ui, title: &str, items: &[crate::metrics::Fi
     }
 }
 
-fn draw_unstable(ui: &mut egui::Ui, report: &HealthReport, row_h: f32) {
+fn draw_unstable(ui: &mut egui::Ui, report: &HealthReport, tc: &ThemeConfig, row_h: f32) {
     let unstable: Vec<_> = report.most_unstable.iter()
         .filter(|m| m.instability > 0.8).take(2).collect();
     if unstable.is_empty() { return; }
-    let color = egui::Color32::from_rgb(180, 140, 200);
+    let color = tc.accent_unstable;
     ui.add_space(3.0);
     ui.label(egui::RichText::new("UNSTABLE (I>0.8)").monospace().size(8.0).color(color));
     for m in &unstable {

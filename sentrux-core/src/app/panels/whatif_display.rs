@@ -61,11 +61,11 @@ fn draw_file_name_row(ui: &mut egui::Ui, selected_path: &str, row_h: f32, font: 
 }
 
 /// Draw the verdict row (improved / no improvement).
-fn draw_verdict_row(ui: &mut egui::Ui, r: &WhatIfResult, row_h: f32, font: &egui::FontId) {
+fn draw_verdict_row(ui: &mut egui::Ui, r: &WhatIfResult, row_h: f32, font: &egui::FontId, tc: &ThemeConfig) {
     let (verdict, verdict_color) = if r.improved {
-        ("improves architecture", egui::Color32::from_rgb(100, 200, 100))
+        ("improves architecture", tc.status_success)
     } else {
-        ("no improvement", egui::Color32::from_rgb(200, 170, 80))
+        ("no improvement", tc.status_warning)
     };
     let (rect, _) = ui.allocate_exact_size(egui::vec2(ui.available_width(), row_h), egui::Sense::hover());
     ui.painter().text(
@@ -99,9 +99,9 @@ fn draw_comparison_rows(ui: &mut egui::Ui, r: &WhatIfResult, row_h: f32, tc: &Th
 }
 
 /// Draw level change rows (top 3 files affected).
-fn draw_level_changes(ui: &mut egui::Ui, r: &WhatIfResult, row_h: f32) {
+fn draw_level_changes(ui: &mut egui::Ui, r: &WhatIfResult, row_h: f32, tc: &ThemeConfig) {
     if r.level_changes.is_empty() { return; }
-    let color = egui::Color32::from_rgb(140, 180, 200);
+    let color = tc.accent_coupling;
     for lc in r.level_changes.iter().take(3) {
         let name = lc.file.rsplit('/').next().unwrap_or(&lc.file);
         let arrow = if lc.level_after < lc.level_before { "↓" } else { "↑" };
@@ -141,7 +141,7 @@ pub(crate) fn draw_whatif_section(
 
     let r = &cache.as_ref().unwrap().remove_result;
     draw_file_name_row(ui, selected_path, row_h, &font, tc);
-    draw_verdict_row(ui, r, row_h, &font);
+    draw_verdict_row(ui, r, row_h, &font, tc);
     draw_comparison_rows(ui, r, row_h, tc);
-    draw_level_changes(ui, r, row_h);
+    draw_level_changes(ui, r, row_h, tc);
 }

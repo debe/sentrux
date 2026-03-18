@@ -339,6 +339,44 @@ pub struct ThemeConfig {
     pub badge_high: Color32,
     /// Entry-point badge color for low-confidence detections
     pub badge_low: Color32,
+
+    // ── Semantic colors (WCAG AA ≥4.5:1 against canvas_bg) ──
+    /// Success/pass/improved state (green)
+    pub status_success: Color32,
+    /// Error/fail/violation state (red)
+    pub status_error: Color32,
+    /// Warning/caution/degraded state (amber/yellow)
+    pub status_warning: Color32,
+    /// Inversion/architectural issue (orange)
+    pub status_inversion: Color32,
+    /// Informational/neutral accent (blue)
+    pub accent_info: Color32,
+    /// Unstable files indicator (purple/magenta)
+    pub accent_unstable: Color32,
+    /// Hotspot indicator (warm orange)
+    pub accent_hotspot: Color32,
+    /// Coupling indicator (cool blue)
+    pub accent_coupling: Color32,
+    /// Bus factor indicator (purple)
+    pub accent_bus_factor: Color32,
+    /// Plugin error indicator (dark red/orange)
+    pub accent_plugin_error: Color32,
+    /// High complexity indicator (orange)
+    pub accent_high_complexity: Color32,
+    /// Diff: added/new (green)
+    pub diff_added: Color32,
+    /// Diff: removed/deleted (red)
+    pub diff_removed: Color32,
+    /// Diff: modified (blue)
+    pub diff_modified: Color32,
+    /// Overflow/muted text ("+N more", inactive)
+    pub text_muted: Color32,
+    /// Toggle button: inactive state
+    pub toggle_inactive: Color32,
+    /// Toggle button: edge filter active
+    pub toggle_edge: Color32,
+    /// Toggle button: DSM active
+    pub toggle_dsm: Color32,
 }
 
 impl ThemeConfig {
@@ -379,7 +417,7 @@ fn theme_calm() -> ThemeConfig {
         section_step: 0,
         section_is_dark: true,
         section_border: Color32::from_rgb(44, 46, 58),
-        section_label: Color32::from_rgb(110, 115, 140),
+        section_label: Color32::from_rgb(130, 135, 160),
         file_label: Color32::from_rgb(192, 200, 220),
         hover_stroke: Color32::from_rgb(140, 160, 210),
         selected_stroke: Color32::from_rgb(120, 180, 240),
@@ -387,13 +425,31 @@ fn theme_calm() -> ThemeConfig {
         minimap_border: Color32::from_rgb(44, 46, 58),
         minimap_viewport: Color32::from_rgb(120, 180, 240),
         text_primary: Color32::from_rgb(192, 200, 220),
-        text_secondary: Color32::from_rgb(110, 115, 140),
+        text_secondary: Color32::from_rgb(130, 135, 160),
         header_strip_bg: Color32::from_rgb(16, 16, 22),
         file_surface: Color32::from_rgb(40, 42, 54),
         file_surface_spotlit: Color32::from_rgb(50, 54, 70),
         file_border: Color32::from_rgb(50, 52, 66),
         badge_high: Color32::from_rgb(200, 180, 60),
         badge_low: Color32::from_rgb(140, 140, 70),
+        status_success: Color32::from_rgb(100, 200, 100),
+        status_error: Color32::from_rgb(220, 100, 100),
+        status_warning: Color32::from_rgb(200, 170, 80),
+        status_inversion: Color32::from_rgb(200, 140, 80),
+        accent_info: Color32::from_rgb(103, 150, 230),
+        accent_unstable: Color32::from_rgb(180, 140, 200),
+        accent_hotspot: Color32::from_rgb(200, 140, 80),
+        accent_coupling: Color32::from_rgb(140, 180, 200),
+        accent_bus_factor: Color32::from_rgb(200, 160, 200),
+        accent_plugin_error: Color32::from_rgb(210, 110, 90),
+        accent_high_complexity: Color32::from_rgb(203, 120, 60),
+        diff_added: Color32::from_rgb(115, 201, 145),
+        diff_removed: Color32::from_rgb(224, 108, 117),
+        diff_modified: Color32::from_rgb(103, 150, 230),
+        text_muted: Color32::from_rgb(140, 140, 140),
+        toggle_inactive: Color32::from_rgb(120, 120, 120),
+        toggle_edge: Color32::from_rgb(220, 180, 80),
+        toggle_dsm: Color32::from_rgb(100, 200, 180),
     }
 }
 
@@ -419,6 +475,24 @@ fn theme_dark() -> ThemeConfig {
         file_border: Color32::from_rgb(55, 55, 62),
         badge_high: Color32::from_rgb(200, 180, 60),
         badge_low: Color32::from_rgb(140, 140, 70),
+        status_success: Color32::from_rgb(100, 200, 100),
+        status_error: Color32::from_rgb(220, 100, 100),
+        status_warning: Color32::from_rgb(200, 170, 80),
+        status_inversion: Color32::from_rgb(200, 140, 80),
+        accent_info: Color32::from_rgb(103, 150, 230),
+        accent_unstable: Color32::from_rgb(180, 140, 200),
+        accent_hotspot: Color32::from_rgb(200, 140, 80),
+        accent_coupling: Color32::from_rgb(140, 180, 200),
+        accent_bus_factor: Color32::from_rgb(200, 160, 200),
+        accent_plugin_error: Color32::from_rgb(210, 110, 90),
+        accent_high_complexity: Color32::from_rgb(203, 120, 60),
+        diff_added: Color32::from_rgb(115, 201, 145),
+        diff_removed: Color32::from_rgb(224, 108, 117),
+        diff_modified: Color32::from_rgb(103, 150, 230),
+        text_muted: Color32::from_rgb(140, 140, 140),
+        toggle_inactive: Color32::from_rgb(120, 120, 120),
+        toggle_edge: Color32::from_rgb(220, 180, 80),
+        toggle_dsm: Color32::from_rgb(100, 200, 180),
     }
 }
 
@@ -444,6 +518,24 @@ fn theme_light() -> ThemeConfig {
         file_border: Color32::from_rgb(200, 200, 210),
         badge_high: Color32::from_rgb(180, 160, 40),
         badge_low: Color32::from_rgb(120, 120, 50),
+        status_success: Color32::from_rgb(30, 120, 50),
+        status_error: Color32::from_rgb(180, 40, 40),
+        status_warning: Color32::from_rgb(130, 95, 10),
+        status_inversion: Color32::from_rgb(145, 80, 10),
+        accent_info: Color32::from_rgb(40, 80, 170),
+        accent_unstable: Color32::from_rgb(120, 60, 140),
+        accent_hotspot: Color32::from_rgb(160, 90, 20),
+        accent_coupling: Color32::from_rgb(40, 100, 140),
+        accent_bus_factor: Color32::from_rgb(130, 60, 140),
+        accent_plugin_error: Color32::from_rgb(160, 40, 30),
+        accent_high_complexity: Color32::from_rgb(170, 70, 20),
+        diff_added: Color32::from_rgb(30, 120, 50),
+        diff_removed: Color32::from_rgb(180, 40, 40),
+        diff_modified: Color32::from_rgb(40, 80, 170),
+        text_muted: Color32::from_rgb(105, 105, 110),
+        toggle_inactive: Color32::from_rgb(95, 95, 100),
+        toggle_edge: Color32::from_rgb(130, 95, 10),
+        toggle_dsm: Color32::from_rgb(20, 120, 100),
     }
 }
 
@@ -454,7 +546,7 @@ fn theme_midnight() -> ThemeConfig {
         section_step: 5,
         section_is_dark: true,
         section_border: Color32::from_rgb(30, 30, 50),
-        section_label: Color32::from_rgb(110, 120, 155),
+        section_label: Color32::from_rgb(125, 135, 170),
         file_label: Color32::from_rgb(185, 195, 225),
         hover_stroke: Color32::from_rgb(180, 200, 255),
         selected_stroke: Color32::from_rgb(80, 160, 255),
@@ -462,13 +554,31 @@ fn theme_midnight() -> ThemeConfig {
         minimap_border: Color32::from_rgb(40, 40, 70),
         minimap_viewport: Color32::from_rgb(80, 160, 255),
         text_primary: Color32::from_rgb(200, 210, 240),
-        text_secondary: Color32::from_rgb(100, 110, 140),
+        text_secondary: Color32::from_rgb(125, 135, 170),
         header_strip_bg: Color32::from_rgb(8, 8, 14),
         file_surface: Color32::from_rgb(28, 28, 40),
         file_surface_spotlit: Color32::from_rgb(38, 38, 55),
         file_border: Color32::from_rgb(40, 40, 60),
         badge_high: Color32::from_rgb(200, 180, 60),
         badge_low: Color32::from_rgb(140, 140, 70),
+        status_success: Color32::from_rgb(100, 200, 100),
+        status_error: Color32::from_rgb(220, 100, 100),
+        status_warning: Color32::from_rgb(200, 170, 80),
+        status_inversion: Color32::from_rgb(200, 140, 80),
+        accent_info: Color32::from_rgb(103, 150, 230),
+        accent_unstable: Color32::from_rgb(180, 140, 200),
+        accent_hotspot: Color32::from_rgb(200, 140, 80),
+        accent_coupling: Color32::from_rgb(140, 180, 200),
+        accent_bus_factor: Color32::from_rgb(200, 160, 200),
+        accent_plugin_error: Color32::from_rgb(210, 110, 90),
+        accent_high_complexity: Color32::from_rgb(203, 120, 60),
+        diff_added: Color32::from_rgb(115, 201, 145),
+        diff_removed: Color32::from_rgb(224, 108, 117),
+        diff_modified: Color32::from_rgb(103, 150, 230),
+        text_muted: Color32::from_rgb(140, 140, 140),
+        toggle_inactive: Color32::from_rgb(120, 120, 120),
+        toggle_edge: Color32::from_rgb(220, 180, 80),
+        toggle_dsm: Color32::from_rgb(100, 200, 180),
     }
 }
 
@@ -494,5 +604,81 @@ fn theme_solarized() -> ThemeConfig {
         file_border: Color32::from_rgb(42, 76, 84),
         badge_high: Color32::from_rgb(180, 160, 50),
         badge_low: Color32::from_rgb(130, 130, 60),
+        status_success: Color32::from_rgb(133, 153, 0),
+        status_error: Color32::from_rgb(240, 100, 97),
+        status_warning: Color32::from_rgb(181, 137, 0),
+        status_inversion: Color32::from_rgb(220, 110, 70),
+        accent_info: Color32::from_rgb(80, 160, 225),
+        accent_unstable: Color32::from_rgb(135, 140, 220),
+        accent_hotspot: Color32::from_rgb(220, 110, 70),
+        accent_coupling: Color32::from_rgb(80, 160, 225),
+        accent_bus_factor: Color32::from_rgb(135, 140, 220),
+        accent_plugin_error: Color32::from_rgb(240, 100, 97),
+        accent_high_complexity: Color32::from_rgb(220, 110, 70),
+        diff_added: Color32::from_rgb(133, 153, 0),
+        diff_removed: Color32::from_rgb(240, 100, 97),
+        diff_modified: Color32::from_rgb(80, 160, 225),
+        text_muted: Color32::from_rgb(130, 150, 160),
+        toggle_inactive: Color32::from_rgb(120, 140, 150),
+        toggle_edge: Color32::from_rgb(181, 137, 0),
+        toggle_dsm: Color32::from_rgb(42, 161, 152),
+    }
+}
+
+#[cfg(test)]
+mod wcag_tests {
+    use super::*;
+
+    fn srgb_to_linear(c: u8) -> f64 {
+        let s = c as f64 / 255.0;
+        if s <= 0.04045 { s / 12.92 } else { ((s + 0.055) / 1.055).powf(2.4) }
+    }
+
+    fn luminance(color: Color32) -> f64 {
+        let [r, g, b, _] = color.to_array();
+        0.2126 * srgb_to_linear(r) + 0.7152 * srgb_to_linear(g) + 0.0722 * srgb_to_linear(b)
+    }
+
+    fn contrast_ratio(fg: Color32, bg: Color32) -> f64 {
+        let l1 = luminance(fg);
+        let l2 = luminance(bg);
+        let (lighter, darker) = if l1 > l2 { (l1, l2) } else { (l2, l1) };
+        (lighter + 0.05) / (darker + 0.05)
+    }
+
+    #[test]
+    fn all_semantic_text_colors_pass_wcag_aa() {
+        for &theme in Theme::ALL {
+            let tc = ThemeConfig::from_theme(theme);
+            let text_colors: Vec<(&str, Color32)> = vec![
+                ("status_success", tc.status_success),
+                ("status_error", tc.status_error),
+                ("status_warning", tc.status_warning),
+                ("status_inversion", tc.status_inversion),
+                ("accent_info", tc.accent_info),
+                ("accent_unstable", tc.accent_unstable),
+                ("accent_hotspot", tc.accent_hotspot),
+                ("accent_coupling", tc.accent_coupling),
+                ("accent_bus_factor", tc.accent_bus_factor),
+                ("accent_plugin_error", tc.accent_plugin_error),
+                ("accent_high_complexity", tc.accent_high_complexity),
+                ("diff_added", tc.diff_added),
+                ("diff_removed", tc.diff_removed),
+                ("diff_modified", tc.diff_modified),
+                ("text_muted", tc.text_muted),
+                ("text_primary", tc.text_primary),
+                ("text_secondary", tc.text_secondary),
+                ("section_label", tc.section_label),
+                ("file_label", tc.file_label),
+            ];
+            for (name, color) in &text_colors {
+                let ratio = contrast_ratio(*color, tc.canvas_bg);
+                assert!(
+                    ratio >= 4.5,
+                    "WCAG FAIL: {} theme '{}' has contrast {:.2}:1 (need >=4.5:1) -- {:?} on {:?}",
+                    theme.label(), name, ratio, color, tc.canvas_bg
+                );
+            }
+        }
     }
 }
