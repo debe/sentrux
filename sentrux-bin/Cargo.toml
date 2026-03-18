@@ -1,6 +1,6 @@
 [package]
 name = "sentrux"
-version = "0.5.5"
+version = "0.5.6"
 edition = "2021"
 description = "Live codebase visualization and structural quality gate for AI-agent-written code"
 license = "MIT"
@@ -23,8 +23,4 @@ egui = { workspace = true }
 
 [features]
 default = []
-pro = ["sentrux-core/pro", "dep:sentrux-pro"]
-
-[dependencies.sentrux-pro]
-path = "../../sentrux-pro"
-optional = true
+pro = ["sentrux-core/pro"]

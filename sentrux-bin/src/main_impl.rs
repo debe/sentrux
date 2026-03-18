@@ -155,9 +155,8 @@ enum PluginAction {
 // ---------------------------------------------------------------------------
 
 pub fn run() -> eframe::Result<()> {
-    // Step 0: Initialize Pro tier if compiled with pro feature
-    #[cfg(feature = "pro")]
-    sentrux_pro::init();
+    // Pro initialization is handled by the sentrux-pro crate externally
+    // before calling run(). See sentrux-pro/src/main.rs.
 
     // Step 1: Download missing grammar binaries (may overwrite configs with old versions)
     ensure_grammars_installed();

@@ -3379,18 +3379,17 @@ checksum = "d767eb0aabc880b29956c35734170f26ed551a859dbd361d140cdbeca61ab1e2"
 
 [[package]]
 name = "sentrux"
-version = "0.5.5"
+version = "0.5.6"
 dependencies = [
  "clap",
  "eframe",
  "egui",
  "sentrux-core",
- "sentrux-pro",
 ]
 
 [[package]]
 name = "sentrux-core"
-version = "0.5.5"
+version = "0.5.6"
 dependencies = [
  "crossbeam-channel",
  "dashmap",
@@ -3412,15 +3411,6 @@ dependencies = [
  "thiserror 2.0.18",
  "toml",
  "tree-sitter",
-]
-
-[[package]]
-name = "sentrux-pro"
-version = "0.5.4"
-dependencies = [
- "dirs",
- "sentrux-core",
- "serde_json",
 ]
 
 [[package]]

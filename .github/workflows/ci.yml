@@ -38,29 +38,6 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
 
-      - name: Create Pro stub (optional dep needs path to exist)
-        run: |
-          # sentrux-bin/Cargo.toml has: path = "../../sentrux-pro"
-          # From sentrux-bin/ that resolves to: <repo-parent>/sentrux-pro/
-          # Which is: ../sentrux-pro/ from repo root
-          mkdir -p ../sentrux-pro/src
-          cat > ../sentrux-pro/Cargo.toml << STUBEOF
-          [package]
-          name = "sentrux-pro"
-          version = "0.0.0"
-          edition = "2021"
-          [lib]
-          path = "src/lib.rs"
-          [dependencies]
-          sentrux-core = { path = "../$(basename $(pwd))/sentrux-core" }
-          serde_json = "1"
-          dirs = "6"
-          STUBEOF
-          echo 'pub mod metrics { pub fn register_all() {} }
-          pub fn init() {}' > ../sentrux-pro/src/lib.rs
-          echo "=== Pro stub at $(realpath ../sentrux-pro/) ==="
-          cat ../sentrux-pro/Cargo.toml
-
       - name: Build
         run: cargo build
 
