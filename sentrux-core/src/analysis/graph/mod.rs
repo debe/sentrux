@@ -52,6 +52,20 @@ pub fn build_graphs(
     let t_maps = t0.elapsed();
 
     let mut import_edges = resolve_path_imports_ref(files, scan_root);
+
+    // Merge jdeps bytecode-level edges for Java projects
+    if let Some(root) = scan_root {
+        if let Some(jdeps_result) = super::resolver::jdeps::resolve_jdeps_edges(root, files, &[]) {
+            let before = import_edges.len();
+            import_edges.extend(jdeps_result.edges);
+            crate::debug_log!(
+                "[graph] jdeps: +{} edges ({} unmapped)",
+                import_edges.len() - before,
+                jdeps_result.unmapped_count
+            );
+        }
+    }
+
     let t_imports = t0.elapsed();
 
     // Dedup BEFORE building target index to avoid wasted allocations

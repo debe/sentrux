@@ -237,5 +237,8 @@ pub fn build_registry() -> registry::ToolRegistry {
     reg.register(handlers_evo::dsm_def());
     reg.register(handlers_evo::test_gaps_def());
 
+    // Cycle-breaking suggestions (MFAS)
+    reg.register(handlers::suggest_cycle_breaks_def());
+
     reg
 }

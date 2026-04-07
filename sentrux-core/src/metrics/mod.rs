@@ -14,6 +14,7 @@ pub mod rules;    // rules/mod.rs + checks.rs
 
 // ── Flat modules (remain at metrics root) ──
 pub mod cross_validation; // FREE: compression-based quality cross-check
+pub mod cycle_break;
 pub mod dsm;
 pub mod root_causes;
 pub mod stability;

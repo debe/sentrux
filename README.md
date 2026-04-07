@@ -18,7 +18,7 @@
 
 **English** | [中文](README.zh-CN.md) | [Deutsch](README.de.md) | [日本語](README.ja.md)
 
-[How it Works](#how-it-works) · [Quick Start](#quick-start) · [MCP Integration](#mcp-server) · [Rules Engine](#rules-engine) · [Releases](https://github.com/sentrux/sentrux/releases)
+[How it Works](#how-it-works) · [Quick Start](#quick-start) · [MCP Integration](#mcp-server) · [Rules Engine](#rules-engine) · [What's New](#whats-new) · [Releases](https://github.com/sentrux/sentrux/releases)
 
 </div>
 
@@ -82,14 +82,17 @@ sentrux gate .             # compare after — catches degradation
 
 Give your agent real-time access to structural health via [MCP](https://modelcontextprotocol.io).
 
-Claude Code:
+The MCP server is built into the `sentrux` binary — no separate install needed.
 
-```
-/plugin marketplace add sentrux/sentrux
-/plugin install sentrux
+**Claude Code:**
+
+```bash
+claude mcp add sentrux -- sentrux --mcp
 ```
 
-Cursor / Windsurf / OpenCode / OpenClaw / any MCP client — add to your MCP config:
+This registers `sentrux` as an MCP server that Claude Code will launch automatically.
+
+**Cursor / Windsurf / OpenCode / OpenClaw / any MCP client** — add to your MCP config (e.g. `.cursor/mcp.json`, `mcp.json`, or equivalent):
 
 ```json
 {
@@ -102,14 +105,29 @@ Cursor / Windsurf / OpenCode / OpenClaw / any MCP client — add to your MCP con
 }
 ```
 
-**From source / upgrade / troubleshooting**
+> **Note:** The `sentrux` binary must be on your `PATH`. If you installed via Homebrew or the install script, it already is. If you built from source, either add `target/release` to your `PATH` or use the full path in the config (e.g. `"/path/to/sentrux"`).
+
+**Build from source**
+
+Requires [Rust](https://rustup.rs/) (stable toolchain).
 
 ```bash
-# Build from source
 git clone https://github.com/sentrux/sentrux.git
-cd sentrux && cargo build --release
+cd sentrux
+cargo build --release
+# Binary is at target/release/sentrux
+```
 
-# Upgrade
+To install system-wide:
+
+```bash
+cargo install --path sentrux-bin
+# Now `sentrux` is available globally via ~/.cargo/bin/sentrux
+```
+
+**Upgrade**
+
+```bash
 brew update && brew upgrade sentrux
 # or re-run the curl install — it always pulls the latest release
 ```
@@ -199,7 +217,7 @@ Agent: session_end()
       summary: "Quality degraded during this session" }
 ```
 
-9 tools: `scan` · `health` · `session_start` · `session_end` · `rescan` · `check_rules` · `evolution` · `dsm` · `test_gaps`
+10 tools: `scan` · `health` · `session_start` · `session_end` · `rescan` · `check_rules` · `suggest_cycle_breaks` · `evolution` · `dsm` · `test_gaps`
 
 ## Rules engine
 
@@ -263,6 +281,29 @@ sentrux plugin init my-lang      # scaffold a new language plugin
 Architecture: the binary is a **generic platform** — all language knowledge lives in `plugin.toml` + `tags.scm` query files. Adding a new language requires zero Rust code.
 
 Missing a language? [Open an issue](https://github.com/sentrux/sentrux/issues) or add a plugin to [`plugins/`](plugins/).
+
+---
+
+## What's New
+
+### Java `jdeps` integration
+
+The scanner now runs `jdeps` on compiled Java bytecode (class dirs / JARs) during the scan phase. This catches dependencies invisible at the source level — reflection, annotation processors, generated code, and transitive runtime deps — and merges them into the import graph alongside tree-sitter AST edges. Requires a JDK with `jdeps` on `PATH` and compiled output in standard locations (`target/classes`, `build/classes/java/main`, etc.). If neither is present, it is silently skipped.
+
+### `suggest_cycle_breaks` MCP tool
+
+New tool that recommends which dependency edges to remove to break circular dependencies. Uses a greedy minimum feedback arc set (MFAS) heuristic based on Eades, Lin & Smyth (1993). Each suggestion includes a cost score, blast radius of the target, instability of the source, and an estimate of how many cycles would be broken.
+
+```
+Agent: suggest_cycle_breaks()
+  → { total_cycles: 3, min_removals: 2, suggestions: [
+        { from: "src/app/server.rs", to: "src/core/types.rs", cost: 0.23,
+          impact: { cycles_broken: 2, remaining: 1 } }, ...] }
+```
+
+### Diagnostics ungated
+
+Root-cause diagnostics in the `health` tool (god files, hotspots, unstable modules, complex functions, dead code, duplicates) are now included for all users — no longer gated behind Pro.
 
 ---
 

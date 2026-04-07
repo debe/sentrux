@@ -102,7 +102,7 @@ pub fn health_def() -> ToolDef {
     }
 }
 
-fn handle_health(_args: &Value, tier: &Tier, state: &mut McpState) -> Result<Value, String> {
+fn handle_health(_args: &Value, _tier: &Tier, state: &mut McpState) -> Result<Value, String> {
     let h = state.cached_health.as_ref().ok_or("No scan data. Call 'scan' first.")?;
     let rc = &h.root_cause_scores;
     let raw = &h.root_cause_raw;
@@ -134,37 +134,32 @@ fn handle_health(_args: &Value, tier: &Tier, state: &mut McpState) -> Result<Val
         "cross_module_edges": h.cross_module_edges
     });
 
-    // Pro: root-cause-organized diagnostics. Tells AI WHERE to focus for each root cause.
-    if crate::pro_registry::has(crate::pro_registry::ProFeature::McpDiagnostics) {
-        result["diagnostics"] = json!({
-            "modularity": {
-                "god_files": h.god_files.iter().map(|f| json!({"path": f.path, "fan_out": f.value})).collect::<Vec<_>>(),
-                "hotspot_files": h.hotspot_files.iter().map(|f| json!({"path": f.path, "fan_in": f.value})).collect::<Vec<_>>(),
-                "most_unstable": h.most_unstable.iter().take(10).map(|m| json!({"path": m.path, "instability": m.instability, "fan_in": m.fan_in, "fan_out": m.fan_out})).collect::<Vec<_>>(),
-            },
-            "acyclicity": {
-                "cycles": h.circular_dep_files.iter().collect::<Vec<_>>(),
-            },
-            "depth": {
-                "max_depth": h.max_depth,
-            },
-            "equality": {
-                "complex_functions": h.complex_functions.iter().take(20).map(|f| json!({"file": f.file, "func": f.func, "cc": f.value})).collect::<Vec<_>>(),
-                "cog_complex_functions": h.cog_complex_functions.iter().take(20).map(|f| json!({"file": f.file, "func": f.func, "cog": f.value})).collect::<Vec<_>>(),
-                "long_functions": h.long_functions.iter().take(20).map(|f| json!({"file": f.file, "func": f.func, "lines": f.value})).collect::<Vec<_>>(),
-                "large_files": h.long_files.iter().take(10).map(|f| json!({"path": f.path, "lines": f.value})).collect::<Vec<_>>(),
-                "high_param_functions": h.high_param_functions.iter().take(20).map(|f| json!({"file": f.file, "func": f.func, "params": f.value})).collect::<Vec<_>>(),
-            },
-            "redundancy": {
-                "dead_functions": h.dead_functions.iter().take(50).map(|f| json!({"file": f.file, "func": f.func, "lines": f.value})).collect::<Vec<_>>(),
-                "duplicate_groups": h.duplicate_groups.iter().take(20).map(|g| json!({"instances": g.instances.iter().map(|(file, func, lines)| json!({"file": file, "func": func, "lines": lines})).collect::<Vec<_>>()})).collect::<Vec<_>>(),
-            },
-        });
-    } else {
-        result["upgrade"] = json!({
-            "message": "Upgrade to Pro for root-cause diagnostics: https://github.com/sentrux/sentrux"
-        });
-    }
+    // Root-cause-organized diagnostics — always included (ungated).
+    // Tells AI WHERE to focus for each root cause.
+    result["diagnostics"] = json!({
+        "modularity": {
+            "god_files": h.god_files.iter().map(|f| json!({"path": f.path, "fan_out": f.value})).collect::<Vec<_>>(),
+            "hotspot_files": h.hotspot_files.iter().map(|f| json!({"path": f.path, "fan_in": f.value})).collect::<Vec<_>>(),
+            "most_unstable": h.most_unstable.iter().take(10).map(|m| json!({"path": m.path, "instability": m.instability, "fan_in": m.fan_in, "fan_out": m.fan_out})).collect::<Vec<_>>(),
+        },
+        "acyclicity": {
+            "cycles": h.circular_dep_files.iter().collect::<Vec<_>>(),
+        },
+        "depth": {
+            "max_depth": h.max_depth,
+        },
+        "equality": {
+            "complex_functions": h.complex_functions.iter().take(20).map(|f| json!({"file": f.file, "func": f.func, "cc": f.value})).collect::<Vec<_>>(),
+            "cog_complex_functions": h.cog_complex_functions.iter().take(20).map(|f| json!({"file": f.file, "func": f.func, "cog": f.value})).collect::<Vec<_>>(),
+            "long_functions": h.long_functions.iter().take(20).map(|f| json!({"file": f.file, "func": f.func, "lines": f.value})).collect::<Vec<_>>(),
+            "large_files": h.long_files.iter().take(10).map(|f| json!({"path": f.path, "lines": f.value})).collect::<Vec<_>>(),
+            "high_param_functions": h.high_param_functions.iter().take(20).map(|f| json!({"file": f.file, "func": f.func, "params": f.value})).collect::<Vec<_>>(),
+        },
+        "redundancy": {
+            "dead_functions": h.dead_functions.iter().take(50).map(|f| json!({"file": f.file, "func": f.func, "lines": f.value})).collect::<Vec<_>>(),
+            "duplicate_groups": h.duplicate_groups.iter().take(20).map(|g| json!({"instances": g.instances.iter().map(|(file, func, lines)| json!({"file": file, "func": func, "lines": lines})).collect::<Vec<_>>()})).collect::<Vec<_>>(),
+        },
+    });
 
     Ok(result)
 }
@@ -289,37 +284,21 @@ pub fn check_rules_def() -> ToolDef {
     }
 }
 
-fn handle_check_rules(_args: &Value, tier: &Tier, state: &mut McpState) -> Result<Value, String> {
+fn handle_check_rules(_args: &Value, _tier: &Tier, state: &mut McpState) -> Result<Value, String> {
     let root = state.scan_root.as_ref().ok_or("No scan root. Call 'scan' first.")?;
     let h = state.cached_health.as_ref().ok_or("No scan data. Call 'scan' first.")?;
     let a = state.cached_arch.as_ref().ok_or("No scan data. Call 'scan' first.")?;
     let snap = state.cached_snapshot.as_ref().ok_or("No scan data. Call 'scan' first.")?;
 
-    let mut config = crate::metrics::rules::RulesConfig::try_load(root)
+    let config = crate::metrics::rules::RulesConfig::try_load(root)
         .ok_or_else(|| format!(
             "No rules file found at {}/.sentrux/rules.toml. Create one to define architectural constraints.",
             root.display()
         ))?;
 
-    // Free tier: max 3 rules (constraints count as 1 if any thresholds set,
-    // plus layers and boundaries each count as 1 rule).
-    let total_rules = config.constraints.count_active()
-        + config.layers.len()
-        + config.boundaries.len();
-    let truncated = if !crate::pro_registry::has(crate::pro_registry::ProFeature::UnlimitedRules) && total_rules > 3 {
-        // Keep constraints (1 rule) + first 2 of layers/boundaries
-        let mut remaining = 3usize.saturating_sub(if config.constraints.count_active() > 0 { 1 } else { 0 });
-        config.layers.truncate(remaining.min(config.layers.len()));
-        remaining = remaining.saturating_sub(config.layers.len());
-        config.boundaries.truncate(remaining.min(config.boundaries.len()));
-        true
-    } else {
-        false
-    };
-
     let result = crate::metrics::rules::check_rules(&config, h, a, &snap.import_graph);
 
-    let mut response = json!({
+    Ok(json!({
         "pass": result.passed,
         "rules_checked": result.rules_checked,
         "violation_count": result.violations.len(),
@@ -331,13 +310,77 @@ fn handle_check_rules(_args: &Value, tier: &Tier, state: &mut McpState) -> Resul
         })).collect::<Vec<_>>(),
         "summary": if result.passed { "✓ All architectural rules pass" }
             else { "✗ Architectural rule violations detected" }
-    });
-    if truncated {
-        response["truncated"] = json!({
-            "total_rules_defined": total_rules,
-            "rules_checked": result.rules_checked,
-            "message": "Checking up to 3 rules. More available with sentrux Pro: https://github.com/sentrux/sentrux"
-        });
+    }))
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  SUGGEST CYCLE BREAKS (MFAS)
+// ══════════════════════════════════════════════════════════════════
+
+pub fn suggest_cycle_breaks_def() -> ToolDef {
+    ToolDef {
+        name: "suggest_cycle_breaks",
+        description: "Suggest which dependency edges to remove to break circular dependencies. \
+            Returns ranked suggestions with cost analysis and impact estimates (blast radius, instability). \
+            Uses greedy minimum feedback arc set heuristic.",
+        input_schema: json!({
+            "type": "object",
+            "properties": {
+                "max_suggestions": {
+                    "type": "integer",
+                    "description": "Maximum number of suggestions to return (default: 10)",
+                    "default": 10
+                }
+            }
+        }),
+        min_tier: Tier::Free,
+        handler: handle_suggest_cycle_breaks,
+        invalidates_evolution: false,
     }
-    Ok(response)
+}
+
+fn handle_suggest_cycle_breaks(args: &Value, _tier: &Tier, state: &mut McpState) -> Result<Value, String> {
+    let h = state.cached_health.as_ref().ok_or("No scan data. Call 'scan' first.")?;
+    let snap = state.cached_snapshot.as_ref().ok_or("No scan data. Call 'scan' first.")?;
+
+    if h.circular_dep_files.is_empty() {
+        return Ok(json!({
+            "total_cycles": 0,
+            "message": "No circular dependencies found. Architecture is acyclic."
+        }));
+    }
+
+    let max_suggestions = args
+        .get("max_suggestions")
+        .and_then(|v| v.as_u64())
+        .unwrap_or(10) as usize;
+
+    // Filter mod-declaration edges (consistent with health computation)
+    let dep_edges: Vec<crate::core::types::ImportEdge> = snap.import_graph.iter()
+        .filter(|e| !crate::metrics::types::is_mod_declaration_edge(e))
+        .cloned()
+        .collect();
+
+    let report = crate::metrics::cycle_break::suggest_cycle_breaks(
+        &dep_edges,
+        &h.circular_dep_files,
+        max_suggestions,
+    );
+
+    Ok(json!({
+        "total_cycles": report.total_cycles,
+        "min_removals": report.min_removals,
+        "suggestions": report.suggestions.iter().map(|s| json!({
+            "from_file": s.from_file,
+            "to_file": s.to_file,
+            "cost_score": (s.cost_score * 100.0).round() / 100.0,
+            "reason": s.reason,
+            "impact": {
+                "cycles_broken": s.impact.cycles_broken,
+                "target_blast_radius": s.impact.target_blast_radius,
+                "source_instability": (s.impact.source_instability * 100.0).round() / 100.0,
+                "remaining_cycles": s.impact.remaining_cycles
+            }
+        })).collect::<Vec<_>>()
+    }))
 }

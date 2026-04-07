@@ -4,4 +4,5 @@
 //! JS/TS path aliases (tsconfig.json) handled via plugin-declared config.
 
 pub mod helpers;
+pub mod jdeps;
 pub mod suffix;
